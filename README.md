@@ -38,7 +38,7 @@ $ bundle exec rake install:local
 
 ## [Using](#contents)
 
-TODO: using...
+TODO: update README Using section
 
 ## [Hacking](#contents)
 
@@ -46,6 +46,18 @@ TODO: using...
 $ git clone 'https://github.com/esotericpig/nhkore.git'
 $ bundle install
 $ bundle exec rake -T
+```
+
+### Testing
+
+```
+$ bundle exec rake test
+```
+
+### Generating Documentation
+
+```
+$ bundle exec rake doc
 ```
 
 ## [License](#contents)
