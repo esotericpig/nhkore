@@ -33,7 +33,7 @@ module NHKore
   class NHKNewsWebEasy
     DEFAULT_FILE = 'nhk_news_web_easy.yml'
     
-    attr_accessor :articles
+    attr_reader :articles
     
     def initialize()
       super()
@@ -59,7 +59,12 @@ module NHKore
       
       nhk_news = NHKNewsWebEasy.new()
       
-      nhk_news.articles = articles unless articles.nil?()
+      if !articles.nil?()
+        articles.each() do |key,article_hash|
+          key = key.to_s() # Change from a symbol
+          nhk_news.articles[key] = Article.load_hash(key,article_hash)
+        end
+      end
       
       return nhk_news
     end
@@ -78,8 +83,9 @@ module NHKore
     
     def to_s()
       return Psychgus.dump(self,stylers: [
-        Psychgus::NoSymStyler.new(cap: false),
-        Psychgus::NoTagStyler.new()
+        Psychgus::FlowStyler.new(8), # Put each Word on one line (flow/inline style)
+        Psychgus::NoSymStyler.new(cap: false), # Remove symbols, don't capitalize
+        Psychgus::NoTagStyler.new() # Remove class names (tags)
       ])
     end
   end
