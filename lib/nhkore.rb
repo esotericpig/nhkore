@@ -29,13 +29,11 @@ if IS_TESTING
 end
 
 require 'nhkore/article'
+require 'nhkore/nhk_news_web_easy'
 require 'nhkore/util'
 require 'nhkore/version'
 require 'nhkore/word'
 
-
-require 'nokogiri'
-require 'psychgus'
 
 # 2 files:
 # nhk_news_web_easy.yml
@@ -59,26 +57,13 @@ require 'psychgus'
 # nhkore --date '12'    (12 of this year and month)
 # nhkore --date '12-01' (Dec 1 of this year)
 
-hash = {
-  datetime: '2020-02-25',
-  futsuurl: 'google.com',
-  sha256: '82a47a2bd57b433f4c21adc0ce44424a46250663e9dee702331005f42050e84f',
-  words: {
-    '日本語=にほんご' => {
-      kana: 'にほんご',
-      kanji: '日本語',
-      freq: 101
-    },
-    '=バナナ' => {
-      kana: 'バナナ',
-      kanji: nil,
-      freq: 11
-    }
-  }
-}
+# Need cleanup methods (optional to run), or maybe just 1 super method for speed:
+# 1) Check if sha256 hexes are same (in case of URL shortening, etc.) since use google.
+# 2) Check if a Kanji (no Kana) matches to a Kanji (with Kana).
+# 3) Check if a Kana (no Kanji) matches to a Kana (with a Kanji).
 
-a = NHKore::Article.load_hash('google.jp',hash)
-puts a.to_s
+#n = NHKore::NHKNewsWebEasy.load_file()
+#puts n
 
 ###
 # @author Jonathan Bradley Whited (@esotericpig)
