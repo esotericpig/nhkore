@@ -71,7 +71,13 @@ require 'nhkore/word'
 module NHKore
 end
 
+require 'nokogiri'
+require 'open-uri'
+
+# https://www.scraperapi.com/blog/5-tips-for-web-scraping
+# https://httpbin.org/anything
+# https://towardsdatascience.com/5-strategies-to-write-unblock-able-web-scrapers-in-python-5e40c147bdaf
+
 # https://www3.nhk.or.jp/news/easy
-# https://www.google.com/search?q=site:https://www3.nhk.or.jp/news/easy/&tbas=0&tbs=cdr:1,cd_min:1/1/2019,cd_max:12/31/2019,sbd:1&tbm=nws&sxsrf=ALeKk01oebeT0hWvNro-vDn7WGYkRe0kxw:1582396168988&ei=CHNRXt7dO5KR0QSTnZGYCw&start=20&sa=N&ved=0ahUKEwjega-M5eXnAhWSSJQKHZNOBLM4ChDy0wMIag&biw=1028&bih=672&dpr=1.3
 
 #NHKore::App.new().run() if IS_TESTING
