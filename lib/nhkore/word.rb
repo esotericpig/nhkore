@@ -21,6 +21,9 @@
 #++
 
 
+require 'nhkore/util'
+
+
 module NHKore
   ###
   # @author Jonathan Bradley Whited (@esotericpig)
@@ -29,49 +32,53 @@ module NHKore
   class Word
     attr_accessor :freq
     attr_reader :kana
-    attr_reader :word
+    attr_reader :kanji
+    attr_reader :key
     
-    def initialize(word=nil,freq: 1,kana: nil,**kargs)
+    def initialize(freq: 1,kana: nil,kanji: nil,**kargs)
       super()
+      
+      kana = nil if Util.str_empty?(kana)
+      kanji = nil if Util.str_empty?(kanji)
+      
+      raise ArgumentError,'kanji and kana cannot both be empty' if kana.nil?() && kanji.nil?()
       
       @freq = freq
       @kana = kana
-      @word = word.nil?() ? kana : word
-      
-      raise ArgumentError,'word and kana cannot both be nil; one must be specified' if @word.nil?()
+      @kanji = kanji
+      @key = "#{kanji}=#{kana}" # nil.to_s() is ''
     end
     
     def encode_with(coder)
-      # Ignore @word because it will be the key in the YAML/Hash.
+      # Ignore @key because it will be the key in the YAML/Hash.
       # Order matters.
+      
+      coder[:kanji] = @kanji
       coder[:kana] = @kana
       coder[:freq] = @freq
     end
     
     def self.load_hash(key,hash)
-      word = Word.new(key,kana: hash[:kana])
+      word = Word.new(kana: hash[:kana],kanji: hash[:kanji])
       
-      freq = hash[:freq].to_i() # nil is okay
-      word.freq = freq if freq >= 0
+      if key != word.key
+        raise ArgumentError,"the key from the hash [#{key}] does not match the generated key [#{word.key}]"
+      end
+      
+      freq = hash[:freq].to_i() # nil.to_i() is 0
+      word.freq = freq if freq > 0
       
       return word
-    end
-    
-    def kanji?()
-      return @word != @kana
-    end
-    
-    def no_kanji?()
-      return !kanji?()
     end
     
     def to_s()
       s = ''.dup()
       
-      s << @word
-      s << " | kana: #{@kana}"
-      s << " | freq: #{@freq}"
-      s << " | kanji? #{kanji?() ? 'yes' : 'no'}"
+      s << "#{@key}: "
+      s << "{ kanji=>#{@kanji}"
+      s << ", kana=>#{@kana}"
+      s << ", freq=>#{@freq}"
+      s << ' }'
       
       return s
     end
