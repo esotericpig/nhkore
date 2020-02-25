@@ -57,13 +57,12 @@ require 'nhkore/word'
 # nhkore --date '12'    (12 of this year and month)
 # nhkore --date '12-01' (Dec 1 of this year)
 
-# Need cleanup methods (optional to run), or maybe just 1 super method for speed:
+# Need cleanup methods (optional to run), or maybe just 1 super method for speed.
+# - For speed, O(N) to put all data in a new hash.
+#   Then O(N+M) to run through again, where M is hash lookup.
 # 1) Check if sha256 hexes are same (in case of URL shortening, etc.) since use google.
 # 2) Check if a Kanji (no Kana) matches to a Kanji (with Kana).
 # 3) Check if a Kana (no Kanji) matches to a Kana (with a Kanji).
-
-#n = NHKore::NHKNewsWebEasy.load_file()
-#puts n
 
 ###
 # @author Jonathan Bradley Whited (@esotericpig)
