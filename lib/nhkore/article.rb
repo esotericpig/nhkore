@@ -21,11 +21,11 @@
 #++
 
 
-require 'date'
+require 'time'
 require 'nhkore/word'
+require 'nhkore/util'
 
 
-# TODO: parse datetime
 module NHKore
   ###
   # @author Jonathan Bradley Whited (@esotericpig)
@@ -52,21 +52,22 @@ module NHKore
       # Ignore @url because it will be the key in the YAML/Hash.
       # Order matters.
       
-      coder[:datetime] = @datetime
+      coder[:datetime] = @datetime.nil?() ? @datetime : @datetime.iso8601()
       coder[:futsuurl] = @futsuurl
       coder[:sha256] = @sha256
       coder[:words] = @words
     end
     
     def self.load_hash(key,hash)
+      datetime = hash[:datetime]
+      words = hash[:words]
+      
       article = Article.new()
       
-      article.datetime = hash[:datetime]
+      article.datetime = Util.str_empty?(datetime) ? nil : Time.iso8601(datetime)
       article.futsuurl = hash[:futsuurl]
       article.sha256 = hash[:sha256]
       article.url = key
-      
-      words = hash[:words]
       
       if !words.nil?()
         words.each() do |key,word_hash|
