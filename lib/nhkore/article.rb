@@ -36,7 +36,7 @@ module NHKore
     attr_accessor :futsuurl
     attr_accessor :sha256
     attr_accessor :url
-    attr_accessor :words
+    attr_reader :words
     
     def initialize()
       super()
@@ -67,10 +67,11 @@ module NHKore
       article.datetime = Util.str_empty?(datetime) ? nil : Time.iso8601(datetime)
       article.futsuurl = hash[:futsuurl]
       article.sha256 = hash[:sha256]
-      article.url = key
+      article.url = key.nil?() ? key : key.to_s() # Don't want "" or a symbol
       
       if !words.nil?()
         words.each() do |key,word_hash|
+          key = key.to_s() # Change from a symbol
           article.words[key] = Word.load_hash(key,word_hash)
         end
       end

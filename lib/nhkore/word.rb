@@ -59,6 +59,8 @@ module NHKore
     end
     
     def self.load_hash(key,hash)
+      key = key.to_s() # Change from a symbol
+      
       word = Word.new(kana: hash[:kana],kanji: hash[:kanji])
       
       if key != word.key
