@@ -22,8 +22,8 @@
 
 
 require 'time'
-require 'nhkore/word'
 require 'nhkore/util'
+require 'nhkore/word'
 
 
 module NHKore
