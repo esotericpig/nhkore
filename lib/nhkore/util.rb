@@ -27,6 +27,8 @@ module NHKore
   # @since  0.2.0
   ###
   module Util
+    JST_OFFSET = '+09:00' # Japan Standard Time (JST) time zone offset from UTC
+    
     def self.str_empty?(str)
       return str.nil?() || str_unspace(str).empty?()
     end
