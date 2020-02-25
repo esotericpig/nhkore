@@ -28,6 +28,8 @@ if IS_TESTING
   require 'bundler/setup'
 end
 
+require 'nhkore/article'
+require 'nhkore/util'
 require 'nhkore/version'
 require 'nhkore/word'
 
@@ -42,6 +44,7 @@ require 'psychgus'
 # - 2019-12-25 13:10 JST: (append 1,2,... if duplicate)
 #   - url: <url>
 #   - md5: <md5sum of content only (in case of ads)>
+#   - futsuurl: <url of actual news>
 #   - words:
 #     - word (kanji/kana):
 #       - kana:
@@ -51,21 +54,31 @@ require 'psychgus'
 #   word, kana, freq
 #   (sorted by freq, word, or kana [desc/asc])
 
-# nhkore --date '2019-12-01...2019-12-11'
+# nhkore --date '2019-12-01 13:10 #2...2019-12-11 10:10 #2'
 # nhkore --date '2019-12'
-# nhkore --date '12'    (Dec of this year)
+# nhkore --date '12'    (12 of this year and month)
 # nhkore --date '12-01' (Dec 1 of this year)
 
-class Article
-  attr_accessor :datetime
-  attr_accessor :futsuu_url
-  attr_accessor :md5
-  attr_accessor :url
-  attr_accessor :words
-end
+hash = {
+  datetime: '2020-02-25',
+  futsuurl: 'google.com',
+  sha256: '82a47a2bd57b433f4c21adc0ce44424a46250663e9dee702331005f42050e84f',
+  words: {
+    '日本語=にほんご' => {
+      kana: 'にほんご',
+      kanji: '日本語',
+      freq: 101
+    },
+    '=バナナ' => {
+      kana: 'バナナ',
+      kanji: nil,
+      freq: 11
+    }
+  }
+}
 
-word = NHKore::Word.new(kana: 'banana')
-puts word.to_yaml
+a = NHKore::Article.load_hash('google.jp',hash)
+puts a.to_s
 
 ###
 # @author Jonathan Bradley Whited (@esotericpig)
