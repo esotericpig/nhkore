@@ -48,6 +48,16 @@ module NHKore
   # @author Jonathan Bradley Whited (@esotericpig)
   # @since  0.2.0
   ###
+  class BasicSplitter < Splitter
+    def end_split(str)
+      return str.split(/[^[[:alpha:]]]+/)
+    end
+  end
+  
+  ###
+  # @author Jonathan Bradley Whited (@esotericpig)
+  # @since  0.2.0
+  ###
   class BestSplitter < Splitter
     attr_accessor :bimyou
     attr_accessor :tiny
