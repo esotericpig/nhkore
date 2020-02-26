@@ -52,8 +52,15 @@ module NHKore
     JST_YEAR = JST_NOW.year
     MAX_SANE_YEAR = JST_YEAR + 1 # +1 Justin Case for time zone differences at the end of the year
     
-    def self.empty_str?(str)
-      return str.nil?() || unspace_str(str).empty?()
+    def self.clean_japanese_str(str)
+      # Do not strip; use a Japanese space (must be double-quoted for escape chars)
+      str = str.gsub(/[[:space:]]+/,"\u3000")
+      
+      return str
+    end
+    
+    def self.empty_web_str?(str)
+      return str.nil?() || strip_web_str(str).empty?()
     end
     
     def self.sane_year?(year)
@@ -62,7 +69,7 @@ module NHKore
     end
     
     # String's normal strip() method doesn't work with special Unicode/HTML white space.
-    def self.strip_str(str)
+    def self.strip_web_str(str)
       # I wonder if this is faster as one regex? /(\A[[:space:]]+)|([[:space:]]+\z)/
       
       str = str.gsub(/\A[[:space:]]+/,'')
@@ -71,7 +78,7 @@ module NHKore
       return str
     end
     
-    def self.unspace_str(str)
+    def self.unspace_web_str(str)
       return str.gsub(/[[:space:]]+/,'')
     end
   end

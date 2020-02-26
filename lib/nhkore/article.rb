@@ -50,6 +50,19 @@ module NHKore
       @words = {}
     end
     
+    def add_word(word)
+      curr_word = words[word.key]
+      
+      if curr_word.nil?()
+        words[word.key] = word
+        curr_word = word
+      else
+        curr_word.freq += 1
+      end
+      
+      return curr_word
+    end
+    
     def encode_with(coder)
       # Ignore @url because it will be the key in the YAML/Hash.
       # Order matters.
@@ -67,7 +80,7 @@ module NHKore
       
       article = Article.new()
       
-      article.datetime = Util.empty_str?(datetime) ? nil : Time.iso8601(datetime)
+      article.datetime = Util.empty_web_str?(datetime) ? nil : Time.iso8601(datetime)
       article.futsuurl = hash[:futsuurl]
       article.sha256 = hash[:sha256]
       article.title = hash[:title]
