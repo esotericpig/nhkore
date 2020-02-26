@@ -35,6 +35,7 @@ module NHKore
     attr_accessor :datetime
     attr_accessor :futsuurl
     attr_accessor :sha256
+    attr_accessor :title
     attr_accessor :url
     attr_reader :words
     
@@ -44,6 +45,7 @@ module NHKore
       @datetime = nil
       @futsuurl = nil
       @sha256 = nil
+      @title = nil
       @url = nil
       @words = {}
     end
@@ -53,6 +55,7 @@ module NHKore
       # Order matters.
       
       coder[:datetime] = @datetime.nil?() ? @datetime : @datetime.iso8601()
+      coder[:title] = @title
       coder[:futsuurl] = @futsuurl
       coder[:sha256] = @sha256
       coder[:words] = @words
@@ -67,6 +70,7 @@ module NHKore
       article.datetime = Util.empty_str?(datetime) ? nil : Time.iso8601(datetime)
       article.futsuurl = hash[:futsuurl]
       article.sha256 = hash[:sha256]
+      article.title = hash[:title]
       article.url = key.nil?() ? key : key.to_s() # Don't want "" or a symbol
       
       if !words.nil?()
@@ -84,6 +88,7 @@ module NHKore
       
       s << "#{@url}:"
       s << "\n  datetime: #{@datetime}"
+      s << "\n  title:    #{@title}"
       s << "\n  futsuurl: #{@futsuurl}"
       s << "\n  sha256:   #{@sha256}"
       
