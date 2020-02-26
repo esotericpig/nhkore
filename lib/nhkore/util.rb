@@ -61,6 +61,16 @@ module NHKore
       return year >= 1900 && year <= MAX_SANE_YEAR
     end
     
+    # String's normal strip() method doesn't work with special Unicode/HTML white space.
+    def self.strip_str(str)
+      # I wonder if this is faster as one regex? /(\A[[:space:]]+)|([[:space:]]+\z)/
+      
+      str = str.gsub(/\A[[:space:]]+/,'')
+      str = str.gsub(/[[:space:]]+\z/,'')
+      
+      return str
+    end
+    
     def self.unspace_str(str)
       return str.gsub(/[[:space:]]+/,'')
     end
