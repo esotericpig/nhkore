@@ -30,12 +30,14 @@ module NHKore
   # @since  0.1.0
   ###
   class Word
+    attr_accessor :eng
     attr_accessor :freq
     attr_reader :kana
     attr_reader :kanji
     attr_reader :key
+    attr_accessor :mean
     
-    def initialize(freq: 1,kana: nil,kanji: nil,**kargs)
+    def initialize(eng: nil,freq: 1,kana: nil,kanji: nil,mean: nil,**kargs)
       super()
       
       kana = nil if Util.empty_str?(kana)
@@ -43,10 +45,12 @@ module NHKore
       
       raise ArgumentError,'kanji and kana cannot both be empty' if kana.nil?() && kanji.nil?()
       
+      @eng = eng
       @freq = freq
       @kana = kana
       @kanji = kanji
       @key = "#{kanji}=#{kana}" # nil.to_s() is ''
+      @mean = mean
     end
     
     def encode_with(coder)
@@ -56,12 +60,19 @@ module NHKore
       coder[:kanji] = @kanji
       coder[:kana] = @kana
       coder[:freq] = @freq
+      coder[:mean] = @mean
+      coder[:eng] = @eng
     end
     
     def self.load_hash(key,hash)
       key = key.to_s() # Change from a symbol
       
-      word = Word.new(kana: hash[:kana],kanji: hash[:kanji])
+      word = Word.new(
+        eng: hash[:eng],
+        kana: hash[:kana],
+        kanji: hash[:kanji],
+        mean: hash[:mean]
+      )
       
       if key != word.key
         raise ArgumentError,"the key from the hash [#{key}] does not match the generated key [#{word.key}]"
@@ -73,6 +84,10 @@ module NHKore
       return word
     end
     
+    def word()
+      return @kanji.nil?() ? @kana : @kanji
+    end
+    
     def to_s()
       s = ''.dup()
       
@@ -80,6 +95,8 @@ module NHKore
       s << "{ kanji=>#{@kanji}"
       s << ", kana=>#{@kana}"
       s << ", freq=>#{@freq}"
+      s << ", mean=>#{@mean}"
+      s << ", eng=>#{@eng}"
       s << ' }'
       
       return s
