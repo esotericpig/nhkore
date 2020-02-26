@@ -57,9 +57,12 @@ Gem::Specification.new() do |spec|
   
   spec.requirements << 'Nokogiri: https://www.nokogiri.org/tutorials/installing_nokogiri.html'
   
-  spec.add_runtime_dependency 'commander','~> 4.5'  # For CLI
-  spec.add_runtime_dependency 'nokogiri' ,'~> 1.10' # For scraping/hacking
-  spec.add_runtime_dependency 'psychgus' ,'~> 1.2'  # For styling Psych YAML
+  spec.add_runtime_dependency 'bimyou_segmenter'    ,'~> 1.2'  # For splitting Japanese sentences into words
+  spec.add_runtime_dependency 'commander'           ,'~> 4.5'  # For CLI
+  spec.add_runtime_dependency 'japanese_deinflector','~> 0.0'  # For unconjugating Japanese words (plain/dictionary form)
+  spec.add_runtime_dependency 'nokogiri'            ,'~> 1.10' # For scraping/hacking
+  spec.add_runtime_dependency 'psychgus'            ,'~> 1.2'  # For styling Psych YAML
+  spec.add_runtime_dependency 'tiny_segmenter'      ,'~> 0.0'  # For splitting Japanese sentences into words
   
   spec.add_development_dependency 'bundler'   ,'~> 2.1'
   spec.add_development_dependency 'minitest'  ,'~> 5.14'
