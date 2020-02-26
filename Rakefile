@@ -22,6 +22,7 @@
 
 require 'bundler/gem_tasks'
 
+require 'nhkore/util'
 require 'nhkore/version'
 require 'rake/clean'
 require 'rake/testtask'
@@ -32,10 +33,9 @@ require 'yard'
 require 'yard_ghurt'
 
 
-CORE_DIR = 'core'
 PKG_DIR = 'pkg'
 
-CLEAN.exclude('.git/','stock/',File.join(CORE_DIR,''))
+CLEAN.exclude('.git/','stock/')
 CLOBBER.include('doc/',File.join(PKG_DIR,''))
 
 
@@ -45,9 +45,9 @@ desc 'Generate documentation (YARDoc)'
 task :doc => [:yard,:yard_gfm_fix] do |task|
 end
 
-desc "Package '#{File.join(CORE_DIR,'')}' data as a Zip file into '#{File.join(PKG_DIR,'')}'"
+desc "Package '#{File.join(NHKore::Util::CORE_DIR,'')}' data as a Zip file into '#{File.join(PKG_DIR,'')}'"
 task :pkg_core do |task|
-  pattern = File.join(CORE_DIR,'**','*.{csv,yml}')
+  pattern = File.join(NHKore::Util::CORE_DIR,'**','*.{csv,yml}')
   zip_name = "nhkore-core-#{NHKore::VERSION}.zip"
   zip_file = File.join(PKG_DIR,zip_name)
   
