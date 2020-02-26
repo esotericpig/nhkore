@@ -22,6 +22,7 @@
 
 
 require 'psychgus'
+require 'nhkore/article'
 require 'nhkore/util'
 
 
