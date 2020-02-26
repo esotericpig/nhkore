@@ -38,8 +38,8 @@ module NHKore
     def initialize(freq: 1,kana: nil,kanji: nil,**kargs)
       super()
       
-      kana = nil if Util.str_empty?(kana)
-      kanji = nil if Util.str_empty?(kanji)
+      kana = nil if Util.empty_str?(kana)
+      kanji = nil if Util.empty_str?(kanji)
       
       raise ArgumentError,'kanji and kana cannot both be empty' if kana.nil?() && kanji.nil?()
       

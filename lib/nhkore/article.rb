@@ -64,7 +64,7 @@ module NHKore
       
       article = Article.new()
       
-      article.datetime = Util.str_empty?(datetime) ? nil : Time.iso8601(datetime)
+      article.datetime = Util.empty_str?(datetime) ? nil : Time.iso8601(datetime)
       article.futsuurl = hash[:futsuurl]
       article.sha256 = hash[:sha256]
       article.url = key.nil?() ? key : key.to_s() # Don't want "" or a symbol

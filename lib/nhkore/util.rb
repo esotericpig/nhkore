@@ -21,6 +21,9 @@
 #++
 
 
+require 'time'
+
+
 module NHKore
   ###
   # @author Jonathan Bradley Whited (@esotericpig)
@@ -28,13 +31,37 @@ module NHKore
   ###
   module Util
     CORE_DIR = 'core'
-    JST_OFFSET = '+09:00' # Japan Standard Time (JST) time zone offset from UTC
+    WEB_DIR = 'web'
     
-    def self.str_empty?(str)
-      return str.nil?() || str_unspace(str).empty?()
+    JST_OFFSET = '+09:00' # Japan Standard Time (JST) time zone offset from UTC
+    JST_OFFSET_HOUR = 9
+    JST_OFFSET_MIN = 0
+    
+    def self.jst_now()
+      now = Time.now().getutc()
+      
+      now += JST_OFFSET_HOUR * 60 * 60
+      now += JST_OFFSET_MIN * 60
+      
+      now = Time.new(now.year,now.month,now.day,now.hour,now.min,now.sec,JST_OFFSET)
+      
+      return now
     end
     
-    def self.str_unspace(str)
+    JST_NOW = jst_now()
+    JST_YEAR = JST_NOW.year
+    MAX_SANE_YEAR = JST_YEAR + 1 # +1 Justin Case for time zone differences at the end of the year
+    
+    def self.empty_str?(str)
+      return str.nil?() || unspace_str(str).empty?()
+    end
+    
+    def self.sane_year?(year)
+      # A reasonable year should probably be from when NHK's website was made instead of 1900?
+      return year >= 1900 && year <= MAX_SANE_YEAR
+    end
+    
+    def self.unspace_str(str)
       return str.gsub(/[[:space:]]+/,'')
     end
   end
