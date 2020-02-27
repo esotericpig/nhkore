@@ -52,15 +52,13 @@ module NHKore
     JST_YEAR = JST_NOW.year
     MAX_SANE_YEAR = JST_YEAR + 1 # +1 Justin Case for time zone differences at the end of the year
     
-    def self.clean_japanese_str(str)
-      # Do not strip; use a Japanese space (must be double-quoted for escape chars)
-      str = str.gsub(/[[:space:]]+/,"\u3000")
-      
-      return str
-    end
-    
     def self.empty_web_str?(str)
       return str.nil?() || strip_web_str(str).empty?()
+    end
+    
+    def self.reduce_jpn_space(str)
+      # Do not strip; use a Japanese space (must be double-quoted for escape chars)
+      return str.gsub(/[[:space:]]+/,"\u3000")
     end
     
     def self.sane_year?(year)
