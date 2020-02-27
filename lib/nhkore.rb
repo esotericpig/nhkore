@@ -28,8 +28,15 @@ if IS_TESTING
   require 'bundler/setup'
 end
 
+require 'commander'
 require 'nhkore/article'
+require 'nhkore/article_scraper'
+require 'nhkore/cleaner'
+require 'nhkore/error'
 require 'nhkore/nhk_news_web_easy'
+require 'nhkore/polisher'
+require 'nhkore/search_scraper'
+require 'nhkore/splitter'
 require 'nhkore/util'
 require 'nhkore/version'
 require 'nhkore/word'
@@ -60,7 +67,7 @@ require 'nhkore/word'
 # Need cleanup methods (optional to run), or maybe just 1 super method for speed.
 # - For speed, O(N) to put all data in a new hash.
 #   Then O(N+M) to run through again, where M is hash lookup.
-# 1) Check if sha256 hexes are same (in case of URL shortening, etc.) since use google.
+# 1) Check if sha256 hexes are same (in case of URL shortening, etc.) since use SE.
 # 2) Check if a Kanji (no Kana) matches to a Kanji (with Kana).
 # 3) Check if a Kana (no Kanji) matches to a Kana (with a Kanji).
 
@@ -71,13 +78,20 @@ require 'nhkore/word'
 module NHKore
 end
 
-require 'nokogiri'
-require 'open-uri'
+# BingScraper
+# - site:https://www3.nhk.or.jp/news/easy/
+#   - &count=100 for bing
+# - method to output search URL to download HTML if bad internet (or testing)
+#doc = File.open('web/nhk_news_web_easy_2019.html') { |f| Nokogiri::HTML(f) }
+#doc.css('a').each do |link|
+#  href = link['href']
+#  puts href if href =~ /\Ahttps?:\/\/www3.nhk.or.jp\/news\/easy\/k/i
+#end
 
-# https://www.scraperapi.com/blog/5-tips-for-web-scraping
-# https://httpbin.org/anything
-# https://towardsdatascience.com/5-strategies-to-write-unblock-able-web-scrapers-in-python-5e40c147bdaf
+url = 'https://www3.nhk.or.jp/news/easy/k10012294001000/k10012294001000.html'
+#url = 'stock/nhk_news_web_easy_test.html'
 
-# https://www3.nhk.or.jp/news/easy
+as = NHKore::ArticleScraper.new(url)
+#as.scrape_nhk_news_web_easy()
 
 #NHKore::App.new().run() if IS_TESTING
