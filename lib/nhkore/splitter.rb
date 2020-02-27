@@ -23,6 +23,7 @@
 
 require 'bimyou_segmenter'
 require 'tiny_segmenter'
+require 'nhkore/util'
 
 
 module NHKore
@@ -32,8 +33,8 @@ module NHKore
   ###
   class Splitter
     def begin_split(str)
-      # Clean the input
-      return str.gsub(/[[:space:]]+/,' ')
+      # Crudely clean the input
+      return Util.reduce_jpn_space(str)
     end
     
     def split(str)
@@ -51,30 +52,6 @@ module NHKore
   class BasicSplitter < Splitter
     def end_split(str)
       return str.split(/[^[[:alpha:]]]+/)
-    end
-  end
-  
-  ###
-  # @author Jonathan Bradley Whited (@esotericpig)
-  # @since  0.2.0
-  ###
-  class BestSplitter < Splitter
-    attr_accessor :bimyou
-    attr_accessor :tiny
-    
-    def initialize(*)
-      super
-      
-      @bimyou = BimyouSplitter.new()
-      @tiny = TinySplitter.new()
-    end
-    
-    def end_split(str)
-      bimyou_words = @bimyou.end_split(str)
-      tiny_words = @tiny.end_split(str)
-      
-      # Assume the best splitter breaks the sentence into more words
-      return (bimyou_words.length > tiny_words.length) ? bimyou_words : tiny_words
     end
   end
   
@@ -102,5 +79,12 @@ module NHKore
     def end_split(str)
       return @tiny.segment(str,ignore_punctuation: true)
     end
+  end
+  
+  ###
+  # @author Jonathan Bradley Whited (@esotericpig)
+  # @since  0.2.0
+  ###
+  class BestSplitter < BimyouSplitter
   end
 end
