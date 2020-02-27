@@ -21,7 +21,7 @@
 #++
 
 
-require 'japanese_deinflector'
+require 'nhkore/util'
 
 
 module NHKore
@@ -46,17 +46,10 @@ module NHKore
   # @author Jonathan Bradley Whited (@esotericpig)
   # @since  0.2.0
   ###
-  class BestCleaner < Cleaner
-    attr_accessor :form
-    
-    def initialize(*)
-      super
-      
-      @form = FormCleaner.new()
-    end
-    
+  class BasicCleaner < Cleaner
     def end_clean(str)
-      str = @form.end_clean(str)
+      str = Util.unspace_web_str(str)
+      str = str.gsub(/[[:digit:]]+/,'')
       
       return str
     end
@@ -66,34 +59,6 @@ module NHKore
   # @author Jonathan Bradley Whited (@esotericpig)
   # @since  0.2.0
   ###
-  class EmptyCleaner < Cleaner
-    def end_clean(str)
-      return str
-    end
-  end
-  
-  ###
-  # Guesses a word's dictionary/plain form (辞書形).
-  # It doesn't work very well...
-  # 
-  # @since  0.2.0
-  ###
-  class FormCleaner < Cleaner
-    attr_accessor :deinflector
-    
-    def initialize(*)
-      super
-      
-      @deinflector = JapaneseDeinflector.new()
-    end
-    
-    def end_clean(str)
-      guess = @deinflector.deinflect(str)
-      
-      return str if guess.length < 1
-      return str if (guess = guess[0])[:weight] < 0.5
-      
-      return guess[:word]
-    end
+  class BestCleaner < BasicCleaner
   end
 end
