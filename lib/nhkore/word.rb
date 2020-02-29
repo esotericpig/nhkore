@@ -84,8 +84,12 @@ module NHKore
       return word
     end
     
+    def kanji?()
+      return !Util.empty_web_str?(@kanji)
+    end
+    
     def word()
-      return @kanji.nil?() ? @kana : @kanji
+      return kanji?() ? @kanji : @kana
     end
     
     def to_s()
