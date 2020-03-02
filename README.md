@@ -44,6 +44,7 @@ TODO: update README Using section
 
 ```
 $ git clone 'https://github.com/esotericpig/nhkore.git'
+$ cd nhkore
 $ bundle install
 $ bundle exec rake -T
 ```
