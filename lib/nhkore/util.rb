@@ -56,6 +56,10 @@ module NHKore
       return str.nil?() || strip_web_str(str).empty?()
     end
     
+    def self.normalize_str(str)
+      return str.gsub(/[^[[:alpha:]]]+/,'')
+    end
+    
     def self.reduce_jpn_space(str)
       # Do not strip; use a Japanese space (must be double-quoted for escape chars)
       return str.gsub(/[[:space:]]+/,"\u3000")
