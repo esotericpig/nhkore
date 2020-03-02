@@ -33,8 +33,7 @@ module NHKore
   ###
   class Splitter
     def begin_split(str)
-      # Crudely clean the input
-      return Util.reduce_jpn_space(str)
+      return str
     end
     
     def split(str)
@@ -86,5 +85,6 @@ module NHKore
   # @since  0.2.0
   ###
   class BestSplitter < BimyouSplitter
+    # TODO: add manual splits? for です, etc.
   end
 end
