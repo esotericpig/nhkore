@@ -48,6 +48,10 @@ module NHKore
   ###
   class BasicCleaner < Cleaner
     def end_clean(str)
+      # Decided against removing all symbols because non-Japanese names have
+      #   a small dot between names:
+      # - 'Yunibaasaru・Sutajio・Japan'
+      
       str = Util.unspace_web_str(str)
       str = str.gsub(/[[:digit:]]+/,'')
       
