@@ -27,6 +27,7 @@ require 'open-uri'
 require 'nhkore/article'
 require 'nhkore/cleaner'
 require 'nhkore/error'
+require 'nhkore/polisher'
 require 'nhkore/splitter'
 require 'nhkore/util'
 require 'nhkore/word'
@@ -38,16 +39,18 @@ module NHKore
   # @since  0.2.0
   ###
   class ArticleScraper
-    attr_accessor :cleaner
+    attr_accessor :cleaners
+    attr_accessor :polishers
     attr_accessor :splitter
     attr_accessor :str_or_io
     attr_accessor :url
     attr_accessor :year
     
-    def initialize(url,cleaner: EmptyCleaner.new(),file: false,splitter: BestSplitter.new(),str_or_io: nil,year: nil)
+    def initialize(url,cleaners: [BestCleaner.new()],file: false,polishers: [BestPolisher.new()],splitter: BestSplitter.new(),str_or_io: nil,year: nil)
       super()
       
-      @cleaner = cleaner
+      @cleaners = cleaners
+      @polishers = polishers
       @splitter = splitter
       @url = url
       @year = year
@@ -67,11 +70,54 @@ module NHKore
       end
     end
     
+    def add_words(words,article,text)
+    end
+    
+    def clean(word)
+      return word if word.nil?()
+      
+      if word.is_a?(Word)
+        word = Word.new(
+          eng: word.eng,
+          freq: word.freq,
+          kana: clean(word.kana),
+          kanji: clean(word.kanji),
+          mean: word.mean
+        )
+      else # String
+        @cleaners.each() do |cleaner|
+          word = cleaner.clean(word)
+        end
+      end
+      
+      return word
+    end
+    
     def parse_datetime(str,year)
       str = str.gsub(/[\[\][[:space:]]]+/,'')
       str = "#{year}年 #{str} #{Util::JST_OFFSET}"
       
       return Time.strptime(str,'%Y年 %m月%d日%H時%M分 %:z')
+    end
+    
+    def polish(word)
+      return word if word.nil?()
+      
+      if word.is_a?(Word)
+        word = Word.new(
+          eng: word.eng,
+          freq: word.freq,
+          kana: polish(word.kana),
+          kanji: polish(word.kanji),
+          mean: word.mean
+        )
+      else # String
+        @polishers.each() do |polisher|
+          word = polisher.polish(word)
+        end
+      end
+      
+      return word
     end
     
     def scrape_content(doc,article)
@@ -84,11 +130,9 @@ module NHKore
         
         if !text.empty?()
           hexdigest = Digest::SHA256.hexdigest(text)
+          result = scrape_words(div,article)
           
-          had_word = scrape_words(div,article)[:had_word]
-          
-          # FIXME: had_word isn't working
-          return hexdigest #if had_word
+          return hexdigest if result.had_word?()
         end
       end
       
@@ -166,6 +210,7 @@ module NHKore
       doc = Nokogiri::HTML(@str_or_io)
       
       article.futsuurl = scrape_futsuurl(doc)
+      
       article.datetime = scrape_datetime(doc,article.futsuurl)
       article.sha256 = scrape_content(doc,article)
       article.title = scrape_title(doc,article)
@@ -177,24 +222,9 @@ module NHKore
       return article
     end
     
-    def scrape_title(doc,article)
-      h1 = doc.css('h1.article-main__title')
-      
-      if h1.length > 0
-        title = scrape_words(h1,article,words_as_str: true)[:words_as_str]
-        title = Util.strip_web_str(title)
-        
-        return title unless title.empty?()
-      end
-      
-      raise ScrapeError,"could not scrape title at url[#{@url}]"
-    end
-    
-    # FIXME: <ruby>atara<rt>atara</rt></ruby>shii, how to do this to be atarashii?
-    def scrape_word_ruby(tag,article,result)
+    def scrape_ruby_word(tag,result: ScrapeWordsResult.new())
       # First, try text nodes
       kanji = tag.search('./text()')
-      
       # Second, try non-<rt> tags, in case of the text being surrounded by <span>, <b>, etc.
       kanji = [tag.search("./*[not(name()='rt')]").text] if kanji.length < 1
       
@@ -203,15 +233,10 @@ module NHKore
       
       kanji = kanji[0]
       kanji = kanji.text if kanji.respond_to?(:text)
-      words_as_str = result[:words_as_str]
       
-      if !words_as_str.nil?()
-        kanji = Util.clean_japanese_str(kanji)
-        words_as_str << kanji
-      end
+      result << kanji # No cleaning; raw text
       
-      kanji = Util.unspace_web_str(kanji)
-      kanji = @cleaner.clean(kanji)
+      kanji = clean(kanji)
       
       raise ScrapeError,"empty kanji in tag[#{tag}] at url[#{@url}]" if kanji.empty?()
       
@@ -220,66 +245,80 @@ module NHKore
       raise ScrapeError,"no kana in tag[#{tag}] at url[#{@url}]" if kana.length < 1
       raise ScrapeError,"too many kana in tag[#{tag}] at url[#{@url}]" if kana.length > 1
       
-      # Do not add kana to words_as_str
-      kana = Util.unspace_web_str(kana[0].text)
-      kana = @cleaner.clean(kana)
+      # Do not add kana to result.output_str
+      kana = clean(kana[0].text)
       
       raise ScrapeError,"empty kana in tag[#{tag}] at url[#{@url}]" if kana.empty?()
       
-      result[:had_word] = true
       word = Word.new(kana: kana,kanji: kanji)
+      result.had_word = true
       
-      article.add_word(word)
+      return word
     end
     
-    def scrape_word_text(tag,article,result)
+    def scrape_text_word(tag,result: ScrapeWordsResult.new())
       text = tag.text
-      words_as_str = result[:words_as_str]
       
-      if !words_as_str.nil?()
-        text = Util.clean_japanese_str(text)
-        words_as_str << text
-      end
+      result << text # No cleaning; raw text
       
-      text = @splitter.split(text)
+      text = clean(text)
       
-      text.each() do |t|
-        next if t.nil?()
-        
-        t = Util.unspace_web_str(t)
-        t = @cleaner.clean(t)
-        
-        next if t.empty?()
-        
-        result[:had_word] = true
-        word = Word.new(kana: t) # Assume kana
-        
-        article.add_word(word)
-      end
+      return nil if text.empty?() # No error; empty text is fine here
+      
+      word = Word.new(kana: text) # Assume kana
+      result.had_word = true
+      
+      return word
     end
     
-    def scrape_words(tag,article,words_as_str: false)
-      result = {
-        had_word: false,
-        words_as_str: words_as_str ? ''.dup() : nil
-      }
+    def scrape_title(doc,article)
+      h1 = doc.css('h1.article-main__title')
       
-      tag.children.each() do |child|
-        name = Util.unspace_web_str(child.name) if child.respond_to?(:name)
+      if h1.length > 0
+        result = scrape_words(h1,article)
+        title = result.output_str
+        
+        return title unless title.empty?()
+      end
+      
+      raise ScrapeError,"could not scrape title at url[#{@url}]"
+    end
+    
+    def scrape_words(tag,article,result: ScrapeWordsResult.new())
+      children = tag.children.to_a().reverse() # A faster stack?
+      words = []
+      
+      while !children.empty?()
+        child = children.pop()
+        
+        name = Util.unspace_web_str(child.name).downcase() if child.respond_to?(:name)
         
         if child.text?()
-          scrape_word_text(child,article,result)
-        elsif name.casecmp?('ruby')
-          scrape_word_ruby(child,article,result)
-        elsif name.casecmp?('rt')
+          word = scrape_text_word(child,result: result)
+          words << word if word
+        elsif name == 'ruby'
+          word = scrape_ruby_word(child,result: result)
+          words << word if word
+        elsif name == 'rt'
           raise ScrapeError,"invalid rt tag[#{child}] without a ruby tag at url[#{@url}]"
         else
-          child_result = scrape_words(child,article,words_as_str: words_as_str)
+          grand_children = child.children.to_a()
           
-          had_word = true if child_result[:had_word]
-          words_as_str << child_result[:words_as_str] unless result[:words_as_str].nil?()
+          (grand_children.length() - 1).downto(0).each() do |i|
+            children.push(grand_children[i])
+          end
+          
+          # I originally didn't use a stack-like Array and did a constant insert,
+          #   but I think this is slower (moving all elements down every time).
+          # However, if it's using C-like code for moving memory, then maybe it
+          #   is faster?
+          #children.insert(i + 1,*child.children.to_a())
         end
       end
+      
+      result.output_str = Util.strip_web_str(result.output_str)
+      
+      add_words(words,article,result.output_str) if result.had_word?()
       
       return result
     end
@@ -315,5 +354,203 @@ module NHKore
       
       return @year
     end
+    
+    def split(str)
+      return @splitter.split(str)
+    end
+  end
+  
+  ###
+  # @author Jonathan Bradley Whited (@esotericpig)
+  # @since  0.2.0
+  ###
+  class ScrapeWordsResult
+    attr_accessor :had_word
+    attr_accessor :output_str
+    
+    alias_method :had_word?,:had_word
+    
+    def initialize()
+      super()
+      
+      @had_word = false
+      @output_str = ''.dup()
+    end
+    
+    def <<(str)
+      @output_str << Util.reduce_jpn_space(str)
+      
+      return self
+    end
   end
 end
+
+=begin
+      # FIXME: need to capture multiple next
+      if next_tag && next_tag.text?()
+        extra_kana = Util.unspace_web_str(next_tag.text)
+        full_word = "#{kanji}#{extra_kana}"
+        split = @splitter.split(extra_kana)
+        
+        if split[0] != kanji
+          kana = @cleaner.clean("#{kana}#{extra_kana}")
+          kanji = @cleaner.clean(full_word)
+        else
+          extra_kana = false
+        end
+      end
+=end
+
+=begin
+    def add_words(words,article,text)
+      #return if text.length > 50
+      
+      # For testing...
+      
+      # 始=はじまる
+      # 高=たかくなりそうです。
+      # 円=えんかかりました。「マリオ」の
+      
+      #text << '日本語'
+      #words << Word.new(kanji: '日本語',kana: 'にほんご')
+      
+      text = split(text)
+      
+      text_i = -1
+      word_i = -1
+      
+      loop do
+        text_i += 1
+        word_i += 1
+        
+        break if text_i >= text.length || word_i >= words.length
+        
+        text_str = clean(text[text_i])
+        
+        # For example, if a number like 450, then will be empty, depending on the cleaners
+        if text_str.empty?()
+          puts "Skipping: #{text[text_i]}"
+          word_i -= 1 # Words should have already been cleaned & skipped appropriately
+          next
+        end
+        
+        # TODO: store text_norm & text_str; word_norm & word_str
+        # Have to normalize: 「マリオ」のエリアができる
+        text_str = Util.normalize_str(text_str)
+        word = words[word_i]
+        word_str = Util.normalize_str(word.word)
+        
+        if text_str == word_str
+          puts "=Adding:  #{text_str},#{word_str}"
+          article.add_word(polish(word))
+        # 'の' < 'のエリア'
+        elsif text_str.length < word_str.length
+          raise "<: #{text_str} !~ #{word_str}" unless word_str.include?(text_str)
+          
+          add_word = false
+          
+          # If a ruby tag, can't guarantee one-to-one for kanji & kana, so skip.
+          # - For example: 大阪 => おおさか. If we chop off 1, it will be [大] & [おおさ],
+          #                which is wrong. [大] & [おお] would be correct.
+          if word.kanji?()
+            puts "<Adding:  #{text_str},#{word_str}"
+            article.add_word(polish(word))
+          else
+            add_word = true
+          end
+          
+          len = 0
+          
+          loop do
+            if add_word
+              puts "<Adding:  #{text_str},#{word_str}"
+              article.add_word(polish(Word.new(kana: text_str)))
+            end
+            
+            len += text_str.length
+            text_i += 1
+            
+            puts "<Working: #{text_str},#{word_str},#{len}"
+            
+            #break if len >= word_str.length || text_i >= text.length
+            break if len == word_str.length
+            raise "<wtf: #{text_str},#{word_str},#{len}" if len > word_str.length
+            
+            # Get next clean text_str
+            loop do
+              raise 'wtf' if text_i >= text.length
+              
+              text_str = clean(text[text_i])
+              
+              break unless text_str.empty?()
+              
+              text_i += 1
+            end
+            
+            text_str = Util.normalize_str(text_str)
+          end
+          
+          text_i -= 1 # Reset for main loop
+        elsif text_str.length > word_str.length
+          raise ">: #{text_str} !~ #{word_str}" unless text_str.include?(word_str)
+          
+          full_kana = ''.dup()
+          full_kanji = ''.dup()
+          orig_word = word
+          
+          len = 0
+          
+          loop do
+            if word.kanji?()
+              full_kana << word.kana unless word.kana.nil?()
+              full_kanji << word.kanji
+            else
+              full_kana << word.kana
+              full_kanji << word.kana # Like 食べます (kanji + kana)
+            end
+            
+            len += word_str.length
+            word_i += 1
+            
+            #break if len >= text_str.length || word_i >= words.length
+            break if len == text_str.length
+            raise ">wtf: #{text_str},#{word_str},#{len}" if len > text_str.length
+            raise ">wtf: #{text_str},#{word_str},no words" if word_i >= words.length
+            
+            word = words[word_i]
+            word_str = Util.normalize_str(word.word)
+            
+            #raise 'wtf' unless text_str.include?(word_str)
+          end
+          
+          puts ">Adding:  #{text_str},#{word_str}"
+          # TODO: if empty str, change to nil
+          article.add_word(polish(Word.new(
+            eng: orig_word.eng,
+            freq: orig_word.freq,
+            kana: full_kana,
+            kanji: full_kanji,
+            mean: orig_word.mean
+          )))
+          
+          word_i -= 1 # Reset for main loop
+        else
+          raise "wtf is: #{text_str},#{word_str}"
+        end
+      end
+      
+      raise 'wtf is up w/ word_i < words.length' if word_i < words.length
+      
+      # Skip rest of dirty text
+      while text_i < text.length
+        text_str = clean(text[text_i])
+        
+        # Not dirty; raise an error after the loop
+        break unless text_str.empty?()
+        
+        text_i += 1
+      end
+      
+      raise 'wtf is up w/ text_i < text.length' if text_i < text.length
+    end
+=end
