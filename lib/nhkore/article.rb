@@ -64,11 +64,11 @@ module NHKore
     end
     
     def encode_with(coder)
-      # Ignore @url because it will be the key in the YAML/Hash.
       # Order matters.
       
       coder[:datetime] = @datetime.nil?() ? @datetime : @datetime.iso8601()
       coder[:title] = @title
+      coder[:url] = @url
       coder[:futsuurl] = @futsuurl
       coder[:sha256] = @sha256
       coder[:words] = @words
@@ -84,12 +84,12 @@ module NHKore
       article.futsuurl = hash[:futsuurl]
       article.sha256 = hash[:sha256]
       article.title = hash[:title]
-      article.url = key.nil?() ? key : key.to_s() # Don't want "" or a symbol
+      article.url = hash[:url]
       
       if !words.nil?()
-        words.each() do |key,word_hash|
-          key = key.to_s() # Change from a symbol
-          article.words[key] = Word.load_hash(key,word_hash)
+        words.each() do |k,h|
+          k = k.to_s() # Change from a symbol
+          article.words[k] = Word.load_hash(k,h)
         end
       end
       
