@@ -58,16 +58,16 @@ module NHKore
       
       articles = data[:articles]
       
-      nhk_news = NHKNewsWebEasy.new()
+      nhk_news_ez = NHKNewsWebEasy.new()
       
       if !articles.nil?()
-        articles.each() do |key,article_hash|
+        articles.each() do |key,hash|
           key = key.to_s() # Change from a symbol
-          nhk_news.articles[key] = Article.load_hash(key,article_hash)
+          nhk_news.articles[key] = Article.load_hash(key,hash)
         end
       end
       
-      return nhk_news
+      return nhk_news_ez
     end
     
     def self.load_file(file=File.join(Util::CORE_DIR,DEFAULT_FILE),mode: 'r:BOM|UTF-8',**kargs)
