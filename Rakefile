@@ -97,12 +97,3 @@ YardGhurt::GFMFixTask.new() do |task|
     task.js_scripts << %Q(<script src="#{GHP_ROOT}/js/prism.js"></script>)
   end
 end
-
-# Execute "rake yard_ghp_sync" for a dry run.
-# Execute "rake yard_ghp_sync[true]" for actually deploying.
-YardGhurt::GHPSyncTask.new() do |task|
-  task.description = %q(Rsync "doc/" to my GitHub Page's repo; not useful for others)
-  
-  task.ghp_dir = '../esotericpig.github.io/docs/nhkore/yardoc'
-  task.sync_args << '--delete-after'
-end
