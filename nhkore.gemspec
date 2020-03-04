@@ -48,12 +48,12 @@ Gem::Specification.new() do |spec|
   spec.executables   = [spec.name]
   
   spec.files = Dir.glob(File.join("{#{spec.require_paths.join(',')}}",'**','*.{erb,rb}')) +
-               Dir.glob(File.join(spec.bindir,'**',"{#{spec.executables.join(',')}}")) +
+               Dir.glob(File.join(spec.bindir,'*')) +
                Dir.glob(File.join('{test,yard}','**','*.{erb,rb}')) +
                %W( Gemfile #{spec.name}.gemspec Rakefile ) +
                %w( CHANGELOG.md LICENSE.txt README.md )
   
-  spec.required_ruby_version = '>= 2.4.0'
+  spec.required_ruby_version = '>= 2.4'
   
   spec.requirements << 'Nokogiri: https://www.nokogiri.org/tutorials/installing_nokogiri.html'
   
