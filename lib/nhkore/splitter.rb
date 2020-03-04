@@ -22,8 +22,8 @@
 
 
 require 'bimyou_segmenter'
-require 'tiny_segmenter'
 require 'nhkore/util'
+require 'tiny_segmenter'
 
 
 module NHKore

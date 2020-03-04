@@ -21,9 +21,9 @@
 #++
 
 
-require 'time'
 require 'nhkore/util'
 require 'nhkore/word'
+require 'time'
 
 
 module NHKore
