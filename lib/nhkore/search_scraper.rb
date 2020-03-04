@@ -21,12 +21,19 @@
 #++
 
 
+require 'nhkore/scraper'
+require 'nokogiri'
+
+
 module NHKore
   ###
   # @author Jonathan Bradley Whited (@esotericpig)
   # @since  0.2.0
   ###
-  class SearchScraper
+  class SearchScraper < Scraper
+    def initialize(url,**kargs)
+      super(url,**kargs)
+    end
   end
   
   ###
@@ -34,5 +41,8 @@ module NHKore
   # @since  0.2.0
   ###
   class BingScraper < SearchScraper
+    def initialize(url,**kargs)
+      super(url,**kargs)
+    end
   end
 end
