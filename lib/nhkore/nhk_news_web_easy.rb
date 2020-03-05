@@ -63,7 +63,7 @@ module NHKore
       if !articles.nil?()
         articles.each() do |key,hash|
           key = key.to_s() # Change from a symbol
-          nhk_news.articles[key] = Article.load_hash(key,hash)
+          nhk_news.articles[key] = Article.load_data(key,hash)
         end
       end
       
