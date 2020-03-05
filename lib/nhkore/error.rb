@@ -28,9 +28,6 @@ module NHKore
   ###
   class NHKoreError < ::StandardError; end
   
-  ###
-  # @author Jonathan Bradley Whited (@esotericpig)
-  # @since  0.2.0
-  ###
-  class ScrapeError < NHKoreError; end
+  class ParseError < NHKoreError; end # @since 0.2.0
+  class ScrapeError < NHKoreError; end # @since 0.2.0
 end
