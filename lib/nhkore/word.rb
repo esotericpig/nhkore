@@ -30,14 +30,14 @@ module NHKore
   # @since  0.1.0
   ###
   class Word
+    attr_accessor :definition
     attr_accessor :english
     attr_accessor :frequency
     attr_reader :kana
     attr_reader :kanji
     attr_reader :key
-    attr_accessor :meaning
     
-    def initialize(english: nil,frequency: 1,kana: nil,kanji: nil,meaning: nil,**kargs)
+    def initialize(definition: nil,english: nil,frequency: 1,kana: nil,kanji: nil,**kargs)
       super()
       
       kana = nil if Util.empty_web_str?(kana)
@@ -45,12 +45,12 @@ module NHKore
       
       raise ArgumentError,'kanji and kana cannot both be empty' if kana.nil?() && kanji.nil?()
       
+      @definition = definition
       @english = english
       @frequency = frequency
       @kana = kana
       @kanji = kanji
       @key = "#{kanji}=#{kana}" # nil.to_s() is ''
-      @meaning = meaning
     end
     
     def encode_with(coder)
@@ -60,7 +60,7 @@ module NHKore
       coder[:kanji] = @kanji
       coder[:kana] = @kana
       coder[:frequency] = @frequency
-      coder[:meaning] = @meaning
+      coder[:definition] = @definition
       coder[:english] = @english
     end
     
@@ -68,10 +68,10 @@ module NHKore
       key = key.to_s() # Change from a symbol
       
       word = Word.new(
+        definition: hash[:definition],
         english: hash[:english],
         kana: hash[:kana],
-        kanji: hash[:kanji],
-        meaning: hash[:meaning]
+        kanji: hash[:kanji]
       )
       
       if key != word.key
@@ -99,7 +99,7 @@ module NHKore
       s << "{ kanji=>#{@kanji}"
       s << ", kana=>#{@kana}"
       s << ", frequency=>#{@frequency}"
-      s << ", meaning=>#{@meaning}"
+      s << ", definition=>#{@definition}"
       s << ", english=>#{@english}"
       s << ' }'
       
