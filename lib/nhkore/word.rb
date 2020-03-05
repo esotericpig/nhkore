@@ -30,14 +30,14 @@ module NHKore
   # @since  0.1.0
   ###
   class Word
-    attr_accessor :eng
-    attr_accessor :freq
+    attr_accessor :english
+    attr_accessor :frequency
     attr_reader :kana
     attr_reader :kanji
     attr_reader :key
-    attr_accessor :mean
+    attr_accessor :meaning
     
-    def initialize(eng: nil,freq: 1,kana: nil,kanji: nil,mean: nil,**kargs)
+    def initialize(english: nil,frequency: 1,kana: nil,kanji: nil,meaning: nil,**kargs)
       super()
       
       kana = nil if Util.empty_web_str?(kana)
@@ -45,12 +45,12 @@ module NHKore
       
       raise ArgumentError,'kanji and kana cannot both be empty' if kana.nil?() && kanji.nil?()
       
-      @eng = eng
-      @freq = freq
+      @english = english
+      @frequency = frequency
       @kana = kana
       @kanji = kanji
       @key = "#{kanji}=#{kana}" # nil.to_s() is ''
-      @mean = mean
+      @meaning = meaning
     end
     
     def encode_with(coder)
@@ -59,27 +59,27 @@ module NHKore
       
       coder[:kanji] = @kanji
       coder[:kana] = @kana
-      coder[:freq] = @freq
-      coder[:mean] = @mean
-      coder[:eng] = @eng
+      coder[:frequency] = @frequency
+      coder[:meaning] = @meaning
+      coder[:english] = @english
     end
     
     def self.load_hash(key,hash)
       key = key.to_s() # Change from a symbol
       
       word = Word.new(
-        eng: hash[:eng],
+        english: hash[:english],
         kana: hash[:kana],
         kanji: hash[:kanji],
-        mean: hash[:mean]
+        meaning: hash[:meaning]
       )
       
       if key != word.key
         raise ArgumentError,"the key from the hash [#{key}] does not match the generated key [#{word.key}]"
       end
       
-      freq = hash[:freq].to_i() # nil.to_i() is 0
-      word.freq = freq if freq > 0
+      frequency = hash[:frequency].to_i() # nil.to_i() is 0
+      word.frequency = frequency if frequency > 0
       
       return word
     end
@@ -98,9 +98,9 @@ module NHKore
       s << "#{@key}: "
       s << "{ kanji=>#{@kanji}"
       s << ", kana=>#{@kana}"
-      s << ", freq=>#{@freq}"
-      s << ", mean=>#{@mean}"
-      s << ", eng=>#{@eng}"
+      s << ", frequency=>#{@frequency}"
+      s << ", meaning=>#{@meaning}"
+      s << ", english=>#{@english}"
       s << ' }'
       
       return s
