@@ -86,11 +86,14 @@ module NHKore
       return word
     end
     
-    # Do not clean and/or strip spaces, as the raw text is important for Defn.
+    # Do not clean and/or strip spaces, as the raw text is important for
+    #   Defn and ArticleScraper.
     def self.scrape_ruby_tag(tag,url: nil)
       # First, try <rb> tags.
       kanji = tag.css('rb')
-      # Second, try non-<rt> tags, in case of text nodes (and/or being surrounded by <span>, <b>, etc.).
+      # Second, try text nodes.
+      kanji = tag.search('./text()') if kanji.length < 1
+      # Third, try non-<rt> tags, in case of being surrounded by <span>, <b>, etc.
       kanji = tag.search("./*[not(name()='rt')]") if kanji.length < 1
       
       raise ScrapeError,"no kanji at URL[#{url}] in tag[#{tag}]" if kanji.length < 1
@@ -114,7 +117,8 @@ module NHKore
       return word
     end
     
-    # Do not clean and/or strip spaces, as the raw text is important for Defn.
+    # Do not clean and/or strip spaces, as the raw text is important for
+    #   Defn and ArticleScraper.
     def self.scrape_text_node(tag,url: nil)
       text = tag.text
       
