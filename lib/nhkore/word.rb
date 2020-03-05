@@ -21,7 +21,9 @@
 #++
 
 
+require 'nhkore/error'
 require 'nhkore/util'
+require 'nokogiri'
 
 
 module NHKore
@@ -30,14 +32,14 @@ module NHKore
   # @since  0.1.0
   ###
   class Word
-    attr_accessor :definition
-    attr_accessor :english
-    attr_accessor :frequency
+    attr_accessor :defn
+    attr_accessor :eng
+    attr_accessor :freq
     attr_reader :kana
     attr_reader :kanji
     attr_reader :key
     
-    def initialize(definition: nil,english: nil,frequency: 1,kana: nil,kanji: nil,**kargs)
+    def initialize(defn: nil,eng: nil,freq: 1,kana: nil,kanji: nil,**kargs)
       super()
       
       kana = nil if Util.empty_web_str?(kana)
@@ -45,9 +47,9 @@ module NHKore
       
       raise ArgumentError,'kanji and kana cannot both be empty' if kana.nil?() && kanji.nil?()
       
-      @definition = definition
-      @english = english
-      @frequency = frequency
+      @defn = defn
+      @eng = eng
+      @freq = freq
       @kana = kana
       @kanji = kanji
       @key = "#{kanji}=#{kana}" # nil.to_s() is ''
@@ -59,27 +61,66 @@ module NHKore
       
       coder[:kanji] = @kanji
       coder[:kana] = @kana
-      coder[:frequency] = @frequency
-      coder[:definition] = @definition
-      coder[:english] = @english
+      coder[:freq] = @freq
+      coder[:defn] = @defn
+      coder[:eng] = @eng
     end
     
-    def self.load_hash(key,hash)
+    def self.load_data(key,hash)
       key = key.to_s() # Change from a symbol
       
       word = Word.new(
-        definition: hash[:definition],
-        english: hash[:english],
+        defn: hash[:defn],
+        eng: hash[:eng],
         kana: hash[:kana],
         kanji: hash[:kanji]
       )
       
       if key != word.key
-        raise ArgumentError,"the key from the hash [#{key}] does not match the generated key [#{word.key}]"
+        raise ArgumentError,"the key from the hash[#{key}] does not match the generated key[#{word.key}]"
       end
       
-      frequency = hash[:frequency].to_i() # nil.to_i() is 0
-      word.frequency = frequency if frequency > 0
+      freq = hash[:freq].to_i() # nil.to_i() is 0
+      word.freq = freq if freq > 0
+      
+      return word
+    end
+    
+    # Do not clean and/or strip spaces, as the raw text is important for Defn.
+    def self.scrape_ruby_tag(tag,url: nil)
+      # First, try <rb> tags.
+      kanji = tag.css('rb')
+      # Second, try non-<rt> tags, in case of text nodes (and/or being surrounded by <span>, <b>, etc.).
+      kanji = tag.search("./*[not(name()='rt')]") if kanji.length < 1
+      
+      raise ScrapeError,"no kanji at URL[#{url}] in tag[#{tag}]" if kanji.length < 1
+      raise ScrapeError,"too many kanji at URL[#{url}] in tag[#{tag}]" if kanji.length > 1
+      
+      kanji = kanji[0].text
+      
+      raise ScrapeError,"empty kanji at URL[#{url}] in tag[#{tag}]" if kanji.empty?()
+      
+      kana = tag.css('rt')
+      
+      raise ScrapeError,"no kana at URL[#{url}] in tag[#{tag}]" if kana.length < 1
+      raise ScrapeError,"too many kana at URL[#{url}] in tag[#{tag}]" if kana.length > 1
+      
+      kana = kana[0].text
+      
+      raise ScrapeError,"empty kana at URL[#{url}] in tag[#{tag}]" if kana.empty?()
+      
+      word = Word.new(kana: kana,kanji: kanji)
+      
+      return word
+    end
+    
+    # Do not clean and/or strip spaces, as the raw text is important for Defn.
+    def self.scrape_text_node(tag,url: nil)
+      text = tag.text
+      
+      return nil if text.empty?() # No error; empty text is fine
+      
+      word = Word.new(kana: text) # Assume kana
       
       return word
     end
@@ -98,9 +139,9 @@ module NHKore
       s << "#{@key}: "
       s << "{ kanji=>#{@kanji}"
       s << ", kana=>#{@kana}"
-      s << ", frequency=>#{@frequency}"
-      s << ", definition=>#{@definition}"
-      s << ", english=>#{@english}"
+      s << ", freq=>#{@freq}"
+      s << ", defn=>#{@defn}"
+      s << ", eng=>#{@eng}"
       s << ' }'
       
       return s
