@@ -74,7 +74,7 @@ module NHKore
       coder[:words] = @words
     end
     
-    def self.load_hash(key,hash)
+    def self.load_data(key,hash)
       datetime = hash[:datetime]
       words = hash[:words]
       
@@ -89,7 +89,7 @@ module NHKore
       if !words.nil?()
         words.each() do |k,h|
           k = k.to_s() # Change from a symbol
-          article.words[k] = Word.load_hash(k,h)
+          article.words[k] = Word.load_data(k,h)
         end
       end
       
