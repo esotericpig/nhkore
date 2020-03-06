@@ -37,6 +37,11 @@ module NHKore
     JST_OFFSET_HOUR = 9
     JST_OFFSET_MIN = 0
     
+    JPN_SPACE = "\u3000" # Must be double-quoted for escape chars
+    NORMALIZE_STR_REGEX = /[^[[:alpha:]]]+/
+    STRIP_WEB_STR_REGEX = /(\A[[:space:]]+)|([[:space:]]+\z)/
+    WEB_SPACES_REGEX = /[[:space:]]+/
+    
     def self.jst_now()
       now = Time.now().getutc()
       
@@ -57,12 +62,12 @@ module NHKore
     end
     
     def self.normalize_str(str)
-      return str.gsub(/[^[[:alpha:]]]+/,'')
+      return str.gsub(NORMALIZE_STR_REGEX,'')
     end
     
     def self.reduce_jpn_space(str)
-      # Do not strip; use a Japanese space (must be double-quoted for escape chars)
-      return str.gsub(/[[:space:]]+/,"\u3000")
+      # Do not strip; use a Japanese space
+      return str.gsub(WEB_SPACES_REGEX,JPN_SPACE)
     end
     
     def self.sane_year?(year)
@@ -72,16 +77,17 @@ module NHKore
     
     # String's normal strip() method doesn't work with special Unicode/HTML white space.
     def self.strip_web_str(str)
-      # I wonder if this is faster as one regex? /(\A[[:space:]]+)|([[:space:]]+\z)/
+      # After testing with Benchmark, this is slower than one regex.
+      #str = str.gsub(/\A[[:space:]]+/,'')
+      #str = str.gsub(/[[:space:]]+\z/,'')
       
-      str = str.gsub(/\A[[:space:]]+/,'')
-      str = str.gsub(/[[:space:]]+\z/,'')
+      str = str.gsub(STRIP_WEB_STR_REGEX,'')
       
       return str
     end
     
     def self.unspace_web_str(str)
-      return str.gsub(/[[:space:]]+/,'')
+      return str.gsub(WEB_SPACES_REGEX,'')
     end
   end
 end
