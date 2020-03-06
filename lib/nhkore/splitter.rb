@@ -50,7 +50,7 @@ module NHKore
   ###
   class BasicSplitter < Splitter
     def end_split(str)
-      return str.split(/[^[[:alpha:]]]+/)
+      return str.split(Util::NORMALIZE_STR_REGEX)
     end
   end
   
