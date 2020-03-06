@@ -39,8 +39,16 @@ module NHKore
     attr_reader :kanji
     attr_reader :key
     
-    def initialize(defn: nil,eng: nil,freq: 1,kana: nil,kanji: nil,**kargs)
+    def initialize(defn: nil,eng: nil,freq: 1,kana: nil,kanji: nil,word: nil,**kargs)
       super()
+      
+      if !word.nil?()
+        defn = word.defn if defn.nil?()
+        eng = word.eng if eng.nil?()
+        freq = word.freq if freq.nil?()
+        kana = word.kana if kana.nil?()
+        kanji = word.kanji if kanji.nil?()
+      end
       
       kana = nil if Util.empty_web_str?(kana)
       kanji = nil if Util.empty_web_str?(kanji)
@@ -122,7 +130,8 @@ module NHKore
     def self.scrape_text_node(tag,url: nil)
       text = tag.text
       
-      return nil if text.empty?() # No error; empty text is fine
+      # No error; empty text is fine (not strictly kanji/kana only)
+      return nil if Util.empty_web_str?(text)
       
       word = Word.new(kana: text) # Assume kana
       
