@@ -22,6 +22,7 @@
 
 
 require 'nhkore/util'
+require 'nhkore/word'
 
 
 module NHKore
@@ -39,6 +40,28 @@ module NHKore
       str = end_clean(str)
       
       return str
+    end
+    
+    def self.clean_any(obj,cleaners)
+      return nil if obj.nil?()
+      
+      cleaners = Array(cleaners)
+      
+      return obj if cleaners.empty?()
+      
+      if obj.is_a?(Word)
+        obj = Word.new(
+          kana: clean_any(obj.kana,cleaners),
+          kanji: clean_any(obj.kanji,cleaners),
+          word: obj
+        )
+      else # String
+        cleaners.each() do |cleaner|
+          obj = cleaner.clean(obj)
+        end
+      end
+      
+      return obj
     end
   end
   
