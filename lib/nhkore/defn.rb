@@ -77,16 +77,21 @@ module NHKore
       
       doc.children.each() do |child|
         name = Util.unspace_web_str(child.name).downcase() if child.respond_to?(:name)
+        
+        is_text = false
         word = nil
         
         if name == 'ruby'
           word = Word.scrape_ruby_tag(child,url: url)
         else
           word = Word.scrape_text_node(child,url: url)
+          is_text = true
         end
         
-        if !word.nil?()
-          defn.text << word.word
+        if word.nil?()
+          defn.text << Util.reduce_jpn_space(child.text) if is_text
+        else
+          defn.text << Util.reduce_jpn_space(word.word)
           defn.words << word unless Util.empty_web_str?(word.word)
         end
       end
