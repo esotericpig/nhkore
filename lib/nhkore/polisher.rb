@@ -21,7 +21,7 @@
 #++
 
 
-require 'japanese_deinflector'
+require 'nhkore/word'
 
 
 module NHKore
@@ -40,6 +40,28 @@ module NHKore
       
       return str
     end
+    
+    def self.polish_any(obj,polishers)
+      return nil if obj.nil?()
+      
+      polishers = Array(polishers)
+      
+      return obj if polishers.empty?()
+      
+      if obj.is_a?(Word)
+        obj = Word.new(
+          kana: polish_any(obj.kana,polishers),
+          kanji: polish_any(obj.kanji,polishers),
+          word: obj
+        )
+      else # String
+        polishers.each() do |polisher|
+          obj = polisher.polish(obj)
+        end
+      end
+      
+      return obj
+    end
   end
   
   ###
@@ -49,31 +71,6 @@ module NHKore
   class BasicPolisher < Polisher
     def end_polish(str)
       return str
-    end
-  end
-  
-  ###
-  # Guesses a word's dictionary/plain form (辞書形).
-  # It doesn't work very well...
-  # 
-  # @since  0.2.0
-  ###
-  class DictFormPolisher < Polisher
-    attr_accessor :deinflector
-    
-    def initialize(*)
-      super
-      
-      @deinflector = JapaneseDeinflector.new()
-    end
-    
-    def end_polish(str)
-      guess = @deinflector.deinflect(str)
-      
-      return str if guess.length < 1
-      return str if (guess = guess[0])[:weight] < 0.5
-      
-      return guess[:word]
     end
   end
   
