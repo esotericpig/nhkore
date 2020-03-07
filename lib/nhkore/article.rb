@@ -99,12 +99,12 @@ module NHKore
     def to_s()
       s = ''.dup()
       
-      s << "#{@url}:"
-      s << "\n  datetime: #{@datetime}"
-      s << "\n  title:    #{@title}"
-      s << "\n  url:      #{@url}"
-      s << "\n  futsuurl: #{@futsuurl}"
-      s << "\n  sha256:   #{@sha256}"
+      s << "'#{@url}':"
+      s << "\n  datetime: '#{@datetime}'"
+      s << "\n  title:    '#{@title}'"
+      s << "\n  url:      '#{@url}'"
+      s << "\n  futsuurl: '#{@futsuurl}'"
+      s << "\n  sha256:   '#{@sha256}'"
       
       s << "\n  words:"
       @words.each() do |key,word|
