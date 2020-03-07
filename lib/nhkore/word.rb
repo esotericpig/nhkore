@@ -149,12 +149,12 @@ module NHKore
     def to_s()
       s = ''.dup()
       
-      s << "#{@key}: "
-      s << "{ kanji=>#{@kanji}"
-      s << ", kana=>#{@kana}"
-      s << ", freq=>#{@freq}"
-      s << ", defn=>#{@defn}"
-      s << ", eng=>#{@eng}"
+      s << "'#{@key}': "
+      s << "{ kanji=>'#{@kanji}'"
+      s << ", kana=>'#{@kana}'"
+      s << ", freq=>'#{@freq}'"
+      s << ", defn=>'#{@defn.to_s().gsub("\n",'\\n')}'"
+      s << ", eng=>'#{@eng}'"
       s << ' }'
       
       return s
