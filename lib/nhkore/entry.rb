@@ -22,6 +22,7 @@
 
 
 require 'nhkore/defn'
+require 'nhkore/util'
 
 
 module NHKore
@@ -43,7 +44,9 @@ module NHKore
     def self.scrape(id,array,url: nil)
       entry = Entry.new()
       
-      entry.id = id
+      entry.id = Util.unspace_web_str(id.to_s()).downcase()
+      
+      return nil if entry.id.empty?()
       
       array.each() do |hash|
         defn = Defn.scrape(hash,url: url)
