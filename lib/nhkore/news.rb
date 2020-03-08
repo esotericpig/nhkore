@@ -55,7 +55,7 @@ module NHKore
       return self
     end
     
-    def self.default_file(filename)
+    def self.build_file(filename)
       return File.join(DEFAULT_DIR,filename)
     end
     
@@ -119,7 +119,8 @@ module NHKore
   # @since  0.2.0
   ###
   class FutsuuNews < News
-    DEFAULT_FILE = default_file('nhk_news_web_regular.yml')
+    DEFAULT_FILENAME = 'nhk_news_web_regular.yml'
+    DEFAULT_FILE = build_file(DEFAULT_FILENAME)
     
     def self.load_data(data,**kargs)
       return News.load_data(data,article_class: Article,news_class: FutsuuNews,**kargs)
@@ -139,7 +140,8 @@ module NHKore
   # @since  0.2.0
   ###
   class YasashiiNews < News
-    DEFAULT_FILE = default_file('nhk_news_web_easy.yml')
+    DEFAULT_FILENAME = 'nhk_news_web_easy.yml'
+    DEFAULT_FILE = build_file(DEFAULT_FILENAME)
     
     def self.load_data(data,**kargs)
       return News.load_data(data,article_class: Article,news_class: YasashiiNews,**kargs)
