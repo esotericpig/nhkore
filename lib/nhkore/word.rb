@@ -53,7 +53,7 @@ module NHKore
       kana = nil if Util.empty_web_str?(kana)
       kanji = nil if Util.empty_web_str?(kanji)
       
-      raise ArgumentError,'kanji and kana cannot both be empty' if kana.nil?() && kanji.nil?()
+      raise ArgError,'kanji and kana cannot both be empty' if kana.nil?() && kanji.nil?()
       
       @defn = defn
       @eng = eng
@@ -85,7 +85,7 @@ module NHKore
       )
       
       if key != word.key
-        raise ArgumentError,"the key from the hash[#{key}] does not match the generated key[#{word.key}]"
+        raise ArgError,"the key from the hash[#{key}] does not match the generated key[#{word.key}]"
       end
       
       freq = hash[:freq].to_i() # nil.to_i() is 0

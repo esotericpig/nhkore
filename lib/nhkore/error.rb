@@ -28,6 +28,7 @@ module NHKore
   ###
   class NHKoreError < ::StandardError; end
   
+  class ArgError < NHKoreError; end # @since 0.2.0
   class ParseError < NHKoreError; end # @since 0.2.0
   class ScrapeError < NHKoreError; end # @since 0.2.0
 end
