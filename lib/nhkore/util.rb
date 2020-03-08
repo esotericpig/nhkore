@@ -37,7 +37,10 @@ module NHKore
     JST_OFFSET_HOUR = 9
     JST_OFFSET_MIN = 0
     
+    HIRAGANA_REGEX = /\p{Hiragana}/
     JPN_SPACE = "\u3000" # Must be double-quoted for escape chars
+    KANJI_REGEX = /\p{Han}/ # Han probably stands for Hanzi?
+    KATAKANA_REGEX = /\p{Katakana}/
     NORMALIZE_STR_REGEX = /[^[[:alpha:]]]+/
     STRIP_WEB_STR_REGEX = /(\A[[:space:]]+)|([[:space:]]+\z)/
     WEB_SPACES_REGEX = /[[:space:]]+/
@@ -59,6 +62,18 @@ module NHKore
     
     def self.empty_web_str?(str)
       return str.nil?() || strip_web_str(str).empty?()
+    end
+    
+    def self.hiragana?(str)
+      return HIRAGANA_REGEX =~ str
+    end
+    
+    def self.kanji?(str)
+      return KANJI_REGEX =~ str
+    end
+    
+    def self.katakana?(str)
+      return KATAKANA_REGEX =~ str
     end
     
     def self.normalize_str(str)
