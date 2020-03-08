@@ -85,6 +85,5 @@ module NHKore
   # @since  0.2.0
   ###
   class BestSplitter < BimyouSplitter
-    # TODO: add manual splits? for です, etc.
   end
 end
