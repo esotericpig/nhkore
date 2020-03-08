@@ -157,6 +157,9 @@ module NHKore
         
         if !text.empty?()
           hexdigest = Digest::SHA256.hexdigest(text)
+          
+          return hexdigest if article.nil?() # For scrape_sha256_only()
+          
           result = scrape_and_add_words(div,article)
           
           return hexdigest if result.words?()
@@ -300,6 +303,14 @@ module NHKore
       )
       
       return word
+    end
+    
+    def scrape_sha256_only()
+      doc = html_doc()
+      
+      sha256 = scrape_content(doc,nil)
+      
+      return sha256
     end
     
     def scrape_text_word(tag,result: ScrapeWordsResult.new())
