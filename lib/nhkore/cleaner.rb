@@ -77,6 +77,7 @@ module NHKore
       
       str = Util.unspace_web_str(str)
       str = str.gsub(/[[:digit:]]+/,'')
+      str = str.gsub(/[（）]+/,'')
       
       return str
     end
