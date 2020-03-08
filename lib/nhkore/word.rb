@@ -39,7 +39,7 @@ module NHKore
     attr_reader :kanji
     attr_reader :key
     
-    def initialize(defn: nil,eng: nil,freq: 1,kana: nil,kanji: nil,word: nil,**kargs)
+    def initialize(defn: nil,eng: nil,freq: 1,kana: nil,kanji: nil,unknown: nil,word: nil,**kargs)
       super()
       
       if !word.nil?()
@@ -48,6 +48,20 @@ module NHKore
         freq = word.freq if freq.nil?()
         kana = word.kana if kana.nil?()
         kanji = word.kanji if kanji.nil?()
+      end
+      
+      raise ArgError,"freq[#{freq}] cannot be < 1" if freq < 1
+      
+      if !unknown.nil?()
+        if Util.kanji?(unknown)
+          raise ArgError,"unknown[#{unknown}] will overwrite kanji[#{kanji}]" unless kanji.nil?()
+          
+          kanji = unknown
+        else
+          raise ArgError,"unknown[#{unknown}] will overwrite kana[#{kana}]" unless kana.nil?()
+          
+          kana = unknown
+        end
       end
       
       kana = nil if Util.empty_web_str?(kana)
