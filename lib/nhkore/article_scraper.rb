@@ -36,9 +36,6 @@ require 'nhkore/word'
 require 'nokogiri'
 
 
-# TODO: EasyArticle, EasyArticleScraper
-# TODO: rename nhk_news_web_easy class
-
 module NHKore
   ###
   # @author Jonathan Bradley Whited (@esotericpig)
@@ -65,9 +62,41 @@ module NHKore
       @year = year
     end
     
-    def add_words(words,article,text)
+    def add_words(article,words,text)
       words.each() do |word|
-        article.add_word(word)
+        # Words should have already been cleaned.
+        article.add_word(polish(word))
+        
+        variate(word.word).each() do |v|
+          v = clean(v)
+          
+          next if v.empty?()
+          
+          # Do not pass in "word: word".
+          # We only want defn & eng.
+          # If we pass in kanji/kana & unknown, it will raise an error.
+          article.add_word(Word.new(
+            defn: word.defn,
+            eng: word.eng,
+            unknown: polish(v)
+          ))
+        end
+      end
+      
+      split(text).each() do |t|
+        t = clean(t)
+        
+        next if t.empty?()
+        
+        article.add_word(Word.new(unknown: polish(t)))
+        
+        variate(t).each() do |v|
+          v = clean(v)
+          
+          next if v.empty?()
+          
+          article.add_word(Word.new(unknown: polish(v)))
+        end
       end
     end
     
@@ -113,7 +142,7 @@ module NHKore
       result = scrape_words(tag,result: result)
       result.polish!()
       
-      add_words(result.words,article,result.text)
+      add_words(article,result.words,result.text)
       
       return result
     end
@@ -400,6 +429,16 @@ module NHKore
     
     def split(str)
       return @splitter.split(str)
+    end
+    
+    def variate(str)
+      variations = []
+      
+      @variators.each() do |variator|
+        variations.push(*variator.variate(str))
+      end
+      
+      return variations
     end
   end
   
