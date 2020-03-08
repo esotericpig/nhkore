@@ -113,7 +113,7 @@ module NHKore
       result = scrape_words(tag,result: result)
       result.polish!()
       
-      add_words(result.words,article,result.text) if result.words?()
+      add_words(result.words,article,result.text)
       
       return result
     end
@@ -194,14 +194,17 @@ module NHKore
       kana = clean(kana)
       kanji = clean(kanji)
       
-      raise ScrapeError,"empty word at URL[#{@url}] in tag[#{tag}]" if kana.empty?() && kanji.empty?()
+      raise ScrapeError,"empty dicWin word at URL[#{@url}] in tag[#{tag}]" if kana.empty?() && kanji.empty?()
       
       entry = @dict[id]
       
       raise ScrapeError,"no dicWin ID[#{id}] at URL[#{@url}] in dictionary[#{@dict}]" if entry.nil?()
       
-      word = Word.new(kana: kana,kanji: kanji)
-      word.defn = entry.to_s()
+      word = Word.new(
+        defn: entry.to_s(),
+        kana: kana,
+        kanji: kanji
+      )
       
       result.add_text(dicwin_result.text) # Don't call dicwin_result.polish!()
       result.add_word(word)
@@ -280,6 +283,7 @@ module NHKore
       end
       
       text = word.kana # Should be kana only
+      
       result.add_text(text) # No cleaning; raw text
       
       text = clean(text)
