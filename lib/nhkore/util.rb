@@ -86,8 +86,11 @@ module NHKore
     end
     
     def self.sane_year?(year)
-      # A reasonable year should probably be from when NHK's website was made instead of 1900?
-      return year >= 1900 && year <= MAX_SANE_YEAR
+      # NHK was founded in 1924/25.
+      # - https://www.nhk.or.jp/bunken/english/about/history.html
+      # - https://en.wikipedia.org/wiki/NHK
+      # However, when was the website first created?
+      return year >= 1924 && year <= MAX_SANE_YEAR
     end
     
     # String's normal strip() method doesn't work with special Unicode/HTML white space.
