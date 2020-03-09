@@ -93,7 +93,11 @@ module NHKore
     end
     
     def add_link(link)
+      return self if @links.key?(link.url)
+      
       @links[link.url] = link
+      
+      return self
     end
     
     def encode_with(coder)
