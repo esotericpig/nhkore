@@ -34,26 +34,30 @@ module NHKore
     # Copied from googler (https://github.com/jarun/googler).
     USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36'
     
+    attr_accessor :is_file
     attr_accessor :str_or_io
     attr_accessor :url
+    
+    alias_method :is_file?,:is_file
     
     # Pass in +header: {}+ to set the default HTTP header fields.
     def initialize(url,file: false,header: nil,str_or_io: nil,**kargs)
       super()
       
+      @is_file = file
+      @url = url
+      
       if !header.nil?() && !file
         # Some sites (Search Engines) hate scrapers, so need HTTP header fields.
         # If this isn't enough, look at googler for more header fields to set:
         # - https://github.com/jarun/googler
-        # If necessary, can use the Faraday, HTTParty, or RestClient gem and
+        # If necessary, can use Faraday, HTTParty, or RestClient gem and
         #   pass in to str_or_io.
         
         header['User-Agent'] = USER_AGENT unless header.key?('User-Agent')
         
         kargs.merge!(header) # header will overwrite duplicate kargs entries
       end
-      
-      @url = url
       
       if str_or_io.nil?()
         if file
@@ -72,6 +76,15 @@ module NHKore
     
     def html_doc()
       return Nokogiri::HTML(@str_or_io)
+    end
+    
+    def join_url(relative_url)
+      # For a file, don't know what to do.
+      # It would be unsafe to return something else;
+      #   for example, it could return a lot of "../../../" to your root dir.
+      return nil if @is_file
+      
+      return URI::join(@url,relative_url)
     end
   end
 end
