@@ -2,9 +2,9 @@
 
 [![Gem Version](https://badge.fury.io/rb/nhkore.svg)](https://badge.fury.io/rb/nhkore)
 
-[![Source Code](https://img.shields.io/badge/source-github-%23A0522D.svg?style=for-the-badge)](https://github.com/esotericpig/nhkore)
-[![Changelog](https://img.shields.io/badge/changelog-md-%23A0522D.svg?style=for-the-badge)](CHANGELOG.md)
-[![License](https://img.shields.io/github/license/esotericpig/nhkore.svg?color=%23A0522D&style=for-the-badge)](LICENSE.txt)
+[![Source Code](https://img.shields.io/badge/source-github-%23211F1F.svg)](https://github.com/esotericpig/nhkore)
+[![Changelog](https://img.shields.io/badge/changelog-md-%23A0522D.svg)](CHANGELOG.md)
+[![License](https://img.shields.io/github/license/esotericpig/nhkore.svg)](LICENSE.txt)
 
 A CLI app that scrapes [NHK News Web Easy](https://www3.nhk.or.jp/news/easy/) to create a list of each word and its frequency (how many times it was used) for Japanese language learners.
 
