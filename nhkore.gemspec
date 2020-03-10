@@ -33,8 +33,11 @@ Gem::Specification.new() do |spec|
   spec.email       = ['bradley@esotericpig.com']
   spec.licenses    = ['LGPL-3.0-or-later']
   spec.homepage    = 'https://github.com/esotericpig/nhkore'
-  spec.summary     = 'NHK News Web (Easy) word frequency (core) for Japanese language learners.'
-  spec.description = 'Scrapes NHK News Web (Easy) for the word frequency (core list) for Japanese language learners.'
+  spec.summary     = 'NHK News Web (Easy) word frequency (core) scraper for Japanese language learners.'
+  spec.description = <<-EOD.gsub(/\s{2,}/,' ').strip()
+    Scrapes NHK News Web (Easy) for the word frequency (core list) for Japanese language learners.
+    Includes a CLI app and a scraper library.
+  EOD
   
   spec.metadata = {
     'bug_tracker_uri' => 'https://github.com/esotericpig/nhkore/issues',
