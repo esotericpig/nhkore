@@ -25,7 +25,6 @@ require 'nhkore/error'
 require 'nhkore/scraper'
 require 'nhkore/search_link'
 require 'nhkore/util'
-require 'nokogiri'
 require 'uri'
 
 
@@ -92,15 +91,15 @@ module NHKore
       return url
     end
     
-    # TODO: probably don't call it 'first' but 'from_count' or something
-    def scrape(links,first)
+    def scrape(links,page=NextPage.new())
       doc = html_doc()
+      next_page = NextPage.new()
       
-      next_first = -1
-      next_page = nil
+      anchors = doc.css('a')
       
-      # FIXME: check if < 0 && nil/empty, etc.
-      doc.css('a').each() do |anchor|
+      return next_page if anchors.length < 1
+      
+      anchors.each() do |anchor|
         href = anchor['href'].to_s()
         href = Util.unspace_web_str(href)
         
@@ -109,21 +108,38 @@ module NHKore
         href = href.downcase()
         
         if (md = href.match(/first\=(\d+)/))
-          i = md[1].to_i()
+          count = md[1].to_i()
           
-          if i > first && (next_first == -1 || i < next_first)
-            next_first = i
-            next_page = href
+          if count > page.count && (next_page.count < 0 || count < next_page.count)
+            next_page.count = count
+            next_page.url = join_url(href)
           end
+        elsif href =~ regex
+          links.add_link(SearchLink.new(href))
         end
-        
-        next unless href =~ regex
-        
-        puts href
       end
       
-      # TODO: make this a class?
-      return [next_page,next_first]
+      return next_page
+    end
+  end
+  
+  ###
+  # @author Jonathan Bradley Whited (@esotericpig)
+  # @since  0.2.0
+  ###
+  class NextPage
+    attr_accessor :count
+    attr_accessor :url
+    
+    def initialize()
+      super()
+      
+      @count = -1
+      @url = nil
+    end
+    
+    def empty?()
+      return @url.nil?() || @count < 0
     end
   end
 end
