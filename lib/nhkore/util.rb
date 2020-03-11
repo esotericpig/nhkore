@@ -60,8 +60,17 @@ module NHKore
     JST_YEAR = JST_NOW.year
     MAX_SANE_YEAR = JST_YEAR + 1 # +1 Justin Case for time zone differences at the end of the year
     
+    def self.dir_str?(str)
+      # File.join() will add the appropriate slash.
+      return File.join(str,'') == str
+    end
+    
     def self.empty_web_str?(str)
       return str.nil?() || strip_web_str(str).empty?()
+    end
+    
+    def self.filename_str?(str)
+      return File.basename(str) == str
     end
     
     def self.hiragana?(str)
