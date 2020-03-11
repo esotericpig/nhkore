@@ -28,7 +28,7 @@ if TESTING
   require 'bundler/setup'
 end
 
-require 'commander'
+require 'nhkore/app'
 require 'nhkore/article'
 require 'nhkore/article_scraper'
 require 'nhkore/cleaner'
@@ -40,6 +40,7 @@ require 'nhkore/error'
 require 'nhkore/news'
 require 'nhkore/polisher'
 require 'nhkore/scraper'
+require 'nhkore/search_link'
 require 'nhkore/search_scraper'
 require 'nhkore/splitter'
 require 'nhkore/util'
@@ -53,6 +54,33 @@ require 'nhkore/word'
 # @since  0.1.0
 ###
 module NHKore
+  # @since 0.2.0
+  def self.new(args=ARGV)
+    return AppRunner.new(args)
+  end
+  
+  ###
+  # @author Jonathan Bradley Whited (@esotericpig)
+  # @since  0.2.0
+  ###
+  class AppRunner
+    attr_accessor :args
+    
+    def initialize(args=ARGV)
+      @args = args
+    end
+    
+    def run()
+      app = App.new(args)
+      
+      begin
+        app.run()
+      rescue CLIError => e
+        puts "Error: #{e}"
+        exit 1
+      end
+    end
+  end
 end
 
-#NHKore::App.new().run() if TESTING
+NHKore.new().run() if TESTING
