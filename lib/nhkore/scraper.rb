@@ -41,13 +41,13 @@ module NHKore
     alias_method :is_file?,:is_file
     
     # Pass in +header: {}+ to set the default HTTP header fields.
-    def initialize(url,file: false,header: nil,str_or_io: nil,**kargs)
+    def initialize(url,header: nil,is_file: false,str_or_io: nil,**kargs)
       super()
       
-      @is_file = file
+      @is_file = is_file
       @url = url
       
-      if !header.nil?() && !file
+      if !header.nil?() && !is_file
         # Some sites (Search Engines) hate scrapers, so need HTTP header fields.
         # If this isn't enough, look at googler for more header fields to set:
         # - https://github.com/jarun/googler
@@ -60,7 +60,7 @@ module NHKore
       end
       
       if str_or_io.nil?()
-        if file
+        if is_file
           # NHK's website tends to always use UTF-8
           @str_or_io = File.open(url,'rt:UTF-8',**kargs)
         else
