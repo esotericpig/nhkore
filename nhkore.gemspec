@@ -67,6 +67,7 @@ Gem::Specification.new() do |spec|
   spec.add_runtime_dependency 'nokogiri'            ,'~> 1.10' # For scraping/hacking
   spec.add_runtime_dependency 'psychgus'            ,'~> 1.2'  # For styling Psych YAML
   spec.add_runtime_dependency 'tiny_segmenter'      ,'~> 0.0'  # For splitting Japanese sentences into words
+  spec.add_runtime_dependency 'tty-spinner'         ,'~> 0.9'  # For CLI spinning progress
   
   spec.add_development_dependency 'bundler'   ,'~> 2.1'
   spec.add_development_dependency 'minitest'  ,'~> 5.14'
