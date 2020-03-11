@@ -62,7 +62,7 @@ Gem::Specification.new() do |spec|
   
   spec.add_runtime_dependency 'bimyou_segmenter'    ,'~> 1.2'  # For splitting Japanese sentences into words
   spec.add_runtime_dependency 'cri'                 ,'~> 2.15' # For CLI commands/options
-  spec.add_runtime_dependency 'highline'            ,'~> 2.0'  # For CLI input/output'
+  spec.add_runtime_dependency 'highline'            ,'~> 2.0'  # For CLI input/output
   spec.add_runtime_dependency 'japanese_deinflector','~> 0.0'  # For unconjugating Japanese words (plain/dictionary form)
   spec.add_runtime_dependency 'nokogiri'            ,'~> 1.10' # For scraping/hacking
   spec.add_runtime_dependency 'psychgus'            ,'~> 1.2'  # For styling Psych YAML
