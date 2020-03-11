@@ -34,6 +34,7 @@ module NHKore
   # @since  0.2.0
   ###
   class SearchScraper < Scraper
+    DEFAULT_RESULT_COUNT = 100
     FUTSUU_SITE = 'nhk.or.jp/news/html/'
     YASASHII_SITE = 'nhk.or.jp/news/easy/'
     
@@ -80,7 +81,7 @@ module NHKore
       super(url,**kargs)
     end
     
-    def self.build_url(site,count: 100,**kargs)
+    def self.build_url(site,count: DEFAULT_RESULT_COUNT,**kargs)
       url = ''.dup()
       
       url << 'https://www.bing.com/search?'
