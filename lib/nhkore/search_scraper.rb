@@ -78,6 +78,9 @@ module NHKore
       @site = site
       url = self.class.build_url(site,**kargs) if url.nil?()
       
+      # Delete class-specific args (don't pass to Open-URI).
+      kargs.delete(:count)
+      
       super(url,**kargs)
     end
     
