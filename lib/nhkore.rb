@@ -48,6 +48,9 @@ require 'nhkore/variator'
 require 'nhkore/version'
 require 'nhkore/word'
 
+require 'nhkore/cli/bing_cmd'
+require 'nhkore/cli/fx_cmd'
+
 
 ###
 # @author Jonathan Bradley Whited (@esotericpig)
