@@ -21,13 +21,15 @@
 #++
 
 
-require 'nhkore_tester'
+require 'nhkore/test_helper'
 
 
-class NHKoreTest < NHKoreTester
-  def setup()
-  end
-  
-  def test_something()
+module NHKore
+  class NHKoreTest < TestHelper
+    def setup()
+    end
+    
+    def test_something()
+    end
   end
 end

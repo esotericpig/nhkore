@@ -26,5 +26,7 @@ require 'minitest/autorun'
 require 'nhkore'
 
 
-class NHKoreTester < Minitest::Test
+module NHKore
+  class TestHelper < Minitest::Test
+  end
 end
