@@ -26,10 +26,11 @@ require 'highline'
 require 'tty-spinner'
 
 require 'nhkore/error'
-require 'nhkore/search_link'
-require 'nhkore/search_scraper'
 require 'nhkore/util'
 require 'nhkore/version'
+
+require 'nhkore/cli/bing_cmd'
+require 'nhkore/cli/fx_cmd'
 
 
 module NHKore
@@ -37,18 +38,29 @@ module NHKore
   # @author Jonathan Bradley Whited (@esotericpig)
   # @since  0.2.0
   ###
+  module CLI
+  end
+  
+  ###
+  # @author Jonathan Bradley Whited (@esotericpig)
+  # @since  0.2.0
+  ###
   class App
+    include CLI::BingCmd
+    include CLI::FXCmd
+    
     NAME = 'nhkore'
     
     CLASSIC_SPINNER = TTY::Spinner.new('[:spinner] :title:detail...',format: :classic)
     DEFAULT_SPINNER = TTY::Spinner.new('[:spinner] :title:detail...',
       frames: ['〜〜〜','日〜〜','日本〜','日本語'],
       interval: 5)
+    NO_SPINNER = {} # Still outputs status & stores tokens
     NO_SPINNER_MSG = "%{title}%{detail}..."
     
-    DEFAULT_SLEEP = 0.1 # So that sites don't ban us (i.e., think we are human)
+    DEFAULT_SLEEP_TIME = 0.1 # So that sites don't ban us (i.e., think we are human)
     
-    attr_accessor :scrape_sleep
+    attr_accessor :sleep_time
     attr_accessor :spinner
     
     def initialize(args=ARGV)
@@ -59,11 +71,13 @@ module NHKore
       @cmd_args = nil
       @cmd_opts = nil
       @high = HighLine.new()
-      @scrape_sleep = DEFAULT_SLEEP
+      @sleep_time = DEFAULT_SLEEP_TIME
       @spinner = DEFAULT_SPINNER
       
       build_app_cmd()
+      
       build_bing_cmd()
+      build_fx_cmd()
       
       @app_cmd.add_command Cri::Command.new_basic_help()
     end
@@ -83,8 +97,8 @@ module NHKore
           This is similar to a core word/vocabulary list.
         EOD
         
-        flag :c,:'classic-spin',<<-EOD do |value,cmd|
-          use classic spinner effects (in case of no Unicode support) when running long tasks
+        flag :c,:'classic-fx',<<-EOD do |value,cmd|
+          use classic spinner/progress special effects (in case of no Unicode support) when running long tasks
         EOD
           app.spinner = CLASSIC_SPINNER
         end
@@ -96,100 +110,23 @@ module NHKore
           puts cmd.help
           exit
         end
-        flag :p,:'no-spin','disable spinner effects when running long tasks' do |value,cmd|
-          app.spinner = {} # Still outputs status & stores tokens
+        flag :X,:'no-fx','disable spinner/progress special effects when running long tasks' do |value,cmd|
+          app.spinner = NO_SPINNER
         end
-        option :e,:sleep,<<-EOD,argument: :required,default: DEFAULT_SLEEP do |value,cmd|
+        option :z,:sleep,<<-EOD,argument: :required,default: DEFAULT_SLEEP_TIME do |value,cmd|
           seconds to sleep per scrape (i.e., per page/article) so don't get banned (i.e., fake being human)
         EOD
-          app.scrape_sleep = value.to_f()
-          app.scrape_sleep = 0.0 if app.scrape_sleep < 0.0
+          app.sleep_time = value.to_f()
+          app.sleep_time = 0.0 if app.sleep_time < 0.0
         end
         # Big V, not small.
-        flag :V,:version,'show the version' do |value,cmd|
+        flag :V,:version,'show the version and exit' do |value,cmd|
           puts "#{NAME} v#{VERSION}"
           exit
         end
         
         run do |opts,args,cmd|
           puts cmd.help
-        end
-      end
-    end
-    
-    def build_bing_cmd()
-      app = self
-      
-      @bing_cmd = @app_cmd.define_command() do
-        name    'bing'
-        usage   'bing [OPTIONS] [COMMAND]...'
-        aliases :b
-        summary 'Search bing.com for links to NHK News Web (Easy)'
-        
-        description <<-EOD
-          Search bing.com for links to NHK News Web (Easy) &
-          save to folder: #{Util::CORE_DIR}
-        EOD
-        
-        option :i,:in,<<-EOD,argument: :required
-          file to read instead of URL (for offline testing and/or slow internet; see -u/--url option)
-        EOD
-        option :o,:out,<<-EOD,argument: :required
-          'directory/file' to save links to; if you only specify a directory or a file, it will attach the
-          the appropriate default directory/file name
-          (defaults: #{SearchLinks::DEFAULT_BING_YASASHII_FILE}, #{SearchLinks::DEFAULT_BING_FUTSUU_FILE})
-        EOD
-        option :r,:results,'number of results per page to request from Bing',argument: :required,
-          default: SearchScraper::DEFAULT_RESULT_COUNT,transform: -> (value) do
-          value = value.to_i()
-          value = 1 if value < 1
-          value
-        end
-        option :u,:url,<<-EOD do |value,cmd|
-          show the URLs used when scraping and exit; you can download these for offline testing and/or
-          slow internet (see -i/--in option)
-        EOD
-          puts "Easy:    #{BingScraper.build_url(SearchScraper::YASASHII_SITE)}"
-          puts "Regular: #{BingScraper.build_url(SearchScraper::FUTSUU_SITE)}"
-          exit
-        end
-        
-        run do |opts,args,cmd|
-          puts cmd.help
-        end
-      end
-      
-      @bing_easy_cmd = @bing_cmd.define_command() do
-        name    'easy'
-        usage   'easy [OPTIONS] [COMMAND]...'
-        aliases :e,:ez
-        summary 'Search for NHK News Web Easy (Yasashii) links'
-        
-        description <<-EOD
-          Search for NHK News Web Easy (Yasashii) links &
-          save to file: #{SearchLinks::DEFAULT_BING_YASASHII_FILE}
-        EOD
-        
-        run do |opts,args,cmd|
-          app.refresh_cmd(opts,args,cmd)
-          app.run_bing_cmd(:yasashii)
-        end
-      end
-      
-      @bing_regular_cmd = @bing_cmd.define_command() do
-        name    'regular'
-        usage   'regular [OPTIONS] [COMMAND]...'
-        aliases :r,:reg
-        summary 'Search for NHK News Web Regular (Futsuu) links'
-        
-        description <<-EOD
-          Search for NHK News Web Regular (Futsuu) links &
-          save to file: #{SearchLinks::DEFAULT_BING_FUTSUU_FILE}
-        EOD
-        
-        run do |opts,args,cmd|
-          app.refresh_cmd(opts,args,cmd)
-          app.run_bing_cmd(:futsuu)
         end
       end
     end
@@ -305,77 +242,8 @@ module NHKore
       @app_cmd.run(@args)
     end
     
-    def run_bing_cmd(type)
-      dry_run = @cmd_opts[:dry_run]
-      in_file = build_in_file(:in)
-      out_file = nil
-      result_count = @cmd_opts[:results]
-      
-      case type
-      when :futsuu
-        out_file = build_out_file(:out,Util::CORE_DIR,SearchLinks::DEFAULT_BING_FUTSUU_FILENAME)
-      when :yasashii
-        out_file = build_out_file(:out,Util::CORE_DIR,SearchLinks::DEFAULT_BING_YASASHII_FILENAME)
-      else
-        raise ArgError,"invalid type[#{type}]"
-      end
-      
-      return unless check_in_file(:in)
-      return unless check_out_file(:out)
-      
-      start_spin('Scraping bing.com')
-      
-      is_file = !in_file.nil?()
-      links = nil
-      next_page = NextPage.new()
-      page_count = 0
-      page_num = 1
-      url = in_file # nil will use default URL, else a file
-      
-      # Load previous links for 'scraped?' vars.
-      if File.exist?(out_file)
-        links = SearchLinks.load_file(out_file)
-      else
-        links = SearchLinks.new()
-      end
-      
-      base_links_count = links.links.length
-      
-      # Do a range to prevent an infinite loop. Ichiman!
-      (0..10000).each() do
-        scraper = BingScraper.new(type,count: result_count,is_file: is_file,url: url)
-        
-        next_page = scraper.scrape(links,next_page)
-        
-        page_count = next_page.count if next_page.count > 0
-        
-        update_spin_detail(" (page=#{page_num}, count=#{page_count}, links=#{links.links.length}, " +
-          "new_links=#{links.links.length - base_links_count})")
-        
-        break if next_page.empty?()
-        
-        page_num += 1
-        url = next_page.url
-        
-        sleep(@scrape_sleep)
-      end
-      
-      stop_spin()
-      puts
-      
-      puts 'Last URL scraped:'
-      puts "> #{url}"
-      
-      if dry_run
-        puts
-        
-        # links.to_s() is too verbose (YAML).
-        links.links.each() do |key,link|
-          puts link.url
-        end
-      else
-        links.save_file(out_file)
-      end
+    def sleep_scraper()
+      sleep(@sleep_time)
     end
     
     def start_spin(title,detail: '')
