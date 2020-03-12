@@ -3,9 +3,6 @@
 *.gem
 *.rbc
 
-# Ignore in case want to use as a library
-/Gemfile.lock
-
 /.yardoc/
 /doc/
 /pkg/
