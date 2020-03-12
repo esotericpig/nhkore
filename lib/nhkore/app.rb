@@ -78,6 +78,7 @@ module NHKore
       
       build_bing_cmd()
       build_fx_cmd()
+      build_version_cmd()
       
       @app_cmd.add_command Cri::Command.new_basic_help()
     end
@@ -121,7 +122,7 @@ module NHKore
         end
         # Big V, not small.
         flag :V,:version,'show the version and exit' do |value,cmd|
-          puts "#{NAME} v#{VERSION}"
+          app.show_version()
           exit
         end
         
@@ -166,6 +167,21 @@ module NHKore
       out_file = File.expand_path(out_file)
       
       return (@cmd_opts[opt_key] = out_file)
+    end
+    
+    def build_version_cmd()
+      app = self
+      
+      @version_cmd = @app_cmd.define_command() do
+        name    'version'
+        usage   'version [OPTIONS] [COMMAND]...'
+        aliases :v
+        summary 'Show the version and exit'
+        
+        run do |opts,args,cmd|
+          app.show_version()
+        end
+      end
     end
     
     def check_in_file(opt_key,empty_ok: true)
@@ -240,6 +256,10 @@ module NHKore
     
     def run()
       @app_cmd.run(@args)
+    end
+    
+    def show_version()
+      puts "#{NAME} v#{VERSION}"
     end
     
     def sleep_scraper()
