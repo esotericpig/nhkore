@@ -1,0 +1,61 @@
+PATH
+  remote: .
+  specs:
+    nhkore (0.1.0)
+      bimyou_segmenter (~> 1.2)
+      cri (~> 2.15)
+      highline (~> 2.0)
+      japanese_deinflector (~> 0.0)
+      nokogiri (~> 1.10)
+      psychgus (~> 1.2)
+      tiny_segmenter (~> 0.0)
+      tty-progressbar (~> 0.17)
+      tty-spinner (~> 0.9)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    bimyou_segmenter (1.2.0)
+    cri (2.15.10)
+    highline (2.0.3)
+    japanese_deinflector (0.0.2)
+    mini_portile2 (2.4.0)
+    minitest (5.14.0)
+    nokogiri (1.10.9)
+      mini_portile2 (~> 2.4.0)
+    psych (3.1.0)
+    psychgus (1.2.1)
+      psych (>= 2.0.5)
+    rake (13.0.1)
+    raketeer (0.2.9)
+      rake
+    strings-ansi (0.1.0)
+    tiny_segmenter (0.0.6)
+    tty-cursor (0.7.1)
+    tty-progressbar (0.17.0)
+      strings-ansi (~> 0.1.0)
+      tty-cursor (~> 0.7)
+      tty-screen (~> 0.7)
+      unicode-display_width (~> 1.6)
+    tty-screen (0.7.1)
+    tty-spinner (0.9.3)
+      tty-cursor (~> 0.7)
+    unicode-display_width (1.6.1)
+    yard (0.9.24)
+    yard_ghurt (1.2.0)
+      rake
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  bundler (~> 2.1)
+  minitest (~> 5.14)
+  nhkore!
+  rake (~> 13.0)
+  raketeer (~> 0.2)
+  yard (~> 0.9)
+  yard_ghurt (~> 1.1)
+
+BUNDLED WITH
+   2.1.2
