@@ -39,6 +39,7 @@ module NHKore
     
     HIRAGANA_REGEX = /\p{Hiragana}/
     JPN_SPACE = "\u3000" # Must be double-quoted for escape chars
+    KANA_REGEX = /\p{Hiragana}|\p{Katakana}/
     KANJI_REGEX = /\p{Han}/ # Han probably stands for Hanzi?
     KATAKANA_REGEX = /\p{Katakana}/
     NORMALIZE_STR_REGEX = /[^[[:alpha:]]]+/
@@ -75,6 +76,10 @@ module NHKore
     
     def self.hiragana?(str)
       return HIRAGANA_REGEX =~ str
+    end
+    
+    def self.kana?(str)
+      return KANA_REGEX =~ str
     end
     
     def self.kanji?(str)
