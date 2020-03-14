@@ -54,11 +54,11 @@ module NHKore
       
       if !unknown.nil?()
         if Util.kanji?(unknown)
-          raise ArgError,"unknown[#{unknown}] will overwrite kanji[#{kanji}]" unless kanji.nil?()
+          raise ArgError,"unknown[#{unknown}] will overwrite kanji[#{kanji}]" unless Util.empty_web_str?(kanji)
           
           kanji = unknown
         else
-          raise ArgError,"unknown[#{unknown}] will overwrite kana[#{kana}]" unless kana.nil?()
+          raise ArgError,"unknown[#{unknown}] will overwrite kana[#{kana}]" unless Util.empty_web_str?(kana)
           
           kana = unknown
         end
