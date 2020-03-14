@@ -31,6 +31,7 @@ require 'nhkore/version'
 
 require 'nhkore/cli/bing_cmd'
 require 'nhkore/cli/fx_cmd'
+require 'nhkore/cli/news_cmd'
 
 
 module NHKore
@@ -48,6 +49,7 @@ module NHKore
   class App
     include CLI::BingCmd
     include CLI::FXCmd
+    include CLI::NewsCmd
     
     NAME = 'nhkore'
     
@@ -78,6 +80,7 @@ module NHKore
       
       build_bing_cmd()
       build_fx_cmd()
+      build_news_cmd()
       build_version_cmd()
       
       @app_cmd.add_command Cri::Command.new_basic_help()
@@ -106,7 +109,8 @@ module NHKore
         flag :n,:'dry-run',<<-EOD
           do a dry run without making changes; do not write to files, create directories, etc.
         EOD
-        flag :f,:force,"force overwriting files, creating directories, etc. (don't prompt); dangerous!"
+        # Big F because dangerous.
+        flag :F,:force,"force overwriting files, creating directories, etc. (don't prompt); dangerous!"
         flag :h,:help,'show this help' do |value,cmd|
           puts cmd.help
           exit
@@ -132,41 +136,41 @@ module NHKore
       end
     end
     
-    def build_in_file(opt_key)
-      # Protect against fat-fingering.
-      in_file = Util.strip_web_str(@cmd_opts[opt_key].to_s())
-      
-      if in_file.empty?()
-        in_file = nil # nil is very important for Scraper.init()!
-      else
-        in_file = File.expand_path(in_file) # '~' will expand to home, etc.
-      end
-      
-      return (@cmd_opts[opt_key] = in_file)
-    end
-    
-    def build_out_file(opt_key,default_dir,default_filename)
+    def build_file(opt_key,default_dir='',default_filename='')
       # Protect against fat-fingering.
       default_dir = Util.strip_web_str(default_dir)
       default_filename = Util.strip_web_str(default_filename)
-      out_file = Util.strip_web_str(@cmd_opts[opt_key].to_s())
+      file = Util.strip_web_str(@cmd_opts[opt_key].to_s())
       
-      if out_file.empty?()
-        out_file = File.join(default_dir,default_filename)
+      if file.empty?()
+        if default_dir.empty?() && default_filename.empty?()
+          file = nil # nil is very important for BingScraper.init()!
+        else
+          file = File.join(default_dir,default_filename)
+        end
       else
-        if File.directory?(out_file) || Util.dir_str?(out_file)
-          out_file = File.join(out_file,default_filename)
+        # Directory?
+        if File.directory?(file) || Util.dir_str?(file)
+          file = File.join(file,default_filename)
         # File name only? (no directory)
-        elsif Util.filename_str?(out_file)
-          out_file = File.join(default_dir,out_file)
+        elsif Util.filename_str?(file)
+          file = File.join(default_dir,file)
         end
         # Else, passed in both: 'directory/file'
       end
       
       # '~' will expand to home, etc.
-      out_file = File.expand_path(out_file)
+      file = File.expand_path(file) unless file.nil?()
       
-      return (@cmd_opts[opt_key] = out_file)
+      return (@cmd_opts[opt_key] = file)
+    end
+    
+    def build_in_file(opt_key,default_dir='',default_filename='')
+      return build_file(opt_key,default_dir,default_filename)
+    end
+    
+    def build_out_file(opt_key,default_dir='',default_filename='')
+      return build_file(opt_key,default_dir,default_filename)
     end
     
     def build_version_cmd()
@@ -184,13 +188,25 @@ module NHKore
       end
     end
     
-    def check_in_file(opt_key,empty_ok: true)
+    def check_in_file(opt_key,empty_ok: false)
       in_file = @cmd_opts[opt_key]
       
-      return empty_ok if in_file.nil?()
+      if Util.empty_web_str?(in_file)
+        if !empty_ok
+          raise CLIError,"empty input path name[#{in_file}] in option[#{opt_key}]"
+        end
+        
+        @cmd_opts[opt_key] = nil # nil is very important for BingScraper.init()!
+        
+        return true
+      end
       
       if !File.exist?(in_file)
-        raise CLIError,"input file[#{in_file}] does not exist"
+        raise CLIError,"input file[#{in_file}] does not exist for option[#{opt_key}]"
+      end
+      
+      if File.directory?(in_file)
+        raise CLIError,"input file[#{in_file}] cannot be a directory for option[#{opt_key}]"
       end
       
       return true
@@ -198,6 +214,14 @@ module NHKore
     
     def check_out_file(opt_key)
       out_file = @cmd_opts[opt_key]
+      
+      if Util.empty_web_str?(out_file)
+        raise CLIError,"empty output path name[#{out_file}] in option[#{opt_key}]"
+      end
+      
+      if File.directory?(out_file)
+        raise CLIError,"output file[#{out_file}] cannot be a directory for option[#{opt_key}]"
+      end
       
       if @cmd_opts[:dry_run]
         puts 'No changes written (dry run).'
@@ -231,6 +255,12 @@ module NHKore
       end
       
       return true
+    end
+    
+    def pre_check_pathname(opt_key,pathname)
+      if Util.empty_web_str?(pathname)
+        raise CLIError,"empty path name[#{pathname}] in option[#{opt_key}]"
+      end
     end
     
     def refresh_cmd(opts,args,cmd)

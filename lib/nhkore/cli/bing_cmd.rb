@@ -48,14 +48,21 @@ module CLI
           save to folder: #{Util::CORE_DIR}
         EOD
         
-        option :i,:in,<<-EOD,argument: :required
-          file to read instead of URL (for offline testing and/or slow internet; see --show-urls option)
+        option :i,:in,<<-EOD,argument: :required do |value,cmd|
+          HTML file to read instead of URL (for offline testing and/or slow internet;
+          see '--show-urls' option)
         EOD
-        option :o,:out,<<-EOD,argument: :required
+          app.pre_check_pathname(:in,value)
+          value
+        end
+        option :o,:out,<<-EOD,argument: :required do |value,cmd|
           'directory/file' to save links to; if you only specify a directory or a file, it will attach the
-          the appropriate default directory/file name
+          appropriate default directory/file name
           (defaults: #{SearchLinks::DEFAULT_BING_YASASHII_FILE}, #{SearchLinks::DEFAULT_BING_FUTSUU_FILE})
         EOD
+          app.pre_check_pathname(:out,value)
+          value
+        end
         option :r,:results,'number of results per page to request from Bing',argument: :required,
           default: SearchScraper::DEFAULT_RESULT_COUNT,transform: -> (value) do
           value = value.to_i()
@@ -64,7 +71,7 @@ module CLI
         end
         option nil,:'show-urls',<<-EOD do |value,cmd|
           show the URLs used when scraping and exit; you can download these for offline testing and/or
-          slow internet (see -i/--in option)
+          slow internet (see '--in' option)
         EOD
           puts "Easy:    #{BingScraper.build_url(SearchScraper::YASASHII_SITE)}"
           puts "Regular: #{BingScraper.build_url(SearchScraper::FUTSUU_SITE)}"
@@ -112,22 +119,24 @@ module CLI
     end
     
     def run_bing_cmd(type)
-      dry_run = @cmd_opts[:dry_run]
-      in_file = build_in_file(:in)
-      out_file = nil
-      result_count = @cmd_opts[:results]
+      build_in_file(:in)
       
       case type
       when :futsuu
-        out_file = build_out_file(:out,Util::CORE_DIR,SearchLinks::DEFAULT_BING_FUTSUU_FILENAME)
+        build_out_file(:out,Util::CORE_DIR,SearchLinks::DEFAULT_BING_FUTSUU_FILENAME)
       when :yasashii
-        out_file = build_out_file(:out,Util::CORE_DIR,SearchLinks::DEFAULT_BING_YASASHII_FILENAME)
+        build_out_file(:out,Util::CORE_DIR,SearchLinks::DEFAULT_BING_YASASHII_FILENAME)
       else
         raise ArgumentError,"invalid type[#{type}]"
       end
       
-      return unless check_in_file(:in)
+      return unless check_in_file(:in,empty_ok: true)
       return unless check_out_file(:out)
+      
+      dry_run = @cmd_opts[:dry_run]
+      in_file = @cmd_opts[:in]
+      out_file = @cmd_opts[:out]
+      result_count = @cmd_opts[:results]
       
       start_spin('Scraping bing.com')
       
