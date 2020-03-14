@@ -50,15 +50,15 @@ module NHKore
         kanji = word.kanji if kanji.nil?()
       end
       
-      raise ArgError,"freq[#{freq}] cannot be < 1" if freq < 1
+      raise ArgumentError,"freq[#{freq}] cannot be < 1" if freq < 1
       
       if !unknown.nil?()
         if Util.kanji?(unknown)
-          raise ArgError,"unknown[#{unknown}] will overwrite kanji[#{kanji}]" unless Util.empty_web_str?(kanji)
+          raise ArgumentError,"unknown[#{unknown}] will overwrite kanji[#{kanji}]" unless Util.empty_web_str?(kanji)
           
           kanji = unknown
         else
-          raise ArgError,"unknown[#{unknown}] will overwrite kana[#{kana}]" unless Util.empty_web_str?(kana)
+          raise ArgumentError,"unknown[#{unknown}] will overwrite kana[#{kana}]" unless Util.empty_web_str?(kana)
           
           kana = unknown
         end
@@ -67,7 +67,7 @@ module NHKore
       kana = nil if Util.empty_web_str?(kana)
       kanji = nil if Util.empty_web_str?(kanji)
       
-      raise ArgError,'kanji and kana cannot both be empty' if kana.nil?() && kanji.nil?()
+      raise ArgumentError,'kanji and kana cannot both be empty' if kana.nil?() && kanji.nil?()
       
       @defn = defn
       @eng = eng
@@ -99,7 +99,7 @@ module NHKore
       )
       
       if key != word.key
-        raise ArgError,"the key from the hash[#{key}] does not match the generated key[#{word.key}]"
+        raise ArgumentError,"the key from the hash[#{key}] does not match the generated key[#{word.key}]"
       end
       
       freq = hash[:freq].to_i() # nil.to_i() is 0

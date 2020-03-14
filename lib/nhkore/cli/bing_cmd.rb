@@ -123,7 +123,7 @@ module CLI
       when :yasashii
         out_file = build_out_file(:out,Util::CORE_DIR,SearchLinks::DEFAULT_BING_YASASHII_FILENAME)
       else
-        raise ArgError,"invalid type[#{type}]"
+        raise ArgumentError,"invalid type[#{type}]"
       end
       
       return unless check_in_file(:in)

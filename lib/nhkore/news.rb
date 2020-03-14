@@ -46,8 +46,8 @@ module NHKore
     end
     
     def add_article(key,article)
-      raise ArgError,"duplicate article[#{key}] in articles" if @articles.key?(key)
-      raise ArgError,"duplicate sha256[#{article.sha256}] in articles" if @sha256s.key?(article.sha256)
+      raise ArgumentError,"duplicate article[#{key}] in articles" if @articles.key?(key)
+      raise ArgumentError,"duplicate sha256[#{article.sha256}] in articles" if @sha256s.key?(article.sha256)
       
       @articles[key] = article
       @sha256s[article.sha256] = article.url

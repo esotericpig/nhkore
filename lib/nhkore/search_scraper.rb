@@ -71,8 +71,8 @@ module NHKore
         regex = /#{Regexp.quote(site)}/ if regex.nil?()
       end
       
-      raise ArgError,"empty regex[#{regex}]" if regex.nil?()
-      raise ArgError,"empty site[#{site}]" if site.empty?()
+      raise ArgumentError,"empty regex[#{regex}]" if regex.nil?()
+      raise ArgumentError,"empty site[#{site}]" if site.empty?()
       
       @regex = regex
       @site = site
