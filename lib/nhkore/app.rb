@@ -136,14 +136,15 @@ module NHKore
       end
     end
     
-    def build_file(opt_key,default_dir='',default_filename='')
+    def build_file(opt_key,default_dir: '.',default_filename: '')
       # Protect against fat-fingering.
       default_dir = Util.strip_web_str(default_dir)
       default_filename = Util.strip_web_str(default_filename)
       file = Util.strip_web_str(@cmd_opts[opt_key].to_s())
       
       if file.empty?()
-        if default_dir.empty?() && default_filename.empty?()
+        # Do not check default_dir.empty?().
+        if default_filename.empty?()
           file = nil # nil is very important for BingScraper.init()!
         else
           file = File.join(default_dir,default_filename)
@@ -165,12 +166,12 @@ module NHKore
       return (@cmd_opts[opt_key] = file)
     end
     
-    def build_in_file(opt_key,default_dir='',default_filename='')
-      return build_file(opt_key,default_dir,default_filename)
+    def build_in_file(opt_key,**kargs)
+      return build_file(opt_key,**kargs)
     end
     
-    def build_out_file(opt_key,default_dir='',default_filename='')
-      return build_file(opt_key,default_dir,default_filename)
+    def build_out_file(opt_key,**kargs)
+      return build_file(opt_key,**kargs)
     end
     
     def build_version_cmd()

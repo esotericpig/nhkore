@@ -123,9 +123,9 @@ module CLI
       
       case type
       when :futsuu
-        build_out_file(:out,Util::CORE_DIR,SearchLinks::DEFAULT_BING_FUTSUU_FILENAME)
+        build_out_file(:out,default_dir: Util::CORE_DIR,default_filename: SearchLinks::DEFAULT_BING_FUTSUU_FILENAME)
       when :yasashii
-        build_out_file(:out,Util::CORE_DIR,SearchLinks::DEFAULT_BING_YASASHII_FILENAME)
+        build_out_file(:out,default_dir: Util::CORE_DIR,default_filename: SearchLinks::DEFAULT_BING_YASASHII_FILENAME)
       else
         raise ArgumentError,"invalid type[#{type}]"
       end
