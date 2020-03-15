@@ -51,8 +51,7 @@ module CLI
           HTML file of NHK article to read instead of URL (for offline testing and/or slow internet;
           see '--no-dict' option)
         EOD
-          app.pre_check_pathname(:in,value)
-          value
+          app.check_empty_opt(:in,value)
         end
         option :k,:like,<<-EOD,argument: :required
           text to fuzzy search links for; for example, "--like '00123'" will only scrape links containing
@@ -62,8 +61,7 @@ module CLI
           'directory/file' of article links (from a Search Engine) to scrape (see '#{App::NAME} bing';
           defaults: #{SearchLinks::DEFAULT_BING_YASASHII_FILE}, #{SearchLinks::DEFAULT_BING_FUTSUU_FILE})
         EOD
-          app.pre_check_pathname(:links,value)
-          value
+          app.check_empty_opt(:links,value)
         end
         flag :D,:'no-dict',<<-EOD
           do not try to parse the dictionary files for the articles; useful in case of errors trying to load
@@ -74,16 +72,17 @@ module CLI
           the appropriate default directory/file name
           (defaults: #{YasashiiNews::DEFAULT_FILE}, #{FutsuuNews::DEFAULT_FILE})
         EOD
-          app.pre_check_pathname(:out,value)
-          value
+          app.check_empty_opt(:out,value)
         end
         option nil,:'show-dict',<<-EOD
           show the dictionary URL and contents for the first article and exit;
           useful for debugging dictionary errors (see '--no-dict' option)
         EOD
-        option :u,:url,<<-EOD,argument: :required
+        option :u,:url,<<-EOD,argument: :required do |value,cmd|
           URL of NHK article to scrape, instead of article links file (see '--links' option)
         EOD
+          app.check_empty_opt(:url,value)
+        end
         
         run do |opts,args,cmd|
           puts cmd.help

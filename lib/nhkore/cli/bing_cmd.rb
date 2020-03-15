@@ -52,22 +52,19 @@ module CLI
           HTML file to read instead of URL (for offline testing and/or slow internet;
           see '--show-urls' option)
         EOD
-          app.pre_check_pathname(:in,value)
-          value
+          app.check_empty_opt(:in,value)
         end
         option :o,:out,<<-EOD,argument: :required do |value,cmd|
           'directory/file' to save links to; if you only specify a directory or a file, it will attach the
           appropriate default directory/file name
           (defaults: #{SearchLinks::DEFAULT_BING_YASASHII_FILE}, #{SearchLinks::DEFAULT_BING_FUTSUU_FILE})
         EOD
-          app.pre_check_pathname(:out,value)
-          value
+          app.check_empty_opt(:out,value)
         end
         option :r,:results,'number of results per page to request from Bing',argument: :required,
           default: SearchScraper::DEFAULT_RESULT_COUNT,transform: -> (value) do
           value = value.to_i()
           value = 1 if value < 1
-          value
         end
         option nil,:'show-urls',<<-EOD do |value,cmd|
           show the URLs used when scraping and exit; you can download these for offline testing and/or

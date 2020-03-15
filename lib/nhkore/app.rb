@@ -189,6 +189,12 @@ module NHKore
       end
     end
     
+    def check_empty_opt(key,value)
+      if Util.empty_web_str?(value)
+        raise CLIError,"option[#{key}] cannot be empty[#{value}]"
+      end
+    end
+    
     def check_in_file(opt_key,empty_ok: false)
       in_file = @cmd_opts[opt_key]
       
@@ -256,12 +262,6 @@ module NHKore
       end
       
       return true
-    end
-    
-    def pre_check_pathname(opt_key,pathname)
-      if Util.empty_web_str?(pathname)
-        raise CLIError,"empty path name[#{pathname}] in option[#{opt_key}]"
-      end
     end
     
     def refresh_cmd(opts,args,cmd)
