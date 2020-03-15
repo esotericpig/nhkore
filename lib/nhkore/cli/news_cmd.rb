@@ -21,6 +21,7 @@
 #++
 
 
+require 'nhkore/error'
 require 'nhkore/news'
 require 'nhkore/search_link'
 require 'nhkore/util'
@@ -48,7 +49,7 @@ module CLI
         EOD
         
         option :i,:in,<<-EOD,argument: :required do |value,cmd|
-          HTML file of NHK article to read instead of URL (for offline testing and/or slow internet;
+          HTML file of article to read instead of URL (for offline testing and/or slow internet;
           see '--no-dict' option)
         EOD
           app.check_empty_opt(:in,value)
@@ -68,18 +69,23 @@ module CLI
           the dictionaries (or testing offline)
         EOD
         option :o,:out,<<-EOD,argument: :required do |value,cmd|
-          'directory/file' to save NHK words to; if you only specify a directory or a file, it will attach
+          'directory/file' to save words to; if you only specify a directory or a file, it will attach
           the appropriate default directory/file name
           (defaults: #{YasashiiNews::DEFAULT_FILE}, #{FutsuuNews::DEFAULT_FILE})
         EOD
           app.check_empty_opt(:out,value)
+        end
+        option :s,:scrape,'number of article links to scrape',argument: :optional,default: 1,
+          transform: -> (value) do
+          value = value.to_i()
+          value = 1 if value < 1
         end
         option nil,:'show-dict',<<-EOD
           show the dictionary URL and contents for the first article and exit;
           useful for debugging dictionary errors (see '--no-dict' option)
         EOD
         option :u,:url,<<-EOD,argument: :required do |value,cmd|
-          URL of NHK article to scrape, instead of article links file (see '--links' option)
+          URL of article to scrape, instead of article links file (see '--links' option)
         EOD
           app.check_empty_opt(:url,value)
         end
@@ -124,8 +130,6 @@ module CLI
       end
     end
     
-    # TODO: if dry-run, if X > 1, then just output header (no words)
-    # TODO: if already have in hash, if https, replace SearchLinks & News.articles w/ https one
     def run_news_cmd(type)
       build_in_file(:in)
       
@@ -141,19 +145,90 @@ module CLI
       end
       
       return unless check_in_file(:in,empty_ok: true)
-      return unless check_in_file(:links,empty_ok: true)
       return unless check_out_file(:out)
       
       dry_run = @cmd_opts[:dry_run]
       in_file = @cmd_opts[:in]
+      like_str = @cmd_opts[:like]
       links_file = @cmd_opts[:links]
+      no_dict = @cmd_opts[:no_dict]
       out_file = @cmd_opts[:out]
+      scrape_max = @cmd_opts[:scrape]
+      show_dict = @cmd_opts[:show_dict]
       
-      # TODO: if links file is nil & --url/--in are nil, then error
+      # Favor in_file option over url option.
+      url = in_file.nil?() ? Util.strip_web_str(@cmd_opts[:url].to_s()) : in_file
+      url = nil if url.empty?()
       
-      puts "in:    #{in_file}"
-      puts "links: #{links_file}"
-      puts "out:   #{out_file}"
+      if in_file.nil?() && url.nil?()
+        # Then we must have a links file that exists.
+        return unless check_in_file(:links,empty_ok: false)
+      else
+        links_file = nil # Don't need
+      end
+      
+      start_spin('Scraping NHK News articles')
+      
+      is_file = !in_file.nil?()
+      links = links_file.nil?() ? nil : SearchLinks.load_file(links_file)
+      news = nil
+      scrape_count = 0
+      
+      if File.exist?(out_file)
+        news = (type == :yasashii) ? YasashiiNews.load_file(out_file) : FutsuuNews.load_file(out_file)
+      else
+        news = (type == :yasashii) ? YasashiiNews.new() : FutsuuNews.new()
+      end
+      
+      #TODO: no_dict
+      #TODO: show_dict
+      
+      if links.nil?()
+        # TODO: probably new method for logic can use here or below for 1 file
+      else
+        links.links.each() do |key,link|
+          # TODO: news.article from link/sha256; raise error if 1 is nil & 1 is not
+          if link.scraped?() #|| news.article?(link)
+            # TODO: update URL if https; remove non-https
+            
+            next
+          end
+          
+          next if !like_str.nil?() && !link.url.include?(like_str)
+          
+          if show_dict
+            # TODO: DictScraper; show_dict = URL + dict
+          end
+          
+          # TODO: compute sha256 and news.article?(sha256)
+          # TODO: scrape article link
+          
+          break if (scrape_count += 1) >= scrape_max
+          
+          sleep_scraper()
+        end
+      end
+      
+      stop_spin()
+      puts
+      
+      if scrape_count <= 0
+        puts 'Nothing scraped!'
+      else
+        puts 'Last URL scraped:'
+        puts "> #{url}"
+        
+        if show_dict
+          puts show_dict
+        elsif dry_run
+          puts
+          
+          # TODO: if dry-run, if X > 1, then just output header (no words)
+        else
+          links.save_file(links_file) unless links.nil?()
+          news.save_file(out_file)
+        end
+      end
     end
   end
 end
