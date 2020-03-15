@@ -255,10 +255,10 @@ module NHKore
           puts "> '#{out_dir}'"
           
           return false unless @high.agree('Create this directory (yes/no)? ')
-          puts
         end
         
         FileUtils.mkdir_p(out_dir,verbose: true)
+        puts
       end
       
       return true
