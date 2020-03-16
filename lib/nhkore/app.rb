@@ -265,22 +265,21 @@ module NHKore
     end
     
     def refresh_cmd(opts,args,cmd)
-      more_opts = {}
+      new_opts = {}
       
       # Change symbols with dashes to underscores,
       #   so don't have to type @cmd_opts[:'dry-run'] all the time.
       opts.each() do |key,value|
         key = key.to_s()
+        key = key.gsub('-','_')
+        key = key.to_sym()
         
-        if key.include?('-')
-          key = key.gsub('-','_').to_sym()
-          more_opts[key] = value
-        end
+        new_opts[key] = value
       end
       
       @cmd = cmd
       @cmd_args = args
-      @cmd_opts = opts.merge(more_opts)
+      @cmd_opts = new_opts
       
       return self
     end
