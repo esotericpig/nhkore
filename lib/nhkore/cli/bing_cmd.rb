@@ -65,6 +65,7 @@ module CLI
           default: SearchScraper::DEFAULT_RESULT_COUNT,transform: -> (value) do
           value = value.to_i()
           value = 1 if value < 1
+          value
         end
         option nil,:'show-urls',<<-EOD do |value,cmd|
           show the URLs used when scraping and exit; you can download these for offline testing and/or
@@ -134,6 +135,7 @@ module CLI
       in_file = @cmd_opts[:in]
       out_file = @cmd_opts[:out]
       result_count = @cmd_opts[:results]
+      result_count = SearchScraper::DEFAULT_RESULT_COUNT if result_count.nil?()
       
       start_spin('Scraping bing.com')
       
