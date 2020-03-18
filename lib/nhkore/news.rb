@@ -34,6 +34,7 @@ module NHKore
   ###
   class News
     DEFAULT_DIR = Util::CORE_DIR
+    FAVORED_URL = /https\:/i
     
     attr_reader :articles
     attr_reader :sha256s
@@ -100,6 +101,42 @@ module NHKore
       File.open(file,mode: mode,**kargs) do |file|
         file.write(to_s())
       end
+    end
+    
+    def update_article(article,url)
+      # Favor https.
+      return if article.url =~ FAVORED_URL
+      return if url !~ FAVORED_URL
+      
+      @articles.delete(article.url)
+      @articles[url] = article
+      article.url = url
+    end
+    
+    def article(key)
+      return @articles[key]
+    end
+    
+    def article_with_sha256(sha256)
+      article = nil
+      
+      @articles.values().each() do |a|
+        if a.sha256 == sha256
+          article = a
+          
+          break
+        end
+      end
+      
+      return article
+    end
+    
+    def article?(key)
+      return @articles.key?(key)
+    end
+    
+    def sha256?(sha256)
+      return @sha256s.key?(sha256)
     end
     
     def to_s()
