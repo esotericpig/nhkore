@@ -46,9 +46,13 @@ module NHKore
       @sha256s = {}
     end
     
-    def add_article(key,article)
-      raise ArgumentError,"duplicate article[#{key}] in articles" if @articles.key?(key)
-      raise ArgumentError,"duplicate sha256[#{article.sha256}] in articles" if @sha256s.key?(article.sha256)
+    def add_article(article,key: nil,overwrite: false)
+      key = article.url if key.nil?()
+      
+      if !overwrite
+        raise ArgumentError,"duplicate article[#{key}] in articles" if @articles.key?(key)
+        raise ArgumentError,"duplicate sha256[#{article.sha256}] in articles" if @sha256s.key?(article.sha256)
+      end
       
       @articles[key] = article
       @sha256s[article.sha256] = article.url
@@ -84,7 +88,7 @@ module NHKore
       if !articles.nil?()
         articles.each() do |key,hash|
           key = key.to_s() # Change from a symbol
-          news.add_article(key,article_class.load_data(key,hash))
+          news.add_article(article_class.load_data(key,hash),key: key)
         end
       end
       
