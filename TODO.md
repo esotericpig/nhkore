@@ -1,7 +1,7 @@
 # TODO | NHKore
 
 ## [v1.0.0]
-- [ ] `news` command
+- [x] `news` command
 - [ ] `freq` command (output to CSV file)
 - [ ] Add files to release (zipped)
 - [ ] `get` command for downloading release files
