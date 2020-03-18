@@ -281,7 +281,7 @@ module CLI
             end
           end
         else
-          links.save_file(links_file) unless links.nil?()
+          links.save_file(links_file)
           news.save_file(out_file)
         end
       end
