@@ -96,7 +96,7 @@ module NHKore
       return article
     end
     
-    def to_s()
+    def to_s(mini: false)
       s = ''.dup()
       
       s << "'#{@url}':"
@@ -106,9 +106,11 @@ module NHKore
       s << "\n  futsuurl: '#{@futsuurl}'"
       s << "\n  sha256:   '#{@sha256}'"
       
-      s << "\n  words:"
-      @words.each() do |key,word|
-        s << "\n    #{word}"
+      if !mini
+        s << "\n  words:"
+        @words.each() do |key,word|
+          s << "\n    #{word}"
+        end
       end
       
       return s
