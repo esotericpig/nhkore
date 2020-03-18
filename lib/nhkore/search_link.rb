@@ -148,6 +148,12 @@ module NHKore
       end
     end
     
+    def link(url)
+      url = url.url if url.respond_to?(:url)
+      
+      return @links[url]
+    end
+    
     def to_s()
       return Psychgus.dump(self,
         line_width: 10000, # Try not to wrap; ichiman!
