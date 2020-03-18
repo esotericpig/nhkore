@@ -3,7 +3,7 @@
 ## [v1.0.0]
 - [ ] `news` command
 - [ ] `freq` command (output to CSV file)
-- [ ] Add files to release (not zipped)
+- [ ] Add files to release (zipped)
 - [ ] `get` command for downloading release files
 - [ ] Create & add asciinema link
 - [ ] Add a section for non-coders (non-power-users) to README
