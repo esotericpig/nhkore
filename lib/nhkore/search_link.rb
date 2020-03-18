@@ -34,6 +34,8 @@ module NHKore
     attr_accessor :scraped
     attr_accessor :url
     
+    alias_method :scraped?,:scraped
+    
     def initialize(url,scraped: false)
       super()
       
@@ -98,6 +100,10 @@ module NHKore
       @links[link.url] = link
       
       return self
+    end
+    
+    def each(&block)
+      return @links.each(&block)
     end
     
     def encode_with(coder)
