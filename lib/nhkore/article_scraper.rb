@@ -50,7 +50,10 @@ module NHKore
     attr_reader :variators
     attr_accessor :year
     
-    def initialize(url,cleaners: [BestCleaner.new()],dict: nil,polishers: [BestPolisher.new()],splitter: BestSplitter.new(),variators: [BestVariator.new()],year: nil,**kargs)
+    # @param dict [Dict,nil,:scrape] the {Dict} (dictionary) to use for {Word#defn} (definitions)
+    #          [+nil+]     don't scrape/use it
+    #          [+:scrape+] auto-scrape it using {DictScraper}
+    def initialize(url,cleaners: [BestCleaner.new()],dict: :scrape,polishers: [BestPolisher.new()],splitter: BestSplitter.new(),variators: [BestVariator.new()],year: nil,**kargs)
       super(url,**kargs)
       
       @cleaners = Array(cleaners)
@@ -123,7 +126,7 @@ module NHKore
     end
     
     def scrape()
-      scrape_dict() if @dict.nil?()
+      scrape_dict()
       
       article = Article.new()
       doc = html_doc()
@@ -201,8 +204,11 @@ module NHKore
     end
     
     def scrape_dict()
-      dict_scraper = DictScraper.new(@url,**@kargs)
-      @dict = dict_scraper.scrape()
+      return if @dict != :scrape
+      
+      scraper = DictScraper.new(@url,**@kargs)
+      
+      @dict = scraper.scrape()
     end
     
     def scrape_dicwin_word(tag,id,result: ScrapeWordsResult.new())
@@ -223,17 +229,22 @@ module NHKore
         end
       end
       
+      entry = nil
       kana = clean(kana)
       kanji = clean(kanji)
       
       raise ScrapeError,"empty dicWin word at URL[#{@url}] in tag[#{tag}]" if kana.empty?() && kanji.empty?()
       
-      entry = @dict[id]
-      
-      raise ScrapeError,"no dicWin ID[#{id}] at URL[#{@url}] in dictionary[#{@dict}]" if entry.nil?()
+      if !@dict.nil?()
+        entry = @dict[id]
+        
+        raise ScrapeError,"no dicWin ID[#{id}] at URL[#{@url}] in dictionary[#{@dict}]" if entry.nil?()
+        
+        entry = entry.to_s()
+      end
       
       word = Word.new(
-        defn: entry.to_s(),
+        defn: entry,
         kana: kana,
         kanji: kanji
       )
