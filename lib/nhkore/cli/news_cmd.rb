@@ -34,6 +34,8 @@ module CLI
   # @since  0.2.0
   ###
   module NewsCmd
+    DEFAULT_NEWS_SCRAPE = 1
+    
     def build_news_cmd()
       app = self
       
@@ -75,14 +77,17 @@ module CLI
         EOD
           app.check_empty_opt(:out,value)
         end
-        option :s,:scrape,'number of article links to scrape',argument: :optional,default: 1,
-          transform: -> (value) do
+        flag :r,:redo,'scrape article links even if they have already been scrapped'
+        option :s,:scrape,'number of unscrapped article links to scrape',argument: :required,
+            default: DEFAULT_NEWS_SCRAPE,transform: -> (value) do
           value = value.to_i()
           value = 1 if value < 1
+          value
         end
         option nil,:'show-dict',<<-EOD
-          show the dictionary URL and contents for the first article and exit;
-          useful for debugging dictionary errors (see '--no-dict' option)
+          show dictionary URL and contents for the first article and exit;
+          useful for debugging dictionary errors (see '--no-dict' option);
+          automatically adds '--dry-run' option
         EOD
         option :u,:url,<<-EOD,argument: :required do |value,cmd|
           URL of article to scrape, instead of article links file (see '--links' option)
@@ -131,15 +136,22 @@ module CLI
     end
     
     def run_news_cmd(type)
+      @cmd_opts[:dry_run] = true if @cmd_opts[:show_dict]
+      news_name = nil
+      
       build_in_file(:in)
       
       case type
       when :futsuu
         build_in_file(:links,default_dir: Util::CORE_DIR,default_filename: SearchLinks::DEFAULT_BING_FUTSUU_FILENAME)
         build_out_file(:out,default_dir: Util::CORE_DIR,default_filename: FutsuuNews::DEFAULT_FILENAME)
+        
+        news_name = 'Regular'
       when :yasashii
         build_in_file(:links,default_dir: Util::CORE_DIR,default_filename: SearchLinks::DEFAULT_BING_YASASHII_FILENAME)
         build_out_file(:out,default_dir: Util::CORE_DIR,default_filename: YasashiiNews::DEFAULT_FILENAME)
+        
+        news_name = 'Easy'
       else
         raise ArgumentError,"invalid type[#{type}]"
       end
@@ -147,30 +159,33 @@ module CLI
       return unless check_in_file(:in,empty_ok: true)
       return unless check_out_file(:out)
       
+      dict = @cmd_opts[:no_dict] ? nil : :scrape
       dry_run = @cmd_opts[:dry_run]
       in_file = @cmd_opts[:in]
-      like_str = @cmd_opts[:like]
+      like = @cmd_opts[:like]
+      like = like.downcase() unless like.nil?()
       links_file = @cmd_opts[:links]
-      no_dict = @cmd_opts[:no_dict]
+      max_scrapes = @cmd_opts[:scrape]
+      max_scrapes = DEFAULT_NEWS_SCRAPE if max_scrapes.nil?()
       out_file = @cmd_opts[:out]
-      scrape_max = @cmd_opts[:scrape]
+      redo_scrapes = @cmd_opts[:redo]
       show_dict = @cmd_opts[:show_dict]
       
       # Favor in_file option over url option.
       url = in_file.nil?() ? Util.strip_web_str(@cmd_opts[:url].to_s()) : in_file
       url = nil if url.empty?()
       
-      if in_file.nil?() && url.nil?()
+      if url.nil?()
         # Then we must have a links file that exists.
         return unless check_in_file(:links,empty_ok: false)
-      else
-        links_file = nil # Don't need
       end
       
-      start_spin('Scraping NHK News articles')
+      start_spin("Scraping NHK News Web #{news_name} articles")
       
       is_file = !in_file.nil?()
-      links = links_file.nil?() ? nil : SearchLinks.load_file(links_file)
+      link_count = -1
+      links = File.exist?(links_file) ? SearchLinks.load_file(links_file) : SearchLinks.new()
+      new_articles = [] # For --dry-run
       news = nil
       scrape_count = 0
       
@@ -180,33 +195,63 @@ module CLI
         news = (type == :yasashii) ? YasashiiNews.new() : FutsuuNews.new()
       end
       
-      #TODO: no_dict
-      #TODO: show_dict
-      
-      if links.nil?()
-        # TODO: probably new method for logic can use here or below for 1 file
-      else
-        links.links.each() do |key,link|
-          # TODO: news.article from link/sha256; raise error if 1 is nil & 1 is not
-          if link.scraped?() #|| news.article?(link)
-            # TODO: update URL if https; remove non-https
+      if url.nil?()
+        links.each() do |key,link|
+          update_spin_detail(" (scraped=#{scrape_count}, considered=#{link_count += 1})")
+          
+          break if scrape_count >= max_scrapes
+          next if !like.nil?() && !link.url.to_s().downcase().include?(like)
+          
+          article = news.article(link.url)
+          
+          if !redo_scrapes
+            if link.scraped?() || article
+              link.scraped = true
+              
+              next
+            end
             
-            next
+            scraper = ArticleScraper.new(link.url,dict: dict,is_file: is_file)
+            
+            sha256 = scraper.scrape_sha256_only()
+            
+            if news.sha256?(sha256)
+              article = news.article_with_sha256(sha256)
+              
+              if article
+                news.update_article(article,link.url) # Favors https
+                link.scraped = true
+                
+                next
+              end
+            end
           end
           
-          next if !like_str.nil?() && !link.url.include?(like_str)
+          url = link.url
           
-          if show_dict
-            # TODO: DictScraper; show_dict = URL + dict
+          if (new_url = scrape_news_article(url,dict: dict,is_file: is_file,link: link,
+              new_articles: new_articles,news: news))
+            # --show-dict
+            url = new_url
+            scrape_count = max_scrapes - 1
           end
           
-          # TODO: compute sha256 and news.article?(sha256)
-          # TODO: scrape article link
-          
-          break if (scrape_count += 1) >= scrape_max
+          # Break on next iteration for update_spin_detail().
+          next if (scrape_count += 1) >= max_scrapes
           
           sleep_scraper()
         end
+      else
+        link = links.link(url)
+        
+        if link.nil?()
+          link = SearchLink.new(url)
+          links.add_link(link)
+        end
+        
+        scrape_news_article(url,dict: dict,is_file: is_file,link: link,new_articles: new_articles,news: news)
+        
+        scrape_count += 1
       end
       
       stop_spin()
@@ -219,16 +264,52 @@ module CLI
         puts "> #{url}"
         
         if show_dict
-          puts show_dict
+          puts
+          puts @cmd_opts[:show_dict] # Updated in scrape_news_article()
         elsif dry_run
           puts
           
-          # TODO: if dry-run, if X > 1, then just output header (no words)
+          if new_articles.length < 1
+            raise CLIError,"scrape_count[#{scrape_count}] != new_articles[#{new_articles.length}]; " +
+              "internal code is broken"
+          elsif new_articles.length == 1
+            puts new_articles.first
+          else
+            # Don't show the words (mini), too verbose for more than 1.
+            new_articles.each() do |article|
+              puts article.to_s(mini: true)
+            end
+          end
         else
           links.save_file(links_file) unless links.nil?()
           news.save_file(out_file)
         end
       end
+    end
+    
+    def scrape_news_article(url,dict:,is_file:,link:,new_articles:,news:)
+      show_dict = @cmd_opts[:show_dict]
+      
+      if show_dict
+        scraper = DictScraper.new(url,is_file: is_file)
+        
+        @cmd_opts[:show_dict] = scraper.scrape().to_s()
+        
+        return scraper.url
+      end
+      
+      scraper = ArticleScraper.new(url,dict: dict,is_file: is_file)
+      article = scraper.scrape()
+      
+      # run_news_cmd() handles overwriting with --redo or not.
+      news.add_article(article,overwrite: true)
+      
+      news.update_article(article,link.url) # Favors https
+      
+      new_articles << article
+      link.scraped = true
+      
+      return false
     end
   end
 end
