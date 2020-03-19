@@ -157,7 +157,11 @@ module CLI
         v = check_empty_opt(:datetime,v) # '12-25...' or '...12-25'
         
         num = v.match(/#\s*(\d+)/)
-        num = num[1].to_i() unless num.nil?()
+        
+        if !num.nil?()
+          num = num[1].to_i()
+          num = 1 if num < 1
+        end
         
         SIFT_DATETIME_FMTS.each_with_index() do |fmt,i|
           begin
