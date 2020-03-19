@@ -32,6 +32,7 @@ require 'nhkore/version'
 require 'nhkore/cli/bing_cmd'
 require 'nhkore/cli/fx_cmd'
 require 'nhkore/cli/news_cmd'
+require 'nhkore/cli/sift_cmd'
 
 
 module NHKore
@@ -50,6 +51,7 @@ module NHKore
     include CLI::BingCmd
     include CLI::FXCmd
     include CLI::NewsCmd
+    include CLI::SiftCmd
     
     NAME = 'nhkore'
     
@@ -81,6 +83,7 @@ module NHKore
       build_bing_cmd()
       build_fx_cmd()
       build_news_cmd()
+      build_sift_cmd()
       build_version_cmd()
       
       @app_cmd.add_command Cri::Command.new_basic_help()
@@ -190,9 +193,13 @@ module NHKore
     end
     
     def check_empty_opt(key,value)
-      if Util.empty_web_str?(value)
+      value = Util.strip_web_str(value) unless value.nil?()
+      
+      if value.nil?() || value.empty?()
         raise CLIError,"option[#{key}] cannot be empty[#{value}]"
       end
+      
+      return value
     end
     
     def check_in_file(opt_key,empty_ok: false)

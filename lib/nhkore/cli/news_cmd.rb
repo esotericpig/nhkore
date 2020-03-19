@@ -50,7 +50,7 @@ module CLI
           save to folder: #{Util::CORE_DIR}
         EOD
         
-        option :i,:in,<<-EOD,argument: :required do |value,cmd|
+        option :i,:in,<<-EOD,argument: :required,transform: -> (value) do
           HTML file of article to read instead of URL (for offline testing and/or slow internet;
           see '--no-dict' option)
         EOD
@@ -63,7 +63,7 @@ module CLI
           value = Util.strip_web_str(value).downcase()
           value
         end
-        option :l,:links,<<-EOD,argument: :required do |value,cmd|
+        option :l,:links,<<-EOD,argument: :required,transform: -> (value) do
           'directory/file' of article links (from a Search Engine) to scrape (see '#{App::NAME} bing';
           defaults: #{SearchLinks::DEFAULT_BING_YASASHII_FILE}, #{SearchLinks::DEFAULT_BING_FUTSUU_FILE})
         EOD
@@ -73,7 +73,7 @@ module CLI
           do not try to parse the dictionary files for the articles; useful in case of errors trying to load
           the dictionaries (or testing offline)
         EOD
-        option :o,:out,<<-EOD,argument: :required do |value,cmd|
+        option :o,:out,<<-EOD,argument: :required,transform: -> (value) do
           'directory/file' to save words to; if you only specify a directory or a file, it will attach
           the appropriate default directory/file name
           (defaults: #{YasashiiNews::DEFAULT_FILE}, #{FutsuuNews::DEFAULT_FILE})
@@ -92,7 +92,7 @@ module CLI
           useful for debugging dictionary errors (see '--no-dict' option);
           automatically adds '--dry-run' option
         EOD
-        option :u,:url,<<-EOD,argument: :required do |value,cmd|
+        option :u,:url,<<-EOD,argument: :required,transform: -> (value) do
           URL of article to scrape, instead of article links file (see '--links' option)
         EOD
           app.check_empty_opt(:url,value)

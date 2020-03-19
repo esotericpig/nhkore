@@ -48,13 +48,13 @@ module CLI
           save to folder: #{Util::CORE_DIR}
         EOD
         
-        option :i,:in,<<-EOD,argument: :required do |value,cmd|
+        option :i,:in,<<-EOD,argument: :required,transform: -> (value) do
           HTML file to read instead of URL (for offline testing and/or slow internet;
           see '--show-urls' option)
         EOD
           app.check_empty_opt(:in,value)
         end
-        option :o,:out,<<-EOD,argument: :required do |value,cmd|
+        option :o,:out,<<-EOD,argument: :required,transform: -> (value) do
           'directory/file' to save links to; if you only specify a directory or a file, it will attach the
           appropriate default directory/file name
           (defaults: #{SearchLinks::DEFAULT_BING_YASASHII_FILE}, #{SearchLinks::DEFAULT_BING_FUTSUU_FILE})
