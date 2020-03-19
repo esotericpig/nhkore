@@ -56,10 +56,13 @@ module CLI
         EOD
           app.check_empty_opt(:in,value)
         end
-        option :k,:like,<<-EOD,argument: :required
+        option :k,:like,<<-EOD,argument: :required,transform: -> (value) do
           text to fuzzy search links for; for example, "--like '00123'" will only scrape links containing
           text '00123' -- like '*00123*'
         EOD
+          value = Util.strip_web_str(value).downcase()
+          value
+        end
         option :l,:links,<<-EOD,argument: :required do |value,cmd|
           'directory/file' of article links (from a Search Engine) to scrape (see '#{App::NAME} bing';
           defaults: #{SearchLinks::DEFAULT_BING_YASASHII_FILE}, #{SearchLinks::DEFAULT_BING_FUTSUU_FILE})
@@ -163,7 +166,6 @@ module CLI
       dry_run = @cmd_opts[:dry_run]
       in_file = @cmd_opts[:in]
       like = @cmd_opts[:like]
-      like = like.downcase() unless like.nil?()
       links_file = @cmd_opts[:links]
       max_scrapes = @cmd_opts[:scrape]
       max_scrapes = DEFAULT_NEWS_SCRAPE if max_scrapes.nil?()
