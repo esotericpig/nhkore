@@ -24,8 +24,8 @@ GEM
     nokogiri (1.10.9)
       mini_portile2 (~> 2.4.0)
     psych (3.1.0)
-    psychgus (1.2.1)
-      psych (>= 2.0.5)
+    psychgus (1.2.2)
+      psych (>= 3.0)
     rake (13.0.1)
     raketeer (0.2.9)
       rake
@@ -40,7 +40,7 @@ GEM
     tty-screen (0.7.1)
     tty-spinner (0.9.3)
       tty-cursor (~> 0.7)
-    unicode-display_width (1.6.1)
+    unicode-display_width (1.7.0)
     yard (0.9.24)
     yard_ghurt (1.2.0)
       rake
