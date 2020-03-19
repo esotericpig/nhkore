@@ -51,6 +51,7 @@ require 'nhkore/word'
 require 'nhkore/cli/bing_cmd'
 require 'nhkore/cli/fx_cmd'
 require 'nhkore/cli/news_cmd'
+require 'nhkore/cli/sift_cmd'
 
 
 ###
