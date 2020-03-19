@@ -99,6 +99,10 @@ module NHKore
       return str.gsub(WEB_SPACES_REGEX,JPN_SPACE)
     end
     
+    def self.reduce_space(str)
+      return str.gsub(WEB_SPACES_REGEX,' ')
+    end
+    
     def self.sane_year?(year)
       # NHK was founded in 1924/25.
       # - https://www.nhk.or.jp/bunken/english/about/history.html
