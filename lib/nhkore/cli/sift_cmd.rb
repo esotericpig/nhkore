@@ -23,6 +23,7 @@
 
 require 'time'
 
+require 'nhkore/news'
 require 'nhkore/util'
 
 
@@ -83,7 +84,7 @@ module CLI
         end
         option :i,:in,<<-EOD,argument: :required,transform: -> (value) do
           file of NHK News Web (Easy) articles data to sift (see '#{App::NAME} news';
-          defaults: #{}, #{})
+          defaults: #{YasashiiNews::DEFAULT_FILENAME}, #{FutsuuNews::DEFAULT_FILENAME})
         EOD
           app.check_empty_opt(:in,value)
         end
@@ -184,7 +185,30 @@ module CLI
     end
     
     def run_sift_cmd(type)
+      news_name = nil
+      
+      case type
+      when :futsuu
+        build_in_file(:in,default_dir: Util::CORE_DIR,default_filename: FutsuuNews::DEFAULT_FILENAME)
+        build_out_file(:out,default_dir: Util::CORE_DIR,default_filename: 'todo.csv')
+        
+        news_name = 'Regular'
+      when :yasashii
+        build_in_file(:in,default_dir: Util::CORE_DIR,default_filename: YasashiiNews::DEFAULT_FILENAME)
+        build_out_file(:out,default_dir: Util::CORE_DIR,default_filename: 'todo.csv')
+        
+        news_name = 'Easy'
+      else
+        raise ArgumentError,"invalid type[#{type}]"
+      end
+      
+      return unless check_in_file(:in,empty_ok: false)
+      return unless check_out_file(:out)
+      
       datetime_filter = @cmd_opts[:datetime]
+      dry_run = @cmd_opts[:dry_run]
+      in_file = @cmd_opts[:in]
+      out_file = @cmd_opts[:out]
       title_filter = @cmd_opts[:title]
       url_filter = @cmd_opts[:url]
     end
