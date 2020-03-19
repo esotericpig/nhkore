@@ -55,7 +55,7 @@ $ bundle exec rake -T
 $ bundle exec rake test
 ```
 
-### Generating Documentation
+### Generating Doc
 
 ```
 $ bundle exec rake doc
