@@ -2,7 +2,7 @@
 
 ## [v1.0.0]
 - [x] `news` command
-- [ ] `sift` command (output to CSV file)
+- [x] `sift` command (output to CSV file)
 - [ ] Add files to release (zipped)
 - [ ] `get` command for downloading release files
 - [ ] Create & add asciinema link
