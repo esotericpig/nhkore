@@ -47,19 +47,17 @@ module NHKore
     WEB_SPACES_REGEX = /[[:space:]]+/
     
     def self.jst_now()
-      now = Time.now().getutc()
-      
-      now += JST_OFFSET_HOUR * 60 * 60
-      now += JST_OFFSET_MIN * 60
-      
-      now = Time.new(now.year,now.month,now.day,now.hour,now.min,now.sec,JST_OFFSET)
-      
-      return now
+      return Time.now().getlocal(JST_OFFSET)
     end
     
-    JST_NOW = jst_now()
-    JST_YEAR = JST_NOW.year
+    JST_YEAR = jst_now().year
     MAX_SANE_YEAR = JST_YEAR + 1 # +1 Justin Case for time zone differences at the end of the year
+    
+    # NHK was founded in 1924/25.
+    # - https://www.nhk.or.jp/bunken/english/about/history.html
+    # - https://en.wikipedia.org/wiki/NHK
+    # However, when was the website first created?
+    MIN_SANE_YEAR = 1924
     
     def self.dir_str?(str)
       # File.join() will add the appropriate slash.
@@ -76,6 +74,12 @@ module NHKore
     
     def self.hiragana?(str)
       return HIRAGANA_REGEX =~ str
+    end
+    
+    # This doesn't modify the hour/minute according to {JST_OFFSET},
+    # but instead, it just drops {JST_OFFSET} into it without adjusting it.
+    def self.jst_time(time)
+      return Time.new(time.year,time.month,time.day,time.hour,time.min,time.sec,JST_OFFSET)
     end
     
     def self.kana?(str)
@@ -104,11 +108,7 @@ module NHKore
     end
     
     def self.sane_year?(year)
-      # NHK was founded in 1924/25.
-      # - https://www.nhk.or.jp/bunken/english/about/history.html
-      # - https://en.wikipedia.org/wiki/NHK
-      # However, when was the website first created?
-      return year >= 1924 && year <= MAX_SANE_YEAR
+      return year >= MIN_SANE_YEAR && year <= MAX_SANE_YEAR
     end
     
     # String's normal strip() method doesn't work with special Unicode/HTML white space.
