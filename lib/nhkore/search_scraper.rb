@@ -106,11 +106,10 @@ module NHKore
       
       anchors.each() do |anchor|
         href = anchor['href'].to_s()
-        href = Util.unspace_web_str(href)
+        href = Util.unspace_web_str(href).downcase()
         
         next if href.empty?()
-        
-        href = href.downcase()
+        next if href =~ /\/about\.html?/ # https://www3.nhk.or.jp/news/easy/about.html
         
         if (md = href.match(/first\=(\d+)/))
           count = md[1].to_i()
