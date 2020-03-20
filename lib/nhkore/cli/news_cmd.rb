@@ -47,7 +47,7 @@ module CLI
         
         description <<-EOD
           Scrape NHK News Web (Easy) articles &
-          save to folder: #{Util::CORE_DIR}
+          save to folder: #{News::DEFAULT_DIR}
         EOD
         
         option :i,:in,<<-EOD,argument: :required,transform: -> (value) do
@@ -146,13 +146,13 @@ module CLI
       
       case type
       when :futsuu
-        build_in_file(:links,default_dir: Util::CORE_DIR,default_filename: SearchLinks::DEFAULT_BING_FUTSUU_FILENAME)
-        build_out_file(:out,default_dir: Util::CORE_DIR,default_filename: FutsuuNews::DEFAULT_FILENAME)
+        build_in_file(:links,default_dir: SearchLinks::DEFAULT_DIR,default_filename: SearchLinks::DEFAULT_BING_FUTSUU_FILENAME)
+        build_out_file(:out,default_dir: News::DEFAULT_DIR,default_filename: FutsuuNews::DEFAULT_FILENAME)
         
         news_name = 'Regular'
       when :yasashii
-        build_in_file(:links,default_dir: Util::CORE_DIR,default_filename: SearchLinks::DEFAULT_BING_YASASHII_FILENAME)
-        build_out_file(:out,default_dir: Util::CORE_DIR,default_filename: YasashiiNews::DEFAULT_FILENAME)
+        build_in_file(:links,default_dir: SearchLinks::DEFAULT_DIR,default_filename: SearchLinks::DEFAULT_BING_YASASHII_FILENAME)
+        build_out_file(:out,default_dir: News::DEFAULT_DIR,default_filename: YasashiiNews::DEFAULT_FILENAME)
         
         news_name = 'Easy'
       else

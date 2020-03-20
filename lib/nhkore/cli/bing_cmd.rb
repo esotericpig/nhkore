@@ -45,7 +45,7 @@ module CLI
         
         description <<-EOD
           Search bing.com for links to NHK News Web (Easy) &
-          save to folder: #{Util::CORE_DIR}
+          save to folder: #{SearchLinks::DEFAULT_DIR}
         EOD
         
         option :i,:in,<<-EOD,argument: :required,transform: -> (value) do
@@ -121,9 +121,9 @@ module CLI
       
       case type
       when :futsuu
-        build_out_file(:out,default_dir: Util::CORE_DIR,default_filename: SearchLinks::DEFAULT_BING_FUTSUU_FILENAME)
+        build_out_file(:out,default_dir: SearchLinks::DEFAULT_DIR,default_filename: SearchLinks::DEFAULT_BING_FUTSUU_FILENAME)
       when :yasashii
-        build_out_file(:out,default_dir: Util::CORE_DIR,default_filename: SearchLinks::DEFAULT_BING_YASASHII_FILENAME)
+        build_out_file(:out,default_dir: SearchLinks::DEFAULT_DIR,default_filename: SearchLinks::DEFAULT_BING_YASASHII_FILENAME)
       else
         raise ArgumentError,"invalid type[#{type}]"
       end
