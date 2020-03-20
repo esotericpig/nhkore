@@ -36,6 +36,12 @@ module CLI
   # @since  0.2.0
   ###
   module SiftCmd
+    DEFAULT_SIFT_FUTSUU_FILENAME = Sifter::DEFAULT_FUTSUU_FILENAME.gsub('.','_{{search.criteria}}.')
+    DEFAULT_SIFT_YASASHII_FILENAME = Sifter::DEFAULT_YASASHII_FILENAME.gsub('.','_{{search.criteria}}.')
+    
+    DEFAULT_SIFT_FUTSUU_FILE = Sifter.build_file(DEFAULT_SIFT_FUTSUU_FILENAME)
+    DEFAULT_SIFT_YASASHII_FILE = Sifter.build_file(DEFAULT_SIFT_YASASHII_FILENAME)
+    
     # Order matters.
     SIFT_DATETIME_FMTS = [
       '%Y-%m-%d %H:%M',
@@ -69,8 +75,12 @@ module CLI
       end
     end
     
+    attr_accessor :sift_datetime_text
+    
     def build_sift_cmd()
       app = self
+      
+      @sift_datetime_text = nil
       
       @sift_cmd = @app_cmd.define_command() do
         name    'sift'
@@ -91,6 +101,7 @@ module CLI
           '7-9' (July 9th of Current Year);
           '9' (9th of Current Year & Month)
         EOD
+          app.sift_datetime_text = value # Save the original value for the file name
           value = app.parse_sift_datetime(value)
           value
         end
@@ -100,10 +111,11 @@ module CLI
         EOD
           app.check_empty_opt(:in,value)
         end
+        flag :D,:'no-defn','do not output the definition (which can be quite long)'
         option :o,:out,<<-EOD,argument: :required,transform: -> (value) do
           'directory/file' to save sifted data to; if you only specify a directory or a file, it will attach
           the appropriate default directory/file name
-          (defaults: #{Sifter::DEFAULT_YASASHII_FILE}, #{Sifter::DEFAULT_FUTSUU_FILE})
+          (defaults: #{DEFAULT_SIFT_YASASHII_FILE}, #{DEFAULT_SIFT_FUTSUU_FILE})
         EOD
           app.check_empty_opt(:out,value)
         end
@@ -125,7 +137,7 @@ module CLI
         
         description <<-EOD
           Sift NHK News Web Easy (Yasashii) articles data for the frequency of words &
-          save to CSV file: #{}
+          save to CSV file: #{DEFAULT_SIFT_YASASHII_FILE}
         EOD
         
         run do |opts,args,cmd|
@@ -142,7 +154,7 @@ module CLI
         
         description <<-EOD
           Sift NHK News Web Regular (Futsuu) articles data for the frequency of words &
-          save to CSV file: #{}
+          save to CSV file: #{DEFAULT_SIFT_FUTSUU_FILE}
         EOD
         
         run do |opts,args,cmd|
@@ -150,6 +162,27 @@ module CLI
           app.run_sift_cmd(:futsuu)
         end
       end
+    end
+    
+    def build_sift_filename(filename)
+      regex = /[^[[:alnum:]]\-_\.]+/
+      search_criteria = ''.dup()
+      
+      search_criteria << @sift_datetime_text.to_s().gsub(regex,'')
+      search_criteria << @cmd_opts[:title].to_s().gsub(regex,'')
+      search_criteria << @cmd_opts[:url].to_s().gsub(regex,'')
+      
+      if search_criteria.empty?()
+        filename = filename.sub('_{{search.criteria}}','')
+      else
+        # Limit the file name length.
+        #   If length is smaller, [..] still works appropriately.
+        search_criteria = search_criteria[0..32]
+        
+        filename = filename.sub('{{search.criteria}}',search_criteria)
+      end
+      
+      return filename
     end
     
     # TODO: This should probably be moved into its own class, into Util, or into Sifter?
@@ -248,12 +281,14 @@ module CLI
       case type
       when :futsuu
         build_in_file(:in,default_dir: News::DEFAULT_DIR,default_filename: FutsuuNews::DEFAULT_FILENAME)
-        build_out_file(:out,default_dir: Sifter::DEFAULT_DIR,default_filename: Sifter::DEFAULT_FUTSUU_FILE)
+        build_out_file(:out,default_dir: Sifter::DEFAULT_DIR,
+          default_filename: build_sift_filename(DEFAULT_SIFT_FUTSUU_FILENAME))
         
         news_name = 'Regular'
       when :yasashii
         build_in_file(:in,default_dir: News::DEFAULT_DIR,default_filename: YasashiiNews::DEFAULT_FILENAME)
-        build_out_file(:out,default_dir: Sifter::DEFAULT_DIR,default_filename: Sifter::DEFAULT_YASASHII_FILE)
+        build_out_file(:out,default_dir: Sifter::DEFAULT_DIR,
+          default_filename: build_sift_filename(DEFAULT_SIFT_YASASHII_FILENAME))
         
         news_name = 'Easy'
       else
@@ -266,6 +301,7 @@ module CLI
       datetime_filter = @cmd_opts[:datetime]
       dry_run = @cmd_opts[:dry_run]
       in_file = @cmd_opts[:in]
+      no_defn = @cmd_opts[:no_defn]
       out_file = @cmd_opts[:out]
       title_filter = @cmd_opts[:title]
       url_filter = @cmd_opts[:url]
@@ -285,14 +321,9 @@ module CLI
       
       if dry_run
         puts
-        #puts sifter
-        
-        # TODO: remove after testing
-        sifter.articles.each() do |a|
-          puts a.to_s(mini: true)
-        end
+        puts sifter.to_s(defn: !no_defn)
       else
-        sifter.save_file(out_file)
+        sifter.save_file(out_file,defn: !no_defn)
       end
     end
   end
