@@ -21,9 +21,11 @@
 #++
 
 
+require 'date'
 require 'time'
 
 require 'nhkore/news'
+require 'nhkore/sifter'
 require 'nhkore/util'
 
 
@@ -39,9 +41,19 @@ module CLI
       '%Y-%m-%d %H:%M',
       '%Y-%m-%d %H',
       '%Y-%m-%d',
+      '%m-%d %H:%M',
+      '%Y-%m %H:%M',
+      '%m-%d %H',
+      '%Y-%m %H',
       '%m-%d',
       '%Y-%m',
-      '%d'
+      '%d %H:%M',
+      '%y %H:%M',
+      '%d %H',
+      '%Y %H',
+      '%H:%M',
+      '%d',
+      '%Y'
     ]
     SIFT_YEARER = -> (year) do
       if year < 100
@@ -68,12 +80,12 @@ module CLI
         
         description <<-EOD
           Sift NHK News Web (Easy) articles data for the frequency of words &
-          save to a CSV file in folder: #{Util::CORE_DIR}
+          save to a CSV file in folder: #{Sifter::DEFAULT_DIR}
         EOD
         
         option :d,:datetime,<<-EOD,argument: :required,transform: -> (value) do
           date time to filter on; examples:
-          '2020-7-1 13:10 #2...2020-7-31 11:11 #2' (#2 for 2nd article at this same date time);
+          '2020-7-1 13:10...2020-7-31 11:11';
           '2020-12' (2020, December 1st-31st);
           '7-4...7-9' (July 4th-9th of Current Year);
           '7-9' (July 9th of Current Year);
@@ -84,27 +96,21 @@ module CLI
         end
         option :i,:in,<<-EOD,argument: :required,transform: -> (value) do
           file of NHK News Web (Easy) articles data to sift (see '#{App::NAME} news';
-          defaults: #{YasashiiNews::DEFAULT_FILENAME}, #{FutsuuNews::DEFAULT_FILENAME})
+          defaults: #{YasashiiNews::DEFAULT_FILE}, #{FutsuuNews::DEFAULT_FILE})
         EOD
           app.check_empty_opt(:in,value)
         end
         option :o,:out,<<-EOD,argument: :required,transform: -> (value) do
           'directory/file' to save sifted data to; if you only specify a directory or a file, it will attach
           the appropriate default directory/file name
-          (defaults: #{}, #{})
+          (defaults: #{Sifter::DEFAULT_YASASHII_FILE}, #{Sifter::DEFAULT_FUTSUU_FILE})
         EOD
           app.check_empty_opt(:out,value)
         end
         option :t,:title,'title to filter on, where search text only needs to be somewhere in the title',
-            argument: :required,transform: -> (value) do
-          value = Util.strip_web_str(value).downcase()
-          value
-        end
+          argument: :required
         option :u,:url,'URL to filter on, where search text only needs to be somewhere in the URL',
-            argument: :required,transform: -> (value) do
-          value = Util.strip_web_str(value).downcase()
-          value
-        end
+          argument: :required
         
         run do |opts,args,cmd|
           puts cmd.help
@@ -146,40 +152,92 @@ module CLI
       end
     end
     
+    # TODO: This should probably be moved into its own class, into Util, or into Sifter?
     def parse_sift_datetime(value)
-      # This should probably be moved into its own class or into Util...
+      value = Util.reduce_space(value).strip() # Don't use unspace_web_str(), want spaces for formats
+      value = value.split('...',2)
       
-      value = Util.reduce_space(value).strip()
-      value = value.split('...')
+      check_empty_opt(:datetime,nil) if value.empty?() # For ''
       
-      check_empty_opt(:datetime,nil) if value.empty?() # '' or '...'
+      # Make a "to" and a "from" date time range.
+      value << value[0].dup() if value.length == 1
       
-      value.map!() do |v|
-        v = check_empty_opt(:datetime,v) # '12-25...' or '...12-25'
+      to_day = nil
+      to_hour = 23
+      to_minute = 59
+      to_month = 12
+      to_year = Util::MAX_SANE_YEAR
+      
+      value.each_with_index() do |v,i|
+        v = check_empty_opt(:datetime,v) # For '...', '12-25...', or '...12-25'
         
-        num = v.match(/#\s*(\d+)/)
-        
-        if !num.nil?()
-          num = num[1].to_i()
-          num = 1 if num < 1
-        end
+        has_day = false
+        has_hour = false
+        has_minute = false
+        has_month = false
+        has_year = false
         
         SIFT_DATETIME_FMTS.each_with_index() do |fmt,i|
           begin
+            # If don't do this, "%d" values will be parsed using "%d %H".
+            #   It seems as though strptime() ignores space.
+            raise ArgumentError if !v.include?(' ') && fmt.include?(' ')
+            
+            # If don't do this, "%y" values will be parsed using "%d".
+            raise ArgumentError if fmt == '%d' && v.length > 2
+            
             v = Time.strptime(v,fmt,&SIFT_YEARER)
             
-            break # No problem
+            has_day = fmt.include?('%d')
+            has_hour = fmt.include?('%H')
+            has_minute = fmt.include?('%M')
+            has_month = fmt.include?('%m')
+            has_year = fmt.include?('%Y')
+            
+            break # No problem; this format worked
           rescue ArgumentError
             # Out of formats.
             raise if i >= (SIFT_DATETIME_FMTS.length - 1)
           end
         end
         
-        [v,num]
+        # "From" date time.
+        if i == 0
+          # Set these so that "2012-7-4...7-9" will use the appropriate year
+          #   of "2012" for "7-9".
+          to_day = v.day if has_day
+          to_hour = v.hour if has_hour
+          to_minute = v.min if has_minute
+          to_month = v.month if has_month
+          to_year = v.year if has_year
+          
+          v = Time.new(
+            has_year ? v.year : Util::MIN_SANE_YEAR,
+            has_month ? v.month : 1,
+            has_day ? v.day : 1,
+            has_hour ? v.hour : 0,
+            has_minute ? v.min : 0
+          )
+        # "To" date time.
+        else
+          to_hour = v.hour if has_hour
+          to_minute = v.min if has_minute
+          to_month = v.month if has_month
+          to_year = v.year if has_year
+          
+          if has_day
+            to_day = v.day
+          # Nothing passed from the "from" date time?
+          elsif to_day.nil?()
+            # Last day of month.
+            to_day = Date.new(to_year,to_month,-1).day
+          end
+          
+          v = Time.new(to_year,to_month,to_day,to_hour,to_minute)
+        end
+        
+        value[i] = v
       end
-      
-      # Change a single value [[12-25,nil]] to a range [[12-25,nil],[12-25,nil]] for easier logic.
-      value << value.first.dup() if value.length == 1
       
       return value
     end
@@ -189,13 +247,13 @@ module CLI
       
       case type
       when :futsuu
-        build_in_file(:in,default_dir: Util::CORE_DIR,default_filename: FutsuuNews::DEFAULT_FILENAME)
-        build_out_file(:out,default_dir: Util::CORE_DIR,default_filename: 'todo.csv')
+        build_in_file(:in,default_dir: News::DEFAULT_DIR,default_filename: FutsuuNews::DEFAULT_FILENAME)
+        build_out_file(:out,default_dir: Sifter::DEFAULT_DIR,default_filename: Sifter::DEFAULT_FUTSUU_FILE)
         
         news_name = 'Regular'
       when :yasashii
-        build_in_file(:in,default_dir: Util::CORE_DIR,default_filename: YasashiiNews::DEFAULT_FILENAME)
-        build_out_file(:out,default_dir: Util::CORE_DIR,default_filename: 'todo.csv')
+        build_in_file(:in,default_dir: News::DEFAULT_DIR,default_filename: YasashiiNews::DEFAULT_FILENAME)
+        build_out_file(:out,default_dir: Sifter::DEFAULT_DIR,default_filename: Sifter::DEFAULT_YASASHII_FILE)
         
         news_name = 'Easy'
       else
@@ -211,6 +269,31 @@ module CLI
       out_file = @cmd_opts[:out]
       title_filter = @cmd_opts[:title]
       url_filter = @cmd_opts[:url]
+      
+      start_spin("Sifting NHK News Web #{news_name} data")
+      
+      news = (type == :yasashii) ? YasashiiNews.load_file(in_file) : FutsuuNews.load_file(in_file)
+      
+      sifter = Sifter.new(news)
+      
+      sifter.filter_by_datetime!(datetime_filter) unless datetime_filter.nil?()
+      sifter.filter_by_title!(title_filter) unless title_filter.nil?()
+      sifter.filter_by_url!(url_filter) unless url_filter.nil?()
+      
+      stop_spin()
+      puts
+      
+      if dry_run
+        puts
+        #puts sifter
+        
+        # TODO: remove after testing
+        sifter.articles.each() do |a|
+          puts a.to_s(mini: true)
+        end
+      else
+        sifter.save_file(out_file)
+      end
     end
   end
 end
