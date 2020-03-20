@@ -21,6 +21,8 @@
 #++
 
 
+require 'csv'
+
 require 'nhkore/util'
 
 
@@ -32,8 +34,8 @@ module NHKore
   class Sifter
     DEFAULT_DIR = Util::CORE_DIR
     
-    DEFAULT_FUTSUU_FILENAME = 'sift_nhk_news_web_regular_{search.criteria}.csv'
-    DEFAULT_YASASHII_FILENAME = 'sift_nhk_news_web_easy_{search.criteria}.csv'
+    DEFAULT_FUTSUU_FILENAME = 'nhk_news_web_regular.csv'
+    DEFAULT_YASASHII_FILENAME = 'nhk_news_web_easy.csv'
     
     def self.build_file(filename)
       return File.join(DEFAULT_DIR,filename)
@@ -108,13 +110,49 @@ module NHKore
     
     def save_file(file,mode: 'wt',**kargs)
       File.open(file,mode: mode,**kargs) do |fout|
-        fout.write(to_s())
+        fout.write(to_s(**kargs))
       end
     end
     
-    def to_s()
-      # TODO: csv
-      ''
+    def sift()
+      words = {}
+      
+      @articles.each() do |article|
+        article.words.values().each() do |word|
+          curr_word = words[word.key]
+          
+          if curr_word.nil?()
+            words[word.key] = word
+          else
+            curr_word.freq += word.freq
+          end
+        end
+      end
+      
+      words = words.values().sort() do |word1,word2|
+        # Descending order.
+        word2.freq <=> word1.freq
+      end
+      
+      return words
+    end
+    
+    def to_s(defn: true,**kargs)
+      words = sift()
+      
+      csv = CSV.generate(headers: :first_row,write_headers: true) do |csv|
+        row = ['Frequency','Word','Kana','English']
+        row << 'Definition' if defn
+        csv << row
+        
+        words.each() do |word|
+          row = [word.freq,word.word,word.kana,word.eng]
+          row << word.defn if defn
+          csv << row
+        end
+      end
+      
+      return csv
     end
   end
 end
