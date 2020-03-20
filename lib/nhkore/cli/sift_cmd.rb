@@ -63,12 +63,15 @@ module CLI
     ]
     SIFT_YEARER = -> (year) do
       if year < 100
+        # 2021 -> 2000.
+        millennium = Util::JST_YEAR / 100 * 100
+        
         # If year <= (2021 -> 21), assume this century.
         if year <= (Util::JST_YEAR % 100)
-          # (2021 -> 2000) + year
-          (Util::JST_YEAR / 100 * 100) + year
+          millennium + year
         else
-          1900 + year
+          # Assume previous century (2000 -> 1900).
+          (millennium - 100) + year
         end
       else
         year
