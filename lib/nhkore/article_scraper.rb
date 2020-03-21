@@ -22,6 +22,7 @@
 
 
 require 'digest'
+
 require 'nhkore/article'
 require 'nhkore/cleaner'
 require 'nhkore/dict'
@@ -33,7 +34,6 @@ require 'nhkore/splitter'
 require 'nhkore/util'
 require 'nhkore/variator'
 require 'nhkore/word'
-require 'nokogiri'
 
 
 module NHKore
@@ -107,14 +107,14 @@ module NHKore
       return Cleaner.clean_any(obj,@cleaners)
     end
     
-    def self.parse_datetime(str,year)
+    def parse_datetime(str,year)
       str = str.gsub(/[\[\][[:space:]]]+/,'') # Remove: [ ] \s
       str = "#{year}年 #{str} #{Util::JST_OFFSET}"
       
       return Time.strptime(str,'%Y年 %m月%d日%H時%M分 %:z')
     end
     
-    def self.parse_dicwin_id(str)
+    def parse_dicwin_id(str)
       str = str.gsub(/\D+/,'')
       
       return nil if str.empty?()
@@ -182,11 +182,11 @@ module NHKore
         p = p[0]
         
         begin
-          datetime = self.class.parse_datetime(p.text,year)
+          datetime = parse_datetime(p.text,year)
           
           return datetime
-        rescue ArgumentError => e
-          e # TODO: log.warn()?
+        rescue ArgumentError
+          # Ignore; try again below.
         end
       end
       
@@ -195,7 +195,7 @@ module NHKore
       
       if p.length > 0
         p = p[0]
-        datetime = self.class.parse_datetime(p.text,year) # Allow the error to raise
+        datetime = parse_datetime(p.text,year) # Allow the error to raise this time
         
         return datetime
       end
@@ -383,7 +383,7 @@ module NHKore
           
           if name == 'a'
             klass = Util.unspace_web_str(child['class'].to_s()).downcase()
-            id = self.class.parse_dicwin_id(child['id'].to_s())
+            id = parse_dicwin_id(child['id'].to_s())
             
             if klass == 'dicwin' && !id.nil?()
               if dicwin
