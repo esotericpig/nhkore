@@ -3,7 +3,7 @@
 ## [v1.0.0]
 - [x] `news` command
 - [x] `sift` command (output to CSV file)
-- [ ] Add `--no-color` option
+- [x] Add `--no-color` option
 - [ ] Add files to release (zipped)
 - [ ] `get` command for downloading release files
 - [ ] Add `sift` HTML output to my GitHub Pages

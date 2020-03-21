@@ -44,6 +44,34 @@ module NHKore
   end
   
   ###
+  # For disabling color output.
+  # 
+  # @author Jonathan Bradley Whited (@esotericpig)
+  # @since  0.2.0
+  ###
+  module CriStringFormatterExt
+    def blue(str)
+      return str
+    end
+    
+    def bold(str)
+      return str
+    end
+    
+    def green(str)
+      return str
+    end
+    
+    def red(str)
+      return str
+    end
+    
+    def yellow(str)
+      return str
+    end
+  end
+  
+  ###
   # @author Jonathan Bradley Whited (@esotericpig)
   # @since  0.2.0
   ###
@@ -69,6 +97,10 @@ module NHKore
     
     def initialize(args=ARGV)
       super()
+      
+      if !$stdout.tty?() || ENV['TERM'] == 'dumb'
+        disable_color()
+      end
       
       @args = args
       @cmd = nil
@@ -117,6 +149,9 @@ module NHKore
         flag :h,:help,'show this help' do |value,cmd|
           puts cmd.help
           exit
+        end
+        flag :C,:'no-color','disable color output' do |value,cmd|
+          app.disable_color()
         end
         flag :X,:'no-fx','disable spinner/progress special effects when running long tasks' do |value,cmd|
           app.spinner = NO_SPINNER
@@ -269,6 +304,10 @@ module NHKore
       end
       
       return true
+    end
+    
+    def disable_color()
+      Cri::StringFormatter.prepend(CriStringFormatterExt)
     end
     
     def refresh_cmd(opts,args,cmd)
