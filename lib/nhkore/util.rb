@@ -21,6 +21,7 @@
 #++
 
 
+require 'cgi'
 require 'time'
 
 
@@ -66,6 +67,13 @@ module NHKore
     
     def self.empty_web_str?(str)
       return str.nil?() || strip_web_str(str).empty?()
+    end
+    
+    def self.escape_html(str)
+      str = CGI.escapeHTML(str)
+      str = str.gsub("\n",'<br>')
+      
+      return str
     end
     
     def self.filename_str?(str)
