@@ -71,13 +71,12 @@ module NHKore
   ###
   class BasicCleaner < Cleaner
     def end_clean(str)
-      # Decided against removing all symbols because non-Japanese names have
-      #   a small dot between names:
-      # - 'Yunibaasaru・Sutajio・Japan'
+      # This is very simple, as Splitter will split on punctuation,
+      #   and Polisher will remove the leftover punctuation, digits, etc.
+      # If this is stricter, then errors will be raised in ArticleScraper's
+      #   scrape_dicwin_word() & scrape_ruby_word().
       
-      str = Util.unspace_web_str(str)
-      str = str.gsub(/[[:digit:]]+/,'')
-      str = str.gsub(/[（）]+/,'')
+      str = Util.unspace_web_str(str) # Who needs space in Japanese?
       
       return str
     end

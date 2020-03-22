@@ -70,6 +70,16 @@ module NHKore
   ###
   class BasicPolisher < Polisher
     def end_polish(str)
+      # Keep Japanese dots in names:
+      # - Yunibaasaru・Sutajio・Japan
+      # Keep numbers next to kanji/kana, else the below kana won't make sense:
+      # - Word { kanji: ２０日, kana: はつか }
+      
+      str = str.gsub(/[^[[:alnum:]]・]/,'')
+      
+      # Numbers/dots by themselves (without kanji/kana) should be ignored (empty).
+      str = '' if str.gsub(/[[[:digit:]]・]+/,'').empty?()
+      
       return str
     end
   end

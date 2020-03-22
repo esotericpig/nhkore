@@ -68,37 +68,39 @@ module NHKore
     def add_words(article,words,text)
       words.each() do |word|
         # Words should have already been cleaned.
+        # If we don't check this, Word.new() could raise an error in polish().
+        next if polish(word.word).empty?()
+        
         article.add_word(polish(word))
         
         variate(word.word).each() do |v|
-          v = clean(v)
+          v = polish(clean(v))
           
           next if v.empty?()
           
-          # Do not pass in "word: word".
-          # We only want defn & eng.
+          # Do not pass in "word: word". We only want defn & eng.
           # If we pass in kanji/kana & unknown, it will raise an error.
           article.add_word(Word.new(
             defn: word.defn,
             eng: word.eng,
-            unknown: polish(v)
+            unknown: v
           ))
         end
       end
       
       split(text).each() do |t|
-        t = clean(t)
+        t = polish(clean(t))
         
         next if t.empty?()
         
-        article.add_word(Word.new(unknown: polish(t)))
+        article.add_word(Word.new(unknown: t))
         
         variate(t).each() do |v|
-          v = clean(v)
+          v = polish(clean(v))
           
           next if v.empty?()
           
-          article.add_word(Word.new(unknown: polish(v)))
+          article.add_word(Word.new(unknown: v))
         end
       end
     end
