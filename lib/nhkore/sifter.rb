@@ -151,7 +151,7 @@ module NHKore
         <head>
           <meta charset="utf-8">
           <title>NHKore</title>
-          <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+JP">
+          <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+JP&amp;display=fallback">
           <style>
             body {
               background-color: #FCFBF9;
