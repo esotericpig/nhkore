@@ -23,6 +23,7 @@
 
 require 'cri'
 require 'highline'
+require 'rainbow'
 require 'tty-spinner'
 
 require 'nhkore/error'
@@ -99,18 +100,17 @@ module NHKore
     def initialize(args=ARGV)
       super()
       
-      if !$stdout.tty?() || ENV['TERM'] == 'dumb'
-        disable_color()
-      end
-      
       @args = args
       @cmd = nil
       @cmd_args = nil
       @cmd_opts = nil
       @high = HighLine.new()
+      @rainbow = Rainbow.new()
       @scraper_kargs = {}
       @sleep_time = DEFAULT_SLEEP_TIME
       @spinner = DEFAULT_SPINNER
+      
+      autodetect_color()
       
       build_app_cmd()
       
@@ -121,6 +121,33 @@ module NHKore
       build_version_cmd()
       
       @app_cmd.add_command Cri::Command.new_basic_help()
+    end
+    
+    def autodetect_color()
+      disable = false
+      
+      if !$stdout.tty?() || ENV['TERM'] == 'dumb'
+        disable = true
+      elsif !@args.empty?()
+        # Kind of hacky, but necessary for Rainbow.
+        
+        no_color_args = Set['-C','--no-color']
+        
+        @args.each() do |arg|
+          if no_color_args.include?(arg)
+            disable = true
+            break
+          end
+          
+          break if arg == '--'
+        end
+      end
+      
+      if disable
+        disable_color()
+      else
+        @rainbow.enabled = true # Force it in case Rainbow auto-disabled it
+      end
     end
     
     def build_app_cmd()
@@ -240,7 +267,7 @@ module NHKore
         name    'version'
         usage   'version [OPTIONS] [COMMAND]...'
         aliases :v
-        summary 'Show the version and exit (aliases: v)'
+        summary "Show the version and exit (aliases: #{app.color_alias('v')})"
         
         run do |opts,args,cmd|
           app.show_version()
@@ -327,8 +354,17 @@ module NHKore
       return true
     end
     
+    def color(str)
+      return @rainbow.wrap(str)
+    end
+    
+    def color_alias(str)
+      return color(str).green
+    end
+    
     def disable_color()
       Cri::StringFormatter.prepend(CriStringFormatterExt)
+      @rainbow.enabled = false
     end
     
     def refresh_cmd(opts,args,cmd)
