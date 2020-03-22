@@ -90,7 +90,7 @@ module CLI
         name    'sift'
         usage   'sift [OPTIONS] [COMMAND]...'
         aliases :s
-        summary 'Sift NHK News Web (Easy) articles data for the frequency of words'
+        summary 'Sift NHK News Web (Easy) articles data for the frequency of words (aliases: s)'
         
         description <<-EOD
           Sift NHK News Web (Easy) articles data for the frequency of words &
@@ -147,7 +147,7 @@ module CLI
         name    'easy'
         usage   'easy [OPTIONS] [COMMAND]...'
         aliases :e,:ez
-        summary 'Sift NHK News Web Easy (Yasashii) articles data'
+        summary 'Sift NHK News Web Easy (Yasashii) articles data (aliases: e, ez)'
         
         description <<-EOD
           Sift NHK News Web Easy (Yasashii) articles data for the frequency of words &
@@ -164,7 +164,7 @@ module CLI
         name    'regular'
         usage   'regular [OPTIONS] [COMMAND]...'
         aliases :r,:reg
-        summary 'Sift NHK News Web Regular (Futsuu) articles data'
+        summary 'Sift NHK News Web Regular (Futsuu) articles data (aliases: r, reg)'
         
         description <<-EOD
           Sift NHK News Web Regular (Futsuu) articles data for the frequency of words &

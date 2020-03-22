@@ -92,6 +92,7 @@ module NHKore
     
     DEFAULT_SLEEP_TIME = 0.1 # So that sites don't ban us (i.e., think we are human)
     
+    attr_accessor :scraper_kargs
     attr_accessor :sleep_time
     attr_accessor :spinner
     
@@ -107,6 +108,7 @@ module NHKore
       @cmd_args = nil
       @cmd_opts = nil
       @high = HighLine.new()
+      @scraper_kargs = {}
       @sleep_time = DEFAULT_SLEEP_TIME
       @spinner = DEFAULT_SPINNER
       
@@ -156,11 +158,30 @@ module NHKore
         flag :X,:'no-fx','disable spinner/progress special effects when running long tasks' do |value,cmd|
           app.spinner = NO_SPINNER
         end
+        option :o,:'open-timeout','seconds for open timeout',argument: :required do |value,cmd|
+          value = value.to_i()
+          value = nil if value <= 0.0 # nil means an indefinite amount of time (don't time out)
+          
+          app.scraper_kargs[:open_timeout] = value
+        end
+        option :r,:'read-timeout','seconds for read timeout',argument: :required do |value,cmd|
+          value = value.to_i()
+          value = nil if value <= 0.0 # nil means an indefinite amount of time (don't time out)
+          
+          app.scraper_kargs[:read_timeout] = value
+        end
         option :z,:sleep,<<-EOD,argument: :required,default: DEFAULT_SLEEP_TIME do |value,cmd|
           seconds to sleep per scrape (i.e., per page/article) so don't get banned (i.e., fake being human)
         EOD
           app.sleep_time = value.to_f()
           app.sleep_time = 0.0 if app.sleep_time < 0.0
+        end
+        option :t,:'timeout','seconds for all timeouts',argument: :required do |value,cmd|
+          value = value.to_i()
+          value = nil if value <= 0.0 # nil means an indefinite amount of time (don't time out)
+          
+          app.scraper_kargs[:open_timeout] = value
+          app.scraper_kargs[:read_timeout] = value
         end
         # Big V, not small.
         flag :V,:version,'show the version and exit' do |value,cmd|
@@ -219,7 +240,7 @@ module NHKore
         name    'version'
         usage   'version [OPTIONS] [COMMAND]...'
         aliases :v
-        summary 'Show the version and exit'
+        summary 'Show the version and exit (aliases: v)'
         
         run do |opts,args,cmd|
           app.show_version()

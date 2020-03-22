@@ -41,7 +41,7 @@ module CLI
         name    'bing'
         usage   'bing [OPTIONS] [COMMAND]...'
         aliases :b
-        summary 'Search bing.com for links to NHK News Web (Easy)'
+        summary 'Search bing.com for links to NHK News Web (Easy) (aliases: b)'
         
         description <<-EOD
           Search bing.com for links to NHK News Web (Easy) &
@@ -85,7 +85,7 @@ module CLI
         name    'easy'
         usage   'easy [OPTIONS] [COMMAND]...'
         aliases :e,:ez
-        summary 'Search for NHK News Web Easy (Yasashii) links'
+        summary 'Search for NHK News Web Easy (Yasashii) links (aliases: e, ez)'
         
         description <<-EOD
           Search for NHK News Web Easy (Yasashii) links &
@@ -102,7 +102,7 @@ module CLI
         name    'regular'
         usage   'regular [OPTIONS] [COMMAND]...'
         aliases :r,:reg
-        summary 'Search for NHK News Web Regular (Futsuu) links'
+        summary 'Search for NHK News Web Regular (Futsuu) links (aliases: r, reg)'
         
         description <<-EOD
           Search for NHK News Web Regular (Futsuu) links &
@@ -157,7 +157,7 @@ module CLI
       
       # Do a range to prevent an infinite loop. Ichiman!
       (0..10000).each() do
-        scraper = BingScraper.new(type,count: result_count,is_file: is_file,url: url)
+        scraper = BingScraper.new(type,count: result_count,is_file: is_file,url: url,**@scraper_kargs)
         
         next_page = scraper.scrape(links,next_page)
         

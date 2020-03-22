@@ -43,7 +43,7 @@ module CLI
         name    'news'
         usage   'news [OPTIONS] [COMMAND]...'
         aliases :n
-        summary 'Scrape NHK News Web (Easy) articles'
+        summary 'Scrape NHK News Web (Easy) articles (aliases: n)'
         
         description <<-EOD
           Scrape NHK News Web (Easy) articles &
@@ -107,7 +107,7 @@ module CLI
         name    'easy'
         usage   'easy [OPTIONS] [COMMAND]...'
         aliases :e,:ez
-        summary 'Scrape NHK News Web Easy (Yasashii) articles'
+        summary 'Scrape NHK News Web Easy (Yasashii) articles (aliases: e, ez)'
         
         description <<-EOD
           Search for NHK News Web Easy (Yasashii) links &
@@ -124,7 +124,7 @@ module CLI
         name    'regular'
         usage   'regular [OPTIONS] [COMMAND]...'
         aliases :r,:reg
-        summary 'Scrape NHK News Web Regular (Futsuu) articles'
+        summary 'Scrape NHK News Web Regular (Futsuu) articles (aliases: r, reg)'
         
         description <<-EOD
           Search for NHK News Web Regular (Futsuu) links &
@@ -213,7 +213,7 @@ module CLI
               next
             end
             
-            scraper = ArticleScraper.new(link.url,dict: dict,is_file: is_file)
+            scraper = ArticleScraper.new(link.url,dict: dict,is_file: is_file,**@scraper_kargs)
             
             sha256 = scraper.scrape_sha256_only()
             
@@ -293,14 +293,14 @@ module CLI
       show_dict = @cmd_opts[:show_dict]
       
       if show_dict
-        scraper = DictScraper.new(url,is_file: is_file)
+        scraper = DictScraper.new(url,is_file: is_file,**@scraper_kargs)
         
         @cmd_opts[:show_dict] = scraper.scrape().to_s()
         
         return scraper.url
       end
       
-      scraper = ArticleScraper.new(url,dict: dict,is_file: is_file)
+      scraper = ArticleScraper.new(url,dict: dict,is_file: is_file,**@scraper_kargs)
       article = scraper.scrape()
       
       # run_news_cmd() handles overwriting with --redo or not.
