@@ -71,7 +71,7 @@ module CLI
         end
         flag :D,:'no-dict',<<-EOD
           do not try to parse the dictionary files for the articles; useful in case of errors trying to load
-          the dictionaries (or testing offline)
+          the dictionaries (or for offline testing)
         EOD
         option :o,:out,<<-EOD,argument: :required,transform: -> (value) do
           'directory/file' to save words to; if you only specify a directory or a file, it will attach

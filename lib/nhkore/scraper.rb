@@ -24,6 +24,8 @@
 require 'nokogiri'
 require 'open-uri'
 
+require 'nhkore/util'
+
 
 module NHKore
   ###
@@ -40,8 +42,14 @@ module NHKore
     
     alias_method :is_file?,:is_file
     
-    # Pass in +header: {}+ to set the default HTTP header fields.
-    def initialize(url,header: nil,is_file: false,str_or_io: nil,**kargs)
+    # +max_redirects+ defaults to 3 for safety (infinite-loop attack).
+    # 
+    # All URL options: https://ruby-doc.org/stdlib-2.7.0/libdoc/open-uri/rdoc/OpenURI/OpenRead.html
+    # 
+    # Pass in +header: {}+ for the default HTTP header fields to be set.
+    # 
+    # @param redirect_rule [nil,:lenient,:strict]
+    def initialize(url,header: nil,is_file: false,max_redirects: 3,max_retries: 3,redirect_rule: :strict,str_or_io: nil,**kargs)
       super()
       
       @is_file = is_file
@@ -61,13 +69,50 @@ module NHKore
       
       if str_or_io.nil?()
         if is_file
-          # NHK's website tends to always use UTF-8
+          # NHK's website tends to always use UTF-8.
           @str_or_io = File.open(url,'rt:UTF-8',**kargs)
         else
-          # Use URI.open() instead of (Kernel.)open() for safety (code-injection attack).
-          # Disable redirect for safety (infinite-loop attack).
-          # - All options: https://ruby-doc.org/stdlib-2.7.0/libdoc/open-uri/rdoc/OpenURI/OpenRead.html
-          @str_or_io = URI.open(url,redirect: false,**kargs)
+          max_redirects = 10000 if max_redirects.nil?() || max_redirects < 0
+          
+          top_uri = URI(url)
+          top_domain = Util.domain(top_uri.host)
+          
+          begin
+            # Use URI.open() instead of (Kernel.)open() for safety (code-injection attack).
+            @str_or_io = URI.open(url,redirect: false,**kargs)
+            @url = url
+          rescue OpenURI::HTTPRedirect => redirect
+            redirect_uri = redirect.uri
+            
+            if (max_redirects -= 1) < 0
+              raise redirect.exception("redirected to URL[#{redirect_uri}]")
+            end
+            
+            case redirect_rule
+            when :lenient,:strict
+              if redirect_uri.scheme != top_uri.scheme
+                raise redirect.exception("redirect scheme[#{redirect_uri.scheme}] does not match original " +
+                  "scheme[#{top_uri.scheme}] at redirect URL[#{redirect_uri}]")
+              end
+              
+              if redirect_rule == :strict
+                redirect_domain = Util.domain(redirect_uri.host)
+                
+                if redirect_domain != top_domain
+                  raise redirect.exception("redirect domain[#{redirect_domain}] does not match original " +
+                    "domain[#{top_domain}] at redirect URL[#{redirect_uri}]")
+                end
+              end
+            end
+            
+            url = redirect_uri
+            
+            retry
+          rescue SocketError
+            raise if max_retries.nil?() || (max_retries -= 1) < 0
+            
+            retry
+          end
         end
       else
         @str_or_io = str_or_io

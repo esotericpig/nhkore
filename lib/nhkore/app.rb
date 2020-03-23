@@ -32,6 +32,7 @@ require 'nhkore/version'
 
 require 'nhkore/cli/bing_cmd'
 require 'nhkore/cli/fx_cmd'
+require 'nhkore/cli/get_cmd'
 require 'nhkore/cli/news_cmd'
 require 'nhkore/cli/sift_cmd'
 
@@ -79,6 +80,7 @@ module NHKore
   class App
     include CLI::BingCmd
     include CLI::FXCmd
+    include CLI::GetCmd
     include CLI::NewsCmd
     include CLI::SiftCmd
     
@@ -116,6 +118,7 @@ module NHKore
       
       build_bing_cmd()
       build_fx_cmd()
+      build_get_cmd()
       build_news_cmd()
       build_sift_cmd()
       build_version_cmd()
@@ -179,21 +182,33 @@ module NHKore
           puts cmd.help
           exit
         end
+        option :m,:'max-retry',<<-EOD,argument: :required do |value,cmd|
+          maximum number of times to retry URLs (-1 or integer >= 0)
+        EOD
+          value = value.to_i()
+          value = nil if value < 0
+          
+          app.scraper_kargs[:max_retries] = value
+        end
         flag :C,:'no-color','disable color output' do |value,cmd|
           app.disable_color()
         end
         flag :X,:'no-fx','disable spinner/progress special effects when running long tasks' do |value,cmd|
           app.spinner = NO_SPINNER
         end
-        option :o,:'open-timeout','seconds for open timeout',argument: :required do |value,cmd|
-          value = value.to_i()
-          value = nil if value <= 0.0 # nil means an indefinite amount of time (don't time out)
+        option :o,:'open-timeout',<<-EOD,argument: :required do |value,cmd|
+          seconds for URL open timeouts (-1 or decimal >= 0)
+        EOD
+          value = value.to_f()
+          value = nil if value < 0.0
           
           app.scraper_kargs[:open_timeout] = value
         end
-        option :r,:'read-timeout','seconds for read timeout',argument: :required do |value,cmd|
-          value = value.to_i()
-          value = nil if value <= 0.0 # nil means an indefinite amount of time (don't time out)
+        option :r,:'read-timeout',<<-EOD,argument: :required do |value,cmd|
+          seconds for URL read timeouts (-1 or decimal >= 0)
+        EOD
+          value = value.to_f()
+          value = nil if value < 0.0
           
           app.scraper_kargs[:read_timeout] = value
         end
@@ -203,9 +218,11 @@ module NHKore
           app.sleep_time = value.to_f()
           app.sleep_time = 0.0 if app.sleep_time < 0.0
         end
-        option :t,:'timeout','seconds for all timeouts',argument: :required do |value,cmd|
-          value = value.to_i()
-          value = nil if value <= 0.0 # nil means an indefinite amount of time (don't time out)
+        option :t,:'timeout',<<-EOD,argument: :required do |value,cmd|
+          seconds for all URL timeouts: [open, read] (-1 or decimal >= 0)
+        EOD
+          value = value.to_f()
+          value = nil if value < 0.0
           
           app.scraper_kargs[:open_timeout] = value
           app.scraper_kargs[:read_timeout] = value
