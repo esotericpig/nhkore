@@ -47,16 +47,12 @@ end
 
 desc "Package '#{File.join(NHKore::Util::CORE_DIR,'')}' data as a Zip file into '#{File.join(PKG_DIR,'')}'"
 task :pkg_core do |task|
-  pattern = File.join(NHKore::Util::CORE_DIR,'**','*.{csv,yml}')
-  zip_name = "nhkore-core-#{NHKore::VERSION}.zip"
-  zip_file = File.join(PKG_DIR,zip_name)
+  pattern = File.join(NHKore::Util::CORE_DIR,'*.{csv,html,yml}')
+  zip_file = File.join(PKG_DIR,'nhkore-core.zip')
   
   mkdir_p PKG_DIR
   
-  Dir.glob(pattern).sort().each() do |file|
-    # Rake::PackageTask does the same thing
-    sh 'zip','-8','-r',zip_file,file
-  end
+  sh 'zip','-9rv',zip_file,*Dir.glob(pattern).sort()
 end
 
 Rake::TestTask.new() do |task|
