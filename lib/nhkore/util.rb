@@ -22,6 +22,7 @@
 
 
 require 'cgi'
+require 'public_suffix'
 require 'time'
 
 
@@ -63,6 +64,13 @@ module NHKore
     def self.dir_str?(str)
       # File.join() will add the appropriate slash.
       return File.join(str,'') == str
+    end
+    
+    def self.domain(host,clean: true)
+      domain = PublicSuffix.domain(host)
+      domain = unspace_web_str(domain).downcase() if clean
+      
+      return domain
     end
     
     def self.empty_web_str?(str)
