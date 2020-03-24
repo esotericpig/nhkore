@@ -21,9 +21,10 @@
 #++
 
 
+require 'nokogiri'
+
 require 'nhkore/error'
 require 'nhkore/util'
-require 'nokogiri'
 
 
 module NHKore

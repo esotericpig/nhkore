@@ -31,6 +31,8 @@ module NHKore
   # @since  0.2.0
   ###
   class Entry
+    HYOUKI_SEP = '・'
+    
     attr_reader :defns
     attr_accessor :id
     
@@ -39,6 +41,35 @@ module NHKore
       
       @defns = []
       @id = nil
+    end
+    
+    def build_defn()
+      defns = []
+      i = 0
+      
+      @defns.each() do |defn|
+        defns << "#{i += 1}）#{defn}" # Japanese parenthesis
+      end
+      
+      return defns.join("\n")
+    end
+    
+    def build_hyouki()
+      # Since Ruby v1.9, Hash preserves order.
+      # Ruby v2.7 doc for Set still says no guarantee of order, so don't use.
+      hyoukis = {}
+      
+      @defns.each() do |defn|
+        defn.hyoukis.each() do |hyouki|
+          hyouki = hyouki.sub(/#{Regexp.quote(HYOUKI_SEP)}\z/,'')
+          
+          next if hyouki.empty?()
+          
+          hyoukis[hyouki] = true
+        end
+      end
+      
+      return hyoukis.keys.join(HYOUKI_SEP)
     end
     
     def self.scrape(id,array,url: nil)
@@ -62,22 +93,10 @@ module NHKore
       
       return s if @defns.empty?()
       
-      # TODO: if can have 2 hyoukis, change this according to NHK format
+      hyouki = build_hyouki()
       
-      # Hyouki must be at top.
-      @defns.each() do |defn|
-        if !defn.hyoukis.empty?()
-          s << "#{defn.hyoukis[0]}\n"
-          break
-        end
-      end
-      
-      i = 1
-      
-      @defns.each() do |defn|
-        s << "#{i}) #{defn}\n"
-        i += 1
-      end
+      s << "#{hyouki}\n" unless Util.empty_web_str?(hyouki)
+      s << build_defn()
       
       return s
     end

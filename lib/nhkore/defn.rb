@@ -21,9 +21,10 @@
 #++
 
 
+require 'nokogiri'
+
 require 'nhkore/util'
 require 'nhkore/word'
-require 'nokogiri'
 
 
 module NHKore
@@ -59,17 +60,10 @@ module NHKore
         end
       end
       
-      # TODO: remove after testing & finding out answer
-      raise "What do 2+ Hyouki look like? #{url}" if defn.hyoukis.length > 1
-      
       def_str = hash['def']
       
       if Util.empty_web_str?(def_str)
-        if defn.hyoukis.empty?()
-          return nil
-        else
-          return defn
-        end
+        return defn.hyoukis.empty?() ? nil : defn
       end
       
       doc = Nokogiri::HTML(def_str)
@@ -83,7 +77,7 @@ module NHKore
         
         if name == 'ruby'
           word = Word.scrape_ruby_tag(child,url: url)
-        else
+        elsif child.respond_to?(:text) # Don't do child.text?(), just want content
           word = Word.scrape_text_node(child,url: url)
           is_text = true
         end
