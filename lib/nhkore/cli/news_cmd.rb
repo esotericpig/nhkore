@@ -82,7 +82,7 @@ module CLI
         end
         flag :r,:redo,'scrape article links even if they have already been scrapped'
         option :s,:scrape,'number of unscrapped article links to scrape',argument: :required,
-            default: DEFAULT_NEWS_SCRAPE,transform: -> (value) do
+          default: DEFAULT_NEWS_SCRAPE,transform: -> (value) do
           value = value.to_i()
           value = 1 if value < 1
           value

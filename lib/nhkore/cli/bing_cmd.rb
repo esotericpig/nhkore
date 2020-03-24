@@ -62,7 +62,7 @@ module CLI
           app.check_empty_opt(:out,value)
         end
         option :r,:results,'number of results per page to request from Bing',argument: :required,
-            default: SearchScraper::DEFAULT_RESULT_COUNT,transform: -> (value) do
+          default: SearchScraper::DEFAULT_RESULT_COUNT,transform: -> (value) do
           value = value.to_i()
           value = 1 if value < 1
           value
