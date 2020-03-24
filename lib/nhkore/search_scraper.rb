@@ -110,6 +110,8 @@ module NHKore
         
         next if href.empty?()
         next if href =~ /\/about\.html?/ # https://www3.nhk.or.jp/news/easy/about.html
+        next if href =~ /\/movieplayer\.html?/ # https://www3.nhk.or.jp/news/easy/movieplayer.html?id=k10038422811_1207251719_1207251728.mp4&teacuprbbs=4feb73432045dbb97c283d64d459f7cf
+        next if href =~ /\/audio\.html?/ # https://www3.nhk.or.jp/news/easy/player/audio.html?id=k10011555691000
         
         if (md = href.match(/first\=(\d+)/))
           count = md[1].to_i()
