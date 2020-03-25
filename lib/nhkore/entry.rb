@@ -61,7 +61,7 @@ module NHKore
       
       @defns.each() do |defn|
         defn.hyoukis.each() do |hyouki|
-          hyouki = hyouki.sub(/#{Regexp.quote(HYOUKI_SEP)}\z/,'')
+          hyouki = hyouki.chomp(HYOUKI_SEP)
           
           next if hyouki.empty?()
           
