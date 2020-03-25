@@ -51,6 +51,35 @@ module CLI
     end
     
     def run_fx_cmd()
+      test_fx_progress_bar()
+      test_fx_spinner()
+    end
+    
+    def test_fx_progress_bar()
+      bars = nil
+      
+      if @cmd_opts[:all]
+        bars = [:default,:classic,:no]
+      else
+        bars = [@progress_bar]
+      end
+      
+      bars.each() do |bar|
+        name = (bars.length == 1) ? 'User' : bar.to_s().capitalize()
+        bar = build_progress_bar("Testing #{name} progress",download: false,type: bar)
+        
+        bar.start()
+        
+        0.upto(99) do
+          sleep(0.05)
+          bar.advance()
+        end
+        
+        bar.finish()
+      end
+    end
+    
+    def test_fx_spinner()
       app_spinner = @spinner
       spinners = nil
       

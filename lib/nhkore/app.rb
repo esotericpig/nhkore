@@ -24,6 +24,7 @@
 require 'cri'
 require 'highline'
 require 'rainbow'
+require 'tty-progressbar'
 require 'tty-spinner'
 
 require 'nhkore/error'
@@ -86,15 +87,16 @@ module NHKore
     
     NAME = 'nhkore'
     
-    CLASSIC_SPINNER = TTY::Spinner.new('[:spinner] :title:detail...',format: :classic)
-    DEFAULT_SPINNER = TTY::Spinner.new('[:spinner] :title:detail...',
-      frames: ['〜〜〜','日〜〜','日本〜','日本語'],
-      interval: 5)
+    SPINNER_MSG = '[:spinner] :title:detail...'
+    CLASSIC_SPINNER = TTY::Spinner.new(SPINNER_MSG,format: :classic)
+    DEFAULT_SPINNER = TTY::Spinner.new(SPINNER_MSG,interval: 5,
+      frames: ['〜〜〜','日〜〜','日本〜','日本語'])
     NO_SPINNER = {} # Still outputs status & stores tokens
-    NO_SPINNER_MSG = "%{title}%{detail}..."
+    NO_SPINNER_MSG = '%{title}%{detail}...'
     
     DEFAULT_SLEEP_TIME = 0.1 # So that sites don't ban us (i.e., think we are human)
     
+    attr_accessor :progress_bar
     attr_accessor :scraper_kargs
     attr_accessor :sleep_time
     attr_accessor :spinner
@@ -108,6 +110,7 @@ module NHKore
       @cmd_opts = nil
       @high = HighLine.new()
       @rainbow = Rainbow.new()
+      @progress_bar = :default # [:default, :classic, :no]
       @scraper_kargs = {}
       @sleep_time = DEFAULT_SLEEP_TIME
       @spinner = DEFAULT_SPINNER
@@ -171,6 +174,7 @@ module NHKore
         flag :c,:'classic-fx',<<-EOD do |value,cmd|
           use classic spinner/progress special effects (in case of no Unicode support) when running long tasks
         EOD
+          app.progress_bar = :classic
           app.spinner = CLASSIC_SPINNER
         end
         flag :n,:'dry-run',<<-EOD
@@ -182,7 +186,7 @@ module NHKore
           puts cmd.help
           exit
         end
-        option :m,:'max-retry',<<-EOD,argument: :required do |value,cmd|
+        option :m,:'max-retry',<<-EOD,argument: :required,default: 3 do |value,cmd|
           maximum number of times to retry URLs (-1 or integer >= 0)
         EOD
           value = value.to_i()
@@ -194,6 +198,7 @@ module NHKore
           app.disable_color()
         end
         flag :X,:'no-fx','disable spinner/progress special effects when running long tasks' do |value,cmd|
+          app.progress_bar = :no
           app.spinner = NO_SPINNER
         end
         option :o,:'open-timeout',<<-EOD,argument: :required do |value,cmd|
@@ -239,6 +244,19 @@ module NHKore
       end
     end
     
+    def build_dir(opt_key,default_dir: '.')
+      # Protect against fat-fingering.
+      default_dir = Util.strip_web_str(default_dir)
+      dir = Util.strip_web_str(@cmd_opts[opt_key].to_s())
+      
+      dir = default_dir if dir.empty?()
+      
+      # '~' will expand to home, etc.
+      dir = File.expand_path(dir) unless dir.nil?()
+      
+      return (@cmd_opts[opt_key] = dir)
+    end
+    
     def build_file(opt_key,default_dir: '.',default_filename: '')
       # Protect against fat-fingering.
       default_dir = Util.strip_web_str(default_dir)
@@ -269,12 +287,39 @@ module NHKore
       return (@cmd_opts[opt_key] = file)
     end
     
+    def build_in_dir(opt_key,**kargs)
+      return build_dir(opt_key,**kargs)
+    end
+    
     def build_in_file(opt_key,**kargs)
       return build_file(opt_key,**kargs)
     end
     
+    def build_out_dir(opt_key,**kargs)
+      return build_dir(opt_key,**kargs)
+    end
+    
     def build_out_file(opt_key,**kargs)
       return build_file(opt_key,**kargs)
+    end
+    
+    def build_progress_bar(title,download: true,total: 100,type: @progress_bar,width: 33,**kargs)
+      case type
+      when :default,:classic
+        msg = "#{title} [:bar] :percent :eta".dup()
+        msg << ' :byte_rate/s' if download
+        
+        return TTY::ProgressBar.new(msg,total: total,width: width,**kargs) do |config|
+          if type == :default
+            config.incomplete = '.'
+            config.complete   = '/'
+            config.head       = 'o'
+          end
+        end
+      end
+      
+      # :no
+      return NoProgressBar.new(title,total: total,**kargs)
     end
     
     def build_version_cmd()
@@ -315,6 +360,8 @@ module NHKore
         return true
       end
       
+      in_file = Util.strip_web_str(in_file)
+      
       if !File.exist?(in_file)
         raise CLIError,"input file[#{in_file}] does not exist for option[#{opt_key}]"
       end
@@ -326,12 +373,61 @@ module NHKore
       return true
     end
     
+    def check_out_dir(opt_key)
+      out_dir = @cmd_opts[opt_key]
+      
+      if Util.empty_web_str?(out_dir)
+        raise CLIError,"empty output directory[#{out_dir}] in option[#{opt_key}]"
+      end
+      
+      out_dir = Util.strip_web_str(out_dir)
+      
+      if File.file?(out_dir)
+        raise CLIError,"output directory[#{out_dir}] cannot be a file for option[#{opt_key}]"
+      end
+      
+      if @cmd_opts[:dry_run]
+        puts 'No changes written (dry run).'
+        puts "> #{out_dir}"
+        puts
+        
+        return true
+      end
+      
+      force = @cmd_opts[:force]
+      
+      if !force && Dir.exist?(out_dir)
+        puts 'Warning: output directory already exists!'
+        puts '       : Files inside of this directory may be overwritten!'
+        puts "> '#{out_dir}'"
+        
+        return false unless @high.agree('Is this okay (yes/no)? ')
+        puts
+      end
+      
+      if !Dir.exist?(out_dir)
+        if !force
+          puts 'Output directory does not exist.'
+          puts "> '#{out_dir}'"
+          
+          return false unless @high.agree('Create this directory (yes/no)? ')
+        end
+        
+        FileUtils.mkdir_p(out_dir,verbose: true)
+        puts
+      end
+      
+      return true
+    end
+    
     def check_out_file(opt_key)
       out_file = @cmd_opts[opt_key]
       
       if Util.empty_web_str?(out_file)
         raise CLIError,"empty output path name[#{out_file}] in option[#{opt_key}]"
       end
+      
+      out_file = Util.strip_web_str(out_file)
       
       if File.directory?(out_file)
         raise CLIError,"output file[#{out_file}] cannot be a directory for option[#{opt_key}]"
@@ -445,6 +541,73 @@ module NHKore
       else
         @spinner.tokens[:detail] = detail
       end
+    end
+  end
+  
+  ###
+  # @author Jonathan Bradley Whited (@esotericpig)
+  # @since  0.2.0
+  ###
+  class NoProgressBar
+    MSG = '%{title}... %{percent}%%'
+    PUT_INTERVAL = 100.0 / 6.25
+    MAX_PUT_INTERVAL = 100.0 + PUT_INTERVAL + 1.0
+    
+    def initialize(title,total:,**tokens)
+      super()
+      
+      @tokens = {title: title,total: total}
+      
+      reset()
+      
+      @tokens.merge!(tokens)
+    end
+    
+    def reset()
+      @tokens[:advance] = 0
+      @tokens[:percent] = 0
+      @tokens[:progress] = 0
+    end
+    
+    def advance(progress=1)
+      total = @tokens[:total]
+      progress = @tokens[:progress] + progress
+      progress = total if progress > total
+      percent = (progress.to_f() / total.to_f() * 100.0).round()
+      
+      @tokens[:percent] = percent
+      @tokens[:progress] = progress
+      
+      if percent < 99.0
+        # Only output at certain intervals.
+        advance = @tokens[:advance]
+        i = 0.0
+        
+        while i <= MAX_PUT_INTERVAL
+          if advance < i
+            break if percent >= i # Output
+            return # Don't output
+          end
+          
+          i += PUT_INTERVAL
+        end
+      end
+      
+      @tokens[:advance] = percent
+      
+      puts to_s()
+    end
+    
+    def finish()
+      advance(@tokens[:total])
+    end
+    
+    def start()
+      puts to_s()
+    end
+    
+    def to_s()
+      return MSG % @tokens
     end
   end
 end
