@@ -32,8 +32,7 @@ Manually:
 ```
 $ git clone 'https://github.com/esotericpig/nhkore.git'
 $ cd nhkore
-$ bundle install
-$ bundle exec rake install:local
+$ rake install
 ```
 
 ## [Using](#contents)
