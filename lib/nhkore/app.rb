@@ -303,7 +303,7 @@ module NHKore
       return build_file(opt_key,**kargs)
     end
     
-    def build_progress_bar(title,download: true,total: 100,type: @progress_bar,width: 33,**kargs)
+    def build_progress_bar(title,download: false,total: 100,type: @progress_bar,width: 33,**kargs)
       case type
       when :default,:classic
         msg = "#{title} [:bar] :percent :eta".dup()
@@ -315,6 +315,9 @@ module NHKore
             config.complete   = '/'
             config.head       = 'o'
           end
+          
+          #config.frequency = 5 # For a big download, set this
+          config.interval = 1 if download
         end
       end
       

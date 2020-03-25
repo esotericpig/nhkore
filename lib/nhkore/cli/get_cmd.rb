@@ -21,6 +21,10 @@
 #++
 
 
+require 'down/net_http'
+require 'tempfile'
+require 'zip'
+
 require 'nhkore/util'
 
 
@@ -31,6 +35,11 @@ module CLI
   # @since  0.2.0
   ###
   module GetCmd
+    DEFAULT_GET_CHUNK_SIZE = 4 * 1024
+    DEFAULT_GET_URL_LENGTH = 24000 # May be outdated, used as a fallback
+    GET_URL_FILENAME = 'nhkore-core.zip'
+    GET_URL = "https://github.com/esotericpig/nhkore/releases/latest/download/#{GET_URL_FILENAME}"
+    
     def build_get_cmd()
       app = self
       
@@ -48,10 +57,11 @@ module CLI
         EOD
         
         option :o,:out,'directory to save downloaded files to',argument: :required,default: Util::CORE_DIR,
-            transform: -> (value) do
+          transform: -> (value) do
           app.check_empty_opt(:out,value)
         end
         flag nil,:'show-url','show download URL and exit (for downloading manually)' do |value,cmd|
+          puts GET_URL
           exit
         end
         
@@ -63,7 +73,80 @@ module CLI
     end
     
     def run_get_cmd()
-      # TODO: if core/ exists, warn that files may be deleted & do ask() for confirm
+      build_out_dir(:out,default_dir: Util::CORE_DIR)
+      
+      return unless check_out_dir(:out)
+      
+      chunk_size = DEFAULT_GET_CHUNK_SIZE
+      down = nil
+      dry_run = @cmd_opts[:dry_run]
+      force = @cmd_opts[:force]
+      max_retries = @scraper_kargs[:max_retries]
+      max_retries = 3 if max_retries.nil?()
+      out_dir = @cmd_opts[:out]
+      
+      begin
+        start_spin('Opening URL')
+        
+        begin
+          down = Down::NetHttp.open(GET_URL,rewindable: false,**@scraper_kargs)
+        rescue Down::ConnectionError
+          raise if (max_retries -= 1) < 0
+          retry
+        end
+        
+        stop_spin()
+        
+        return if dry_run
+        
+        Tempfile.create([App::NAME,'.zip'],binmode: true) do |file|
+          puts
+          puts 'Downloading to temp file:'
+          puts "> #{file.path}"
+          puts
+          
+          len = down.size
+          len = DEFAULT_GET_LENGTH if len.nil?()
+          bar = build_progress_bar("Downloading #{GET_URL_FILENAME}",download: true,total: len)
+          
+          bar.start()
+          
+          while !down.eof?()
+            file.write(down.read(chunk_size))
+            bar.advance(chunk_size)
+          end
+          
+          down.close()
+          file.close()
+          bar.finish()
+          
+          start_spin("Extracting #{GET_URL_FILENAME}")
+          
+          Zip.on_exists_proc = force # true will force overwriting files on extract()
+          
+          Zip::File.open(file) do |zip_file|
+            zip_file.each() do |entry|
+              if !entry.name_safe?()
+                raise ZipError,"unsafe entry name[#{entry.name}] in Zip file"
+              end
+              
+              name = File.basename(entry.name)
+              
+              update_spin_detail(" (file=#{name})")
+              
+              entry.extract(File.join(out_dir,name))
+            end
+          end
+          
+          stop_spin()
+          puts
+          
+          puts "Extracted #{GET_URL_FILENAME} to directory:"
+          puts "> #{out_dir}"
+        end
+      ensure
+        down.close() if !down.nil?() && !down.closed?()
+      end
     end
   end
 end

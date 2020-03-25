@@ -31,4 +31,5 @@ module NHKore
   class CLIError < Error; end # @since 0.2.0
   class ParseError < Error; end # @since 0.2.0
   class ScrapeError < Error; end # @since 0.2.0
+  class ZipError < Error; end # @since 0.2.0
 end

@@ -62,12 +62,14 @@ Gem::Specification.new() do |spec|
   
   spec.add_runtime_dependency 'bimyou_segmenter'    ,'~> 1.2'  # For splitting Japanese sentences into words
   spec.add_runtime_dependency 'cri'                 ,'~> 2.15' # For CLI commands/options
+  spec.add_runtime_dependency 'down'                ,'~> 5.1'  # For downloading files (GetCmd)
   spec.add_runtime_dependency 'highline'            ,'~> 2.0'  # For CLI input/output
   spec.add_runtime_dependency 'japanese_deinflector','~> 0.0'  # For unconjugating Japanese words (plain/dictionary form)
   spec.add_runtime_dependency 'nokogiri'            ,'~> 1.10' # For scraping/hacking
   spec.add_runtime_dependency 'psychgus'            ,'~> 1.2'  # For styling Psych YAML
   spec.add_runtime_dependency 'public_suffix'       ,'~> 4.0'  # For parsing URL domain names
   spec.add_runtime_dependency 'rainbow'             ,'~> 3.0'  # For CLI color output
+  spec.add_runtime_dependency 'rubyzip'             ,'~> 2.3'  # For extracting Zip files (GetCmd)
   spec.add_runtime_dependency 'tiny_segmenter'      ,'~> 0.0'  # For splitting Japanese sentences into words
   spec.add_runtime_dependency 'tty-progressbar'     ,'~> 0.17' # For CLI progress bars
   spec.add_runtime_dependency 'tty-spinner'         ,'~> 0.9'  # For CLI spinning progress
