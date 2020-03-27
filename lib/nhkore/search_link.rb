@@ -21,8 +21,10 @@
 #++
 
 
+require 'time'
+
+require 'nhkore/fileable'
 require 'nhkore/util'
-require 'psychgus'
 
 
 module NHKore
@@ -31,7 +33,11 @@ module NHKore
   # @since  0.2.0
   ###
   class SearchLink
+    attr_accessor :datetime
+    attr_accessor :futsuurl
     attr_accessor :scraped
+    attr_accessor :sha256
+    attr_accessor :title
     attr_accessor :url
     
     alias_method :scraped?,:scraped
@@ -39,31 +45,65 @@ module NHKore
     def initialize(url,scraped: false)
       super()
       
+      @datetime = nil
+      @futsuurl = nil
       @scraped = scraped
+      @sha256 = sha256
+      @title = nil
       @url = url
     end
     
     def encode_with(coder)
       # Order matters.
       
-      coder[:scraped] = @scraped
       coder[:url] = @url
+      coder[:scraped] = @scraped
+      coder[:datetime] = @datetime.nil?() ? @datetime : @datetime.iso8601()
+      coder[:title] = @title
+      coder[:futsuurl] = @futsuurl
+      coder[:sha256] = @sha256
     end
     
     def self.load_data(key,hash)
-      search_link = SearchLink.new(
+      datetime = hash[:datetime]
+      
+      slink = SearchLink.new(
         hash[:url],
         scraped: hash[:scraped]
       )
       
-      return search_link
+      slink.datetime = Util.empty_web_str?(datetime) ? nil : Time.iso8601(datetime)
+      slink.futsuurl = hash[:futsuurl]
+      slink.sha256 = hash[:sha256]
+      slink.title = hash[:title]
+      
+      return slink
     end
     
-    def to_s()
+    def update_from_article(article)
+      # Don't update the url, as it may be different (e.g., http vs https).
+      
+      @datetime = article.datetime if @datetime.nil?()
+      @futsuurl = article.futsuurl if Util.empty_web_str?(@futsuurl)
+      @scraped = true # If we have an article, it's been scrapped
+      @sha256 = article.sha256 if Util.empty_web_str?(@sha256)
+      @title = article.title if Util.empty_web_str?(@title)
+    end
+    
+    def to_s(mini: false)
       s = ''.dup()
       
       s << "'#{@url}': "
-      s << "{ scraped? #{@scraped ? 'yes' : 'NO'} }"
+      
+      if mini
+        s << "{ scraped? #{@scraped ? 'yes' : 'NO'} }"
+      else
+        s << "\n  scraped?  #{@scraped ? 'yes' : 'NO'}"
+        s << "\n  datetime: '#{@datetime}'"
+        s << "\n  title:    '#{@title}'"
+        s << "\n  futsuurl: '#{@futsuurl}'"
+        s << "\n  sha256:   '#{@sha256}'"
+      end
       
       return s
     end
@@ -74,6 +114,8 @@ module NHKore
   # @since  0.2.0
   ###
   class SearchLinks
+    include Fileable
+    
     DEFAULT_DIR = Util::CORE_DIR
     
     DEFAULT_BING_FUTSUU_FILENAME = 'bing_nhk_news_web_regular.yml'
@@ -113,56 +155,34 @@ module NHKore
     end
     
     def self.load_data(data,file: nil,**kargs)
-      data = Psych.safe_load(data,
-        aliases: true,
-        filename: file,
-        #freeze: true, # Not in this current version of Psych
-        permitted_classes: [Symbol],
-        symbolize_names: true,
-        **kargs
-      )
+      data = Util.load_yaml(data,file: file)
       
       links = data[:links]
       
-      search_links = SearchLinks.new()
+      slinks = SearchLinks.new()
       
       if !links.nil?()
         links.each() do |key,hash|
           key = key.to_s() # Change from a symbol
-          search_links.links[key] = SearchLink.load_data(key,hash)
+          slinks.links[key] = SearchLink.load_data(key,hash)
         end
       end
       
-      return search_links
+      return slinks
     end
     
-    def self.load_file(file,mode: 'r:BOM|UTF-8',**kargs)
-      data = File.read(file,mode: mode,**kargs)
-      
-      return load_data(data,file: file,**kargs)
-    end
-    
-    def save_file(file,mode: 'wt',**kargs)
-      File.open(file,mode: mode,**kargs) do |file|
-        file.write(to_s())
-      end
-    end
-    
-    def link(url)
+    def [](url)
       url = url.url if url.respond_to?(:url)
       
       return @links[url]
     end
     
+    def length()
+      return @links.length
+    end
+    
     def to_s()
-      return Psychgus.dump(self,
-        line_width: 10000, # Try not to wrap; ichiman!
-        stylers: [
-          Psychgus::FlowStyler.new(4), # Put each SearchLink on one line (flow/inline style)
-          Psychgus::NoSymStyler.new(cap: false), # Remove symbols, don't capitalize
-          Psychgus::NoTagStyler.new() # Remove class names (tags)
-        ]
-      )
+      return Util.dump_yaml(self)
     end
   end
 end

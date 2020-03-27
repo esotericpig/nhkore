@@ -203,31 +203,7 @@ module CLI
           
           break if scrape_count >= max_scrapes
           next if !like.nil?() && !link.url.to_s().downcase().include?(like)
-          
-          article = news.article(link.url)
-          
-          if !redo_scrapes
-            if link.scraped?() || article
-              link.scraped = true
-              
-              next
-            end
-            
-            scraper = ArticleScraper.new(link.url,dict: dict,is_file: is_file,**@scraper_kargs)
-            
-            sha256 = scraper.scrape_sha256_only()
-            
-            if news.sha256?(sha256)
-              article = news.article_with_sha256(sha256)
-              
-              if article
-                news.update_article(article,link.url) # Favors https
-                link.scraped = true
-                
-                next
-              end
-            end
-          end
+          next if !redo_scrapes && scraped_news_article?(news,link,dict: dict,is_file: is_file)
           
           url = link.url
           
@@ -244,7 +220,7 @@ module CLI
           sleep_scraper()
         end
       else
-        link = links.link(url)
+        link = links[url]
         
         if link.nil?()
           link = SearchLink.new(url)
@@ -303,13 +279,43 @@ module CLI
       scraper = ArticleScraper.new(url,dict: dict,is_file: is_file,**@scraper_kargs)
       article = scraper.scrape()
       
-      # run_news_cmd() handles overwriting with --redo or not.
+      # run_news_cmd() handles overwriting with --redo or not
+      #   using scraped_news_article?().
       news.add_article(article,overwrite: true)
       
       news.update_article(article,link.url) # Favors https
+      link.update_from_article(article)
       
       new_articles << article
-      link.scraped = true
+      
+      return false
+    end
+    
+    def scraped_news_article?(news,link,dict:,is_file:)
+      return true if link.scraped?()
+      
+      article = news.article(link.url)
+      
+      if article.nil?()
+        if !Util.empty_web_str?(link.sha256) && news.sha256?(link.sha256)
+          article = news.article_with_sha256(link.sha256)
+        end
+        
+        if article.nil?()
+          scraper = ArticleScraper.new(link.url,dict: dict,is_file: is_file,**@scraper_kargs)
+          
+          sha256 = scraper.scrape_sha256_only()
+          
+          article = news.article_with_sha256(sha256) if news.sha256?(sha256)
+        end
+      end
+      
+      if article
+        news.update_article(article,link.url) # Favors https
+        link.update_from_article(article)
+        
+        return true
+      end
       
       return false
     end

@@ -141,6 +141,7 @@ module CLI
       
       is_file = !in_file.nil?()
       links = nil
+      new_links = [] # For --dry-run
       next_page = NextPage.new()
       page_count = 0
       page_num = 1
@@ -153,7 +154,7 @@ module CLI
         links = SearchLinks.new()
       end
       
-      base_links_count = links.links.length
+      links_count = links.length
       
       # Do a range to prevent an infinite loop. Ichiman!
       (0..10000).each() do
@@ -161,10 +162,12 @@ module CLI
         
         next_page = scraper.scrape(links,next_page)
         
+        new_links.concat(links.links.values[links_count..-1])
+        links_count = links.length
         page_count = next_page.count if next_page.count > 0
         
-        update_spin_detail(" (page=#{page_num}, count=#{page_count}, links=#{links.links.length}, " +
-          "new_links=#{links.links.length - base_links_count})")
+        update_spin_detail(" (page=#{page_num}, count=#{page_count}, links=#{links.length}, " +
+          "new_links=#{new_links.length})")
         
         break if next_page.empty?()
         
@@ -183,9 +186,8 @@ module CLI
       if dry_run
         puts
         
-        # links.to_s() is too verbose (YAML).
-        links.links.each() do |key,link|
-          puts link.url
+        new_links.each() do |link|
+          puts link.to_s(mini: true)
         end
       else
         links.save_file(out_file)
