@@ -22,6 +22,7 @@
 
 
 require 'cgi'
+require 'psychgus'
 require 'public_suffix'
 require 'time'
 
@@ -73,6 +74,18 @@ module NHKore
       return domain
     end
     
+    def self.dump_yaml(obj,flow_level: 8)
+      return Psychgus.dump(obj,
+        deref_aliases: true, # Dereference aliases for load_yaml()
+        line_width: 10000, # Try not to wrap; ichiman!
+        stylers: [
+          Psychgus::FlowStyler.new(flow_level), # Put extra details on one line (flow/inline style)
+          Psychgus::NoSymStyler.new(cap: false), # Remove symbols, don't capitalize
+          Psychgus::NoTagStyler.new(), # Remove class names (tags)
+        ],
+      )
+    end
+    
     def self.empty_web_str?(str)
       return str.nil?() || strip_web_str(str).empty?()
     end
@@ -108,6 +121,17 @@ module NHKore
     
     def self.katakana?(str)
       return KATAKANA_REGEX =~ str
+    end
+    
+    def self.load_yaml(data,file: nil)
+      return Psych.safe_load(data,
+        aliases: false,
+        filename: file,
+        #freeze: true, # Not in this current version of Psych
+        permitted_classes: [Symbol],
+        symbolize_names: true,
+        **kargs,
+      )
     end
     
     def self.normalize_str(str)

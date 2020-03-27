@@ -23,8 +23,8 @@
 
 require 'nhkore/article'
 require 'nhkore/error'
+require 'nhkore/fileable'
 require 'nhkore/util'
-require 'psychgus'
 
 
 module NHKore
@@ -33,6 +33,8 @@ module NHKore
   # @since  0.2.0
   ###
   class News
+    include Fileable
+    
     DEFAULT_DIR = Util::CORE_DIR
     FAVORED_URL = /https\:/i
     
@@ -72,14 +74,7 @@ module NHKore
     end
     
     def self.load_data(data,article_class: Article,file: nil,news_class: News,**kargs)
-      data = Psych.safe_load(data,
-        aliases: true,
-        filename: file,
-        #freeze: true, # Not in this current version of Psych
-        permitted_classes: [Symbol],
-        symbolize_names: true,
-        **kargs
-      )
+      data = Util.load_yaml(data,file: file)
       
       articles = data[:articles]
       
@@ -93,18 +88,6 @@ module NHKore
       end
       
       return news
-    end
-    
-    def self.load_file(file,mode: 'r:BOM|UTF-8',**kargs)
-      data = File.read(file,mode: mode,**kargs)
-      
-      return load_data(data,file: file,**kargs)
-    end
-    
-    def save_file(file,mode: 'wt',**kargs)
-      File.open(file,mode: mode,**kargs) do |file|
-        file.write(to_s())
-      end
     end
     
     def update_article(article,url)
@@ -144,14 +127,8 @@ module NHKore
     end
     
     def to_s()
-      return Psychgus.dump(self,
-        line_width: 10000, # Try not to wrap; ichiman!
-        stylers: [
-          Psychgus::FlowStyler.new(8), # Put each Word on one line (flow/inline style)
-          Psychgus::NoSymStyler.new(cap: false), # Remove symbols, don't capitalize
-          Psychgus::NoTagStyler.new() # Remove class names (tags)
-        ]
-      )
+      # Put each Word on one line (flow/inline style).
+      return Util.dump_yaml(self,flow_level: 8)
     end
   end
   
