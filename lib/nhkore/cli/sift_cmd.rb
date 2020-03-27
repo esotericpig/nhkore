@@ -350,10 +350,10 @@ module CLI
       
       sifter = Sifter.new(news)
       
-      sifter.filter_by_datetime!(datetime_filter) unless datetime_filter.nil?()
-      sifter.filter_by_title!(title_filter) unless title_filter.nil?()
-      sifter.filter_by_url!(url_filter) unless url_filter.nil?()
-      sifter.ignore!(:defn) if no_defn
+      sifter.filter_by_datetime(datetime_filter) unless datetime_filter.nil?()
+      sifter.filter_by_title(title_filter) unless title_filter.nil?()
+      sifter.filter_by_url(url_filter) unless url_filter.nil?()
+      sifter.ignore(:defn) if no_defn
       
       sifter.caption = "NHK News Web #{news_name}".dup()
       

@@ -22,8 +22,8 @@
 
 
 require 'csv'
-require 'psychgus'
 
+require 'nhkore/fileable'
 require 'nhkore/util'
 
 
@@ -33,6 +33,8 @@ module NHKore
   # @since  0.2.0
   ###
   class Sifter
+    include Fileable
+    
     DEFAULT_DIR = Util::CORE_DIR
     
     DEFAULT_FUTSUU_FILENAME = 'sift_nhk_news_web_regular'
@@ -47,17 +49,52 @@ module NHKore
     
     attr_accessor :articles
     attr_accessor :caption
+    attr_accessor :filters
     attr_accessor :ignores
     attr_accessor :output
     
     def initialize(news)
       @articles = news.articles.values.dup()
       @caption = nil
+      @filters = {}
       @ignores = {}
       @output = nil
     end
     
-    def filter_by_datetime!(datetime_filter=nil,from_filter: nil,to_filter: nil)
+    def filter?(article)
+      return false if @filters.empty?()
+      
+      datetime_filter = @filters[:datetime]
+      title_filter = @filters[:title]
+      url_filter = @filters[:url]
+      
+      if !datetime_filter.nil?()
+        datetime = article.datetime
+        
+        return true if datetime.nil?() ||
+          datetime < datetime_filter[:from] || datetime > datetime_filter[:to]
+      end
+      
+      if !title_filter.nil?()
+        title = article.title.to_s()
+        title = Util.unspace_web_str(title) if title_filter[:unspace]
+        title = title.downcase() if title_filter[:uncase]
+        
+        return true unless title.include?(title_filter[:filter])
+      end
+      
+      if !url_filter.nil?()
+        url = article.url.to_s()
+        url = Util.unspace_web_str(url) if url_filter[:unspace]
+        url = url.downcase() if url_filter[:uncase]
+        
+        return true unless url.include?(url_filter[:filter])
+      end
+      
+      return false
+    end
+    
+    def filter_by_datetime(datetime_filter=nil,from_filter: nil,to_filter: nil)
       if !datetime_filter.nil?()
         # If out-of-bounds, just nil.
         from_filter = datetime_filter[0]
@@ -74,48 +111,30 @@ module NHKore
       
       return self if datetime_filter.flatten().compact().empty?()
       
-      @articles.filter!() do |article|
-        datetime = article.datetime
-        
-        !datetime.nil?() && datetime >= from_filter && datetime <= to_filter
-      end
+      @filters[:datetime] = {from: from_filter,to: to_filter}
       
       return self
     end
     
-    def filter_by_title!(title_filter,uncase: true,unspace: true)
+    def filter_by_title(title_filter,uncase: true,unspace: true)
       title_filter = Util.unspace_web_str(title_filter) if unspace
       title_filter = title_filter.downcase() if uncase
       
-      @articles.filter!() do |article|
-        title = article.title.to_s()
-        
-        title = Util.unspace_web_str(title) if unspace
-        title = title.downcase() if uncase
-        
-        title.include?(title_filter)
-      end
+      @filters[:title] = {filter: title_filter,uncase: uncase,unspace: unspace}
       
       return self
     end
     
-    def filter_by_url!(url_filter,uncase: true,unspace: true)
+    def filter_by_url(url_filter,uncase: true,unspace: true)
       url_filter = Util.unspace_web_str(url_filter) if unspace
       url_filter = url_filter.downcase() if uncase
       
-      @articles.filter!() do |article|
-        url = article.url.to_s()
-        
-        url = Util.unspace_web_str(url) if unspace
-        url = url.downcase() if uncase
-        
-        url.include?(url_filter)
-      end
+      @filters[:url] = {filter: url_filter,uncase: uncase,unspace: unspace}
       
       return self
     end
     
-    def ignore!(key)
+    def ignore(key)
       @ignores[key] = true
       
       return self
@@ -229,35 +248,25 @@ module NHKore
         words: words
       }
       
-      @output = Psychgus.dump(yaml,
-        line_width: 10000, # Try not to wrap; ichiman!
-        stylers: [
-          Psychgus::FlowStyler.new(4), # Put each Word on one line (flow/inline style)
-          Psychgus::NoSymStyler.new(cap: false), # Remove symbols, don't capitalize
-          Psychgus::NoTagStyler.new() # Remove class names (tags)
-        ]
-      )
+      # Put each Word on one line (flow/inline style).
+      @output = Util.dump_yaml(yaml,flow_level: 4)
       
       return @output
-    end
-    
-    def save_file(file,mode: 'wt',**kargs)
-      File.open(file,mode: mode,**kargs) do |fout|
-        fout.write(to_s())
-      end
     end
     
     def sift()
       words = {}
       
       @articles.each() do |article|
+        next if filter?(article)
+        
         article.words.values().each() do |word|
-          curr_word = words[word.key]
+          sift_word = words[word.key]
           
-          if curr_word.nil?()
+          if sift_word.nil?()
             words[word.key] = word
           else
-            curr_word.freq += word.freq
+            sift_word.freq += word.freq
           end
         end
       end
