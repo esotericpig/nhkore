@@ -382,10 +382,12 @@ module CLI
       if dry_run
         puts sifter.to_s()
       else
-        puts 'Saved sifted data to file:'
-        puts "> #{out_file}"
+        start_spin('Saving sifted data to file')
         
         sifter.save_file(out_file)
+        
+        stop_spin()
+        puts "> #{out_file}"
       end
     end
   end

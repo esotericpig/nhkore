@@ -240,13 +240,11 @@ module CLI
       else
         puts 'Last URL scraped:'
         puts "> #{url}"
+        puts
         
         if show_dict
-          puts
           puts @cmd_opts[:show_dict] # Updated in scrape_news_article()
         elsif dry_run
-          puts
-          
           if new_articles.length < 1
             raise CLIError,"scrape_count[#{scrape_count}] != new_articles[#{new_articles.length}]; " +
               "internal code is broken"
@@ -259,8 +257,14 @@ module CLI
             end
           end
         else
+          start_spin('Saving scraped data to files')
+          
           links.save_file(links_file)
           news.save_file(out_file)
+          
+          stop_spin()
+          puts "> #{out_file}"
+          puts "> #{links_file}"
         end
       end
     end

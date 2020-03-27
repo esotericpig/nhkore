@@ -182,15 +182,17 @@ module CLI
       
       puts 'Last URL scraped:'
       puts "> #{url}"
+      puts
       
       if dry_run
-        puts
-        
         new_links.each() do |link|
           puts link.to_s(mini: true)
         end
       else
         links.save_file(out_file)
+        
+        puts 'Saved scraped links to file:'
+        puts "> #{out_file}"
       end
     end
   end
