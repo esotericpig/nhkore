@@ -85,14 +85,14 @@ module NHKore
             redirect_uri = redirect.uri
             
             if (max_redirects -= 1) < 0
-              raise redirect.exception("redirected to URL[#{redirect_uri}]")
+              raise redirect.exception("redirected to URL[#{redirect_uri}]: #{redirect}")
             end
             
             case redirect_rule
             when :lenient,:strict
               if redirect_uri.scheme != top_uri.scheme
                 raise redirect.exception("redirect scheme[#{redirect_uri.scheme}] does not match original " +
-                  "scheme[#{top_uri.scheme}] at redirect URL[#{redirect_uri}]")
+                  "scheme[#{top_uri.scheme}] at redirect URL[#{redirect_uri}]: #{redirect}")
               end
               
               if redirect_rule == :strict
@@ -100,7 +100,7 @@ module NHKore
                 
                 if redirect_domain != top_domain
                   raise redirect.exception("redirect domain[#{redirect_domain}] does not match original " +
-                    "domain[#{top_domain}] at redirect URL[#{redirect_uri}]")
+                    "domain[#{top_domain}] at redirect URL[#{redirect_uri}]: #{redirect}")
                 end
               end
             end

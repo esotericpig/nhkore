@@ -40,7 +40,7 @@ module NHKore
       super(url,**kargs)
     end
     
-    def self.parse_url(url)
+    def self.parse_url(url,basename: nil)
       url = Util.strip_web_str(url)
       
       raise ParseError,"cannot parse dictionary URL from URL[#{url}]" if url.empty?()
@@ -48,7 +48,7 @@ module NHKore
       i = url.rindex(%r{[/\\]}) # Can be a URL or a file
       i = i.nil?() ? 0 : (i + 1) # If no match found, no path
       
-      basename = File.basename(url[i..-1],'.*')
+      basename = File.basename(url[i..-1],'.*') if basename.nil?()
       path = url[0...i]
       
       return "#{path}#{basename}.out.dic"

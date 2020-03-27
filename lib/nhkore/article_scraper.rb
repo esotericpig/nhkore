@@ -198,29 +198,60 @@ module NHKore
     def scrape_datetime(doc,futsuurl=nil)
       year = scrape_year(doc,futsuurl)
       
-      # First, try with the id
-      p = doc.css('p#js-article-date')
+      # First, try with the id.
+      tag_name = 'p#js-article-date'
+      p = doc.css(tag_name)
       
       if p.length > 0
-        p = p[0]
+        p = p[0].text
         
         begin
-          datetime = parse_datetime(p.text,year)
+          datetime = parse_datetime(p,year)
           
           return datetime
-        rescue ArgumentError
+        rescue ArgumentError => e
           # Ignore; try again below.
+          warn("could not parse date time[#{p}] from tag[#{tag_name}] at URL[#{@url}]: #{e}",uplevel: 1)
         end
       end
       
-      # Second, try with the class
-      p = doc.css('p.article-main__date')
+      # Second, try with the class.
+      tag_name = 'p.article-main__date'
+      p = doc.css(tag_name)
       
       if p.length > 0
-        p = p[0]
-        datetime = parse_datetime(p.text,year) # Allow the error to raise this time
+        p = p[0].text
+        
+        begin
+          datetime = parse_datetime(p,year)
+          
+          return datetime
+        rescue ArgumentError => e
+          # Ignore; try again below.
+          warn("could not parse date time[#{p}] from tag[#{tag_name}] at URL[#{@url}]: #{e}",uplevel: 1)
+        end
         
         return datetime
+      end
+      
+      # Third, try body's id.
+      # - https://www3.nhk.or.jp/news/easy/article/disaster_earthquake_02.html
+      #   - 'news20170331_k10010922481000'
+      body = doc.css('body')
+      
+      if body.length > 0
+        body = body[0]
+        body_id = body['id'].to_s().split('_',2)
+        
+        if body_id.length >= 1
+          body_id = body_id[0].gsub(/[^[[:digit:]]]+/,'')
+          
+          if body_id.length == 8
+            datetime = Time.strptime(body_id,'%Y%m%d')
+            
+            return datetime
+          end
+        end
       end
       
       raise ScrapeError,"could not scrape date time at URL[#{@url}]"
@@ -229,9 +260,51 @@ module NHKore
     def scrape_dict()
       return if @dict != :scrape
       
-      scraper = DictScraper.new(@url,**@kargs)
+      dict_url = DictScraper.parse_url(@url)
+      retries = 0
+      
+      begin
+        scraper = DictScraper.new(dict_url,parse_url: false,**@kargs)
+      rescue OpenURI::HTTPError => e
+        if retries == 0 && e.to_s().include?('404')
+          @str_or_io = @str_or_io.read() if @str_or_io.respond_to?(:read)
+          
+          scraper = ArticleScraper.new(@url,str_or_io: @str_or_io,**@kargs)
+          
+          dict_url = scraper.scrape_dict_url_only()
+          retries += 1
+          
+          retry
+        else
+          raise e.exception("could not scrape dictionary at URL[#{dict_url}]: #{e}")
+        end
+      end
       
       @dict = scraper.scrape()
+    end
+    
+    def scrape_dict_url_only()
+      doc = html_doc()
+      
+      body = doc.css('body')
+      
+      if body.length > 0
+        # https://www3.nhk.or.jp/news/easy/article/disaster_earthquake_02.html
+        # - 'news20170331_k10010922481000'
+        
+        body = body[0]
+        body_id = body['id'].to_s().split('_',2)
+        
+        if body_id.length == 2
+          dict_url = Util.strip_web_str(body_id[1])
+          
+          if !dict_url.empty?()
+            return DictScraper.parse_url(@url,basename: dict_url)
+          end
+        end
+      end
+      
+      raise ScrapeError,"could not scrape dictionary URL at URL[#{@url}]"
     end
     
     def scrape_dicwin_word(tag,id,result: ScrapeWordsResult.new())
@@ -279,7 +352,7 @@ module NHKore
     end
     
     def scrape_futsuurl(doc)
-      # First, try with the id
+      # First, try with the id.
       div = doc.css('div#js-regular-news-wrapper')
       
       if div.length > 0
@@ -289,7 +362,7 @@ module NHKore
         return link unless link.nil?()
       end
       
-      # Second, try with the class
+      # Second, try with the class.
       div = doc.css('div.link-to-normal')
       
       if div.length > 0
@@ -299,7 +372,11 @@ module NHKore
         return link unless link.nil?()
       end
       
-      raise ScrapeError,"could not scrape futsuurl at URL[#{@url}]"
+      # Some sites don't have a futsuurl, so just show a warning.
+      # - https://www3.nhk.or.jp/news/easy/article/disaster_earthquake_02.html
+      warn("could not scrape futsuurl at URL[#{@url}]",uplevel: 1)
+      
+      return nil
     end
     
     def scrape_link(tag)
@@ -441,7 +518,7 @@ module NHKore
     end
     
     def scrape_year(doc,futsuurl=nil)
-      # First, try body's id
+      # First, try body's id.
       body = doc.css('body')
       
       if body.length > 0
@@ -455,7 +532,7 @@ module NHKore
         end
       end
       
-      # Second, try futsuurl
+      # Second, try futsuurl.
       if !futsuurl.nil?()
         m = futsuurl.match(/([[:digit:]]{4,})/)
         
@@ -466,7 +543,7 @@ module NHKore
         end
       end
       
-      # As a last resort, use our user-defined fallback
+      # As a last resort, use our user-defined fallback.
       raise ScrapeError,"could not scrape year at URL[#{@url}]" if Util.empty_web_str?(@year)
       
       return @year
