@@ -109,6 +109,26 @@ module NHKore
       return Cleaner.clean_any(obj,@cleaners)
     end
     
+    def fix_bad_html()
+      # Fixes:
+      # - '<「<' without escaping '<' as '&lt;'
+      #   - https://www3.nhk.or.jp/news/easy/k10012118911000/k10012118911000.html
+      #   - '</p><br><「<ruby>台風<rt>たいふう</rt></ruby>'
+      
+      @str_or_io = @str_or_io.read() if @str_or_io.respond_to?(:read)
+      
+      # To add a new one, simply add '|(...)' on a newline and test $#.
+      @str_or_io = @str_or_io.gsub(/
+        (\<「\<)
+      /x) do |match|
+        if !$1.nil?()
+          match = match.sub('<','&lt;')
+        end
+        
+        match
+      end
+    end
+    
     def parse_datetime(str,year)
       str = str.gsub(/[\[\][[:space:]]]+/,'') # Remove: [ ] \s
       str = "#{year}年 #{str} #{Util::JST_OFFSET}"
@@ -129,6 +149,7 @@ module NHKore
     
     def scrape()
       scrape_dict()
+      fix_bad_html()
       
       article = Article.new()
       doc = html_doc()
