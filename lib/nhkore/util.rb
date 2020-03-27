@@ -123,7 +123,7 @@ module NHKore
       return KATAKANA_REGEX =~ str
     end
     
-    def self.load_yaml(data,file: nil)
+    def self.load_yaml(data,file: nil,**kargs)
       return Psych.safe_load(data,
         aliases: false,
         filename: file,
