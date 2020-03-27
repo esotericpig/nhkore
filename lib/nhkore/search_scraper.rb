@@ -21,11 +21,12 @@
 #++
 
 
+require 'uri'
+
 require 'nhkore/error'
 require 'nhkore/scraper'
 require 'nhkore/search_link'
 require 'nhkore/util'
-require 'uri'
 
 
 module NHKore
