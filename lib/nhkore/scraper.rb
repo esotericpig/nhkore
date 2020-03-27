@@ -120,7 +120,7 @@ module NHKore
     end
     
     def html_doc()
-      return Nokogiri::HTML(@str_or_io)
+      return Nokogiri::HTML(@str_or_io,@url)
     end
     
     def join_url(relative_url)
