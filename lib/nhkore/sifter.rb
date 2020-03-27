@@ -168,53 +168,52 @@ module NHKore
         <!DOCTYPE html>
         <html lang="ja">
         <head>
-          <meta charset="utf-8">
-          <title>NHKore</title>
-          <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+JP&amp;display=fallback">
-          <style>
-            body {
-              background-color: #FCFBF9;
-              color: #333333;
-              font-family: 'Noto Serif JP',Verdana,sans-serif;
-            }
-            h1 {
-              color: #737373;
-            }
-            table {
-              border-collapse: collapse;
-              width: 100%;
-            }
-            td,th {
-              border: 1px solid #333333;
-              padding: 8px;
-              text-align: left;
-            }
-            th {
-              background-color: #082A8E;
-              color: #FCFBF9;
-            }
-            tr:nth-child(even) {
-              background-color: #A5C7ED;
-            }
-            tr:hover {
-              background-color: #FFDDCA;
-            }
-          </style>
+        <meta charset="utf-8">
+        <title>NHKore</title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+JP&amp;display=fallback">
+        <style>
+        body {
+          background-color: #FCFBF9;
+          color: #333333;
+          font-family: 'Noto Serif JP',Verdana,sans-serif;
+        }
+        h1 {
+          color: #737373;
+        }
+        table {
+          border-collapse: collapse;
+          width: 100%;
+        }
+        td,th {
+          border: 1px solid #333333;
+          padding: 8px;
+          text-align: left;
+        }
+        th {
+          background-color: #082A8E;
+          color: #FCFBF9;
+        }
+        tr:nth-child(even) {
+          background-color: #A5C7ED;
+        }
+        tr:hover {
+          background-color: #FFDDCA;
+        }
+        </style>
         </head>
         <body>
-          <h1>NHKore</h1>
-          <h2>#{@caption}</h2>
-          
-          <table>
+        <h1>NHKore</h1>
+        <h2>#{@caption}</h2>
+        <table>
       EOH
       #" # Fix for editor
       
-      @output << '    <tr><th>Frequency</th><th>Word</th><th>Kana</th><th>English</th>'
+      @output << '<tr><th>Frequency</th><th>Word</th><th>Kana</th><th>English</th>'
       @output << '<th>Definition</th>' unless @ignores[:defn]
       @output << "</tr>\n"
       
       words.each() do |word|
-        @output << '    <tr>'
+        @output << '<tr>'
         @output << "<td>#{Util.escape_html(word.freq.to_s())}</td>"
         @output << "<td>#{Util.escape_html(word.word.to_s())}</td>"
         @output << "<td>#{Util.escape_html(word.kana.to_s())}</td>"
@@ -224,7 +223,7 @@ module NHKore
       end
       
       @output << <<~EOH
-          </table>
+        </table>
         </body>
         </html>
       EOH
