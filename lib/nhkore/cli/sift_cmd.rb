@@ -110,6 +110,7 @@ module CLI
           app.check_empty_opt(:in,value)
         end
         flag :D,:'no-defn','do not output the definitions for words (which can be quite long)'
+        flag :E,:'no-eng','do not output the English translations for words'
         option :o,:out,<<-EOD,argument: :required,transform: -> (value) do
           'directory/file' to save sifted data to; if you only specify a directory or a file, it will attach
           the appropriate default directory/file name
@@ -324,6 +325,7 @@ module CLI
       file_ext = @cmd_opts[:ext]
       in_file = @cmd_opts[:in]
       no_defn = @cmd_opts[:no_defn]
+      no_eng = @cmd_opts[:no_eng]
       out_file = @cmd_opts[:out]
       title_filter = @cmd_opts[:title]
       url_filter = @cmd_opts[:url]
@@ -338,6 +340,7 @@ module CLI
       sifter.filter_by_title(title_filter) unless title_filter.nil?()
       sifter.filter_by_url(url_filter) unless url_filter.nil?()
       sifter.ignore(:defn) if no_defn
+      sifter.ignore(:eng) if no_eng
       
       sifter.caption = "NHK News Web #{news_name}".dup()
       
