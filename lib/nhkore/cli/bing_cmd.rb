@@ -67,6 +67,11 @@ module CLI
           value = 1 if value < 1
           value
         end
+        option nil,:'show-count',<<-EOD
+          show the number of links scraped and exit;
+          useful for manually writing/updating scripts (but not for use in a variable);
+          implies '--dry-run' option
+        EOD
         option nil,:'show-urls',<<-EOD do |value,cmd|
           show the URLs used when scraping and exit; you can download these for offline testing and/or
           slow internet (see '--in' option)
@@ -117,6 +122,8 @@ module CLI
     end
     
     def run_bing_cmd(type)
+      @cmd_opts[:dry_run] = true if @cmd_opts[:show_count]
+      
       build_in_file(:in)
       
       case type
@@ -136,8 +143,9 @@ module CLI
       out_file = @cmd_opts[:out]
       result_count = @cmd_opts[:results]
       result_count = SearchScraper::DEFAULT_RESULT_COUNT if result_count.nil?()
+      show_count = @cmd_opts[:show_count]
       
-      start_spin('Scraping bing.com')
+      start_spin('Scraping bing.com') unless show_count
       
       is_file = !in_file.nil?()
       links = nil
@@ -155,6 +163,18 @@ module CLI
       end
       
       links_count = links.length
+      
+      if show_count
+        scraped_count = 0
+        
+        links.links.values.each() do |link|
+          scraped_count += 1 if link.scraped?()
+        end
+        
+        puts "#{scraped_count} of #{links_count} links scraped."
+        
+        return
+      end
       
       # Do a range to prevent an infinite loop. Ichiman!
       (0..10000).each() do
