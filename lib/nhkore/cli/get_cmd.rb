@@ -36,7 +36,7 @@ module CLI
   ###
   module GetCmd
     DEFAULT_GET_CHUNK_SIZE = 4 * 1024
-    DEFAULT_GET_URL_LENGTH = 24000 # May be outdated, used as a fallback
+    DEFAULT_GET_URL_LENGTH = 17_000_000 # Just a generous estimation used as a fallback; may be outdated
     GET_URL_FILENAME = 'nhkore-core.zip'
     GET_URL = "https://github.com/esotericpig/nhkore/releases/latest/download/#{GET_URL_FILENAME}"
     
@@ -50,7 +50,7 @@ module CLI
         summary "Download NHKore's pre-scraped files from the latest release (aliases: #{app.color_alias('g')})"
         
         description <<-EOD
-          Download NHKore's pre-scrapped files from the latest release &
+          Download NHKore's pre-scraped files from the latest release &
           save to folder: #{Util::CORE_DIR}
           
           Note: the latest NHK articles may not have been scraped yet.

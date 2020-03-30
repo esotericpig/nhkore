@@ -85,7 +85,7 @@ module NHKore
       
       @datetime = article.datetime if @datetime.nil?()
       @futsuurl = article.futsuurl if Util.empty_web_str?(@futsuurl)
-      @scraped = true # If we have an article, it's been scrapped
+      @scraped = true # If we have an article, it's been scraped
       @sha256 = article.sha256 if Util.empty_web_str?(@sha256)
       @title = article.title if Util.empty_web_str?(@title)
     end
