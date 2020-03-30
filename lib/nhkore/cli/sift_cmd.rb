@@ -60,22 +60,6 @@ module CLI
       '%d',
       '%Y'
     ]
-    SIFT_YEARER = -> (year) do
-      if year < 100
-        # 2021 -> 2000.
-        millennium = Util::JST_YEAR / 100 * 100
-        
-        # If year <= (2021 -> 21), assume this century.
-        if year <= (Util::JST_YEAR % 100)
-          millennium + year
-        else
-          # Assume previous century (2000 -> 1900).
-          (millennium - 100) + year
-        end
-      else
-        year
-      end
-    end
     
     attr_accessor :sift_datetime_text
     attr_accessor :sift_search_criteria
@@ -256,7 +240,7 @@ module CLI
             # If don't do this, "%y" values will be parsed using "%d".
             raise ArgumentError if fmt == '%d' && v.length > 2
             
-            v = Time.strptime(v,fmt,&SIFT_YEARER)
+            v = Time.strptime(v,fmt,&Util.method(:guess_year))
             
             has_day = fmt.include?('%d')
             has_hour = fmt.include?('%H')

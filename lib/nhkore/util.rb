@@ -101,6 +101,23 @@ module NHKore
       return File.basename(str) == str
     end
     
+    def self.guess_year(year)
+      if year < 100
+        # 2021 -> 2000.
+        millennium = JST_YEAR / 100 * 100
+        
+        # If year <= (2021 -> 21), assume this century.
+        if year <= (JST_YEAR % 100)
+          year = millennium + year
+        else
+          # Assume previous century (2000 -> 1900).
+          year = (millennium - 100) + year
+        end
+      end
+      
+      return year
+    end
+    
     def self.hiragana?(str)
       return HIRAGANA_REGEX =~ str
     end
@@ -164,6 +181,10 @@ module NHKore
     
     def self.unspace_web_str(str)
       return str.gsub(WEB_SPACES_REGEX,'')
+    end
+    
+    def self.warn(msg,uplevel: 1)
+      Kernel.warn(msg,uplevel: uplevel)
     end
   end
 end

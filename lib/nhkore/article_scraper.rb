@@ -43,22 +43,27 @@ module NHKore
   ###
   class ArticleScraper < Scraper
     attr_reader :cleaners
+    attr_accessor :datetime
     attr_accessor :dict
     attr_reader :kargs
+    attr_accessor :mode
     attr_reader :polishers
     attr_accessor :splitter
     attr_reader :variators
     attr_accessor :year
     
-    # @param dict [Dict,nil,:scrape] the {Dict} (dictionary) to use for {Word#defn} (definitions)
-    #          [+nil+]     don't scrape/use it
-    #          [+:scrape+] auto-scrape it using {DictScraper}
-    def initialize(url,cleaners: [BestCleaner.new()],dict: :scrape,polishers: [BestPolisher.new()],splitter: BestSplitter.new(),variators: [BestVariator.new()],year: nil,**kargs)
+    # @param dict [Dict,:scrape,nil] the {Dict} (dictionary) to use for {Word#defn} (definitions)
+    #             [+:scrape+] auto-scrape it using {DictScraper}
+    #             [+nil+]     don't scrape/use it
+    # @param mode [nil,:lenient]
+    def initialize(url,cleaners: [BestCleaner.new()],datetime: nil,dict: :scrape,mode: nil,polishers: [BestPolisher.new()],splitter: BestSplitter.new(),variators: [BestVariator.new()],year: nil,**kargs)
       super(url,**kargs)
       
       @cleaners = Array(cleaners)
+      @datetime = datetime.nil?() ? nil : Util.jst_time(datetime)
       @dict = dict
       @kargs = kargs
+      @mode = mode
       @polishers = Array(polishers)
       @splitter = splitter
       @variators = Array(variators)
@@ -174,19 +179,22 @@ module NHKore
     end
     
     def scrape_content(doc,article)
-      div = doc.css('div#js-article-body')
-      div = doc.css('div.article-main__body') if div.length < 1
-      div = doc.css('div.article-body') if div.length < 1
+      tag = doc.css('div#js-article-body')
+      tag = doc.css('div.article-main__body') if tag.length < 1
+      tag = doc.css('div.article-body') if tag.length < 1
       
-      if div.length > 0
-        text = Util.unspace_web_str(div.text.to_s())
+      # - https://www3.nhk.or.jp/news/easy/tsunamikeihou/index.html
+      tag = doc.css('div#main') if tag.length < 1 && @mode == :lenient
+      
+      if tag.length > 0
+        text = Util.unspace_web_str(tag.text.to_s())
         
         if !text.empty?()
           hexdigest = Digest::SHA256.hexdigest(text)
           
           return hexdigest if article.nil?() # For scrape_sha256_only()
           
-          result = scrape_and_add_words(div,article)
+          result = scrape_and_add_words(tag,article)
           
           return hexdigest if result.words?()
         end
@@ -200,35 +208,35 @@ module NHKore
       
       # First, try with the id.
       tag_name = 'p#js-article-date'
-      p = doc.css(tag_name)
+      tag = doc.css(tag_name)
       
-      if p.length > 0
-        p = p[0].text
+      if tag.length > 0
+        tag_text = tag[0].text
         
         begin
-          datetime = parse_datetime(p,year)
+          datetime = parse_datetime(tag_text,year)
           
           return datetime
         rescue ArgumentError => e
           # Ignore; try again below.
-          warn("could not parse date time[#{p}] from tag[#{tag_name}] at URL[#{@url}]: #{e}",uplevel: 1)
+          Util.warn("could not parse date time[#{tag_text}] from tag[#{tag_name}] at URL[#{@url}]: #{e}")
         end
       end
       
       # Second, try with the class.
       tag_name = 'p.article-main__date'
-      p = doc.css(tag_name)
+      tag = doc.css(tag_name)
       
-      if p.length > 0
-        p = p[0].text
+      if tag.length > 0
+        tag_text = tag[0].text
         
         begin
-          datetime = parse_datetime(p,year)
+          datetime = parse_datetime(tag_text,year)
           
           return datetime
         rescue ArgumentError => e
           # Ignore; try again below.
-          warn("could not parse date time[#{p}] from tag[#{tag_name}] at URL[#{@url}]: #{e}",uplevel: 1)
+          Util.warn("could not parse date time[#{tag_text}] from tag[#{tag_name}] at URL[#{@url}]: #{e}")
         end
         
         return datetime
@@ -236,23 +244,25 @@ module NHKore
       
       # Third, try body's id.
       # - https://www3.nhk.or.jp/news/easy/article/disaster_earthquake_02.html
-      #   - 'news20170331_k10010922481000'
-      body = doc.css('body')
+      # - 'news20170331_k10010922481000'
+      tag = doc.css('body')
       
-      if body.length > 0
-        body = body[0]
-        body_id = body['id'].to_s().split('_',2)
+      if tag.length > 0
+        tag_id = tag[0]['id'].to_s().split('_',2)
         
-        if body_id.length >= 1
-          body_id = body_id[0].gsub(/[^[[:digit:]]]+/,'')
+        if tag_id.length > 0
+          tag_id = tag_id[0].gsub(/[^[[:digit:]]]+/,'')
           
-          if body_id.length == 8
-            datetime = Time.strptime(body_id,'%Y%m%d')
+          if tag_id.length == 8
+            datetime = Time.strptime(tag_id,'%Y%m%d')
             
             return datetime
           end
         end
       end
+      
+      # As a last resort, use our user-defined fallback (if specified).
+      return @datetime unless @datetime.nil?()
       
       raise ScrapeError,"could not scrape date time at URL[#{@url}]"
     end
@@ -286,17 +296,15 @@ module NHKore
     def scrape_dict_url_only()
       doc = html_doc()
       
-      body = doc.css('body')
+      # - https://www3.nhk.or.jp/news/easy/article/disaster_earthquake_02.html
+      # - 'news20170331_k10010922481000'
+      tag = doc.css('body')
       
-      if body.length > 0
-        # https://www3.nhk.or.jp/news/easy/article/disaster_earthquake_02.html
-        # - 'news20170331_k10010922481000'
+      if tag.length > 0
+        tag_id = tag[0]['id'].to_s().split('_',2)
         
-        body = body[0]
-        body_id = body['id'].to_s().split('_',2)
-        
-        if body_id.length == 2
-          dict_url = Util.strip_web_str(body_id[1])
+        if tag_id.length == 2
+          dict_url = Util.strip_web_str(tag_id[1])
           
           if !dict_url.empty?()
             return DictScraper.parse_url(@url,basename: dict_url)
@@ -353,28 +361,26 @@ module NHKore
     
     def scrape_futsuurl(doc)
       # First, try with the id.
-      div = doc.css('div#js-regular-news-wrapper')
+      tag = doc.css('div#js-regular-news-wrapper')
       
-      if div.length > 0
-        div = div[0]
-        link = scrape_link(div)
+      if tag.length > 0
+        link = scrape_link(tag[0])
         
         return link unless link.nil?()
       end
       
       # Second, try with the class.
-      div = doc.css('div.link-to-normal')
+      tag = doc.css('div.link-to-normal')
       
-      if div.length > 0
-        div = div[0]
-        link = scrape_link(div)
+      if tag.length > 0
+        link = scrape_link(tag[0])
         
         return link unless link.nil?()
       end
       
-      # Some sites don't have a futsuurl, so just show a warning.
+      # Some sites don't have a futsuurl and need a lenient mode.
       # - https://www3.nhk.or.jp/news/easy/article/disaster_earthquake_02.html
-      warn("could not scrape futsuurl at URL[#{@url}]",uplevel: 1)
+      warn_or_error(ScrapeError,"could not scrape futsuurl at URL[#{@url}]")
       
       return nil
     end
@@ -450,10 +456,21 @@ module NHKore
     end
     
     def scrape_title(doc,article)
-      h1 = doc.css('h1.article-main__title')
+      tag = doc.css('h1.article-main__title')
       
-      if h1.length > 0
-        result = scrape_and_add_words(h1,article)
+      if tag.length < 1 && @mode == :lenient
+        # This shouldn't be used except for select sites.
+        # - https://www3.nhk.or.jp/news/easy/tsunamikeihou/index.html
+        
+        tag_name = 'div#main h2'
+        
+        Util.warn("using [#{tag_name}] for title at URL[#{@url}]")
+        
+        tag = doc.css(tag_name)
+      end
+      
+      if tag.length > 0
+        result = scrape_and_add_words(tag,article)
         title = result.text
         
         return title unless title.empty?()
@@ -482,8 +499,8 @@ module NHKore
           dicwin_id = nil
           
           if name == 'a'
-            klass = Util.unspace_web_str(child['class'].to_s()).downcase()
             id = parse_dicwin_id(child['id'].to_s())
+            klass = Util.unspace_web_str(child['class'].to_s()).downcase()
             
             if klass == 'dicwin' && !id.nil?()
               if dicwin
@@ -519,16 +536,15 @@ module NHKore
     
     def scrape_year(doc,futsuurl=nil)
       # First, try body's id.
-      body = doc.css('body')
+      tag = doc.css('body')
       
-      if body.length > 0
-        body = body[0]
-        body_id = body['id'].to_s().gsub(/[^[[:digit:]]]+/,'')
+      if tag.length > 0
+        tag_id = tag[0]['id'].to_s().gsub(/[^[[:digit:]]]+/,'')
         
-        if body_id.length >= 4
-          body_id = body_id[0..3].to_i()
+        if tag_id.length >= 4
+          year = tag_id[0..3].to_i()
           
-          return body_id if Util.sane_year?(body_id)
+          return year if Util.sane_year?(year)
         end
       end
       
@@ -537,16 +553,17 @@ module NHKore
         m = futsuurl.match(/([[:digit:]]{4,})/)
         
         if !m.nil?() && (m = m[0].to_s()).length >= 4
-          m = m[0..3].to_i()
+          year = m[0..3].to_i()
           
-          return m if Util.sane_year?(m)
+          return year if Util.sane_year?(year)
         end
       end
       
-      # As a last resort, use our user-defined fallback.
-      raise ScrapeError,"could not scrape year at URL[#{@url}]" if Util.empty_web_str?(@year)
+      # As a last resort, use our user-defined fallbacks (if specified).
+      return @year unless Util.empty_web_str?(@year)
+      return @datetime.year if !@datetime.nil?() && Util.sane_year?(@datetime.year)
       
-      return @year
+      raise ScrapeError,"could not scrape year at URL[#{@url}]"
     end
     
     def split(str)
@@ -561,6 +578,15 @@ module NHKore
       end
       
       return variations
+    end
+    
+    def warn_or_error(klass,msg)
+      case @mode
+      when :lenient
+        Util.warn(msg)
+      else
+        raise klass,msg
+      end
     end
   end
   

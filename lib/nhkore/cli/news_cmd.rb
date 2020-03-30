@@ -21,6 +21,8 @@
 #++
 
 
+require 'time'
+
 require 'nhkore/error'
 require 'nhkore/news'
 require 'nhkore/search_link'
@@ -50,12 +52,27 @@ module CLI
           save to folder: #{News::DEFAULT_DIR}
         EOD
         
+        option :d,:datetime,<<-EOD,argument: :required,transform: -> (value) do
+          date time to use as a fallback in cases when an article doesn't have one;
+          format: YYYY-mm-dd H:M; example: 2020-03-30 15:30
+        EOD
+          value = Time.strptime(value,'%Y-%m-%d %H:%M',&Util.method(:guess_year))
+          value = Util.jst_time(value)
+          value
+        end
         option :i,:in,<<-EOD,argument: :required,transform: -> (value) do
           HTML file of article to read instead of URL (for offline testing and/or slow internet;
           see '--no-dict' option)
         EOD
           app.check_empty_opt(:in,value)
         end
+        flag :L,:lenient,<<-EOD
+          leniently (not strict) scrape articles:
+          body & title content without the proper HTML/CSS classes/IDs and no futsuurl;
+          example URLs that need this flag:
+          -https://www3.nhk.or.jp/news/easy/article/disaster_earthquake_02.html
+          -https://www3.nhk.or.jp/news/easy/tsunamikeihou/index.html
+        EOD
         option :k,:like,<<-EOD,argument: :required,transform: -> (value) do
           text to fuzzy search links for; for example, "--like '00123'" will only scrape links containing
           text '00123' -- like '*00123*'
@@ -90,7 +107,7 @@ module CLI
         option nil,:'show-dict',<<-EOD
           show dictionary URL and contents for the first article and exit;
           useful for debugging dictionary errors (see '--no-dict' option);
-          automatically adds '--dry-run' option
+          implies '--dry-run' option
         EOD
         option :u,:url,<<-EOD,argument: :required,transform: -> (value) do
           URL of article to scrape, instead of article links file (see '--links' option)
@@ -162,9 +179,11 @@ module CLI
       return unless check_in_file(:in,empty_ok: true)
       return unless check_out_file(:out)
       
+      datetime = @cmd_opts[:datetime]
       dict = @cmd_opts[:no_dict] ? nil : :scrape
       dry_run = @cmd_opts[:dry_run]
       in_file = @cmd_opts[:in]
+      lenient = @cmd_opts[:lenient]
       like = @cmd_opts[:like]
       links_file = @cmd_opts[:links]
       max_scrapes = @cmd_opts[:scrape]
@@ -197,18 +216,27 @@ module CLI
         news = (type == :yasashii) ? YasashiiNews.new() : FutsuuNews.new()
       end
       
+      @news_article_scraper_kargs = @scraper_kargs.merge({
+        datetime: datetime,
+        dict: dict,
+        is_file: is_file,
+        mode: lenient ? :lenient : nil,
+      })
+      @news_dict_scraper_kargs = @scraper_kargs.merge({
+        is_file: is_file,
+      })
+      
       if url.nil?()
         links.each() do |key,link|
           update_spin_detail(" (scraped=#{scrape_count}, considered=#{link_count += 1})")
           
           break if scrape_count >= max_scrapes
           next if !like.nil?() && !link.url.to_s().downcase().include?(like)
-          next if !redo_scrapes && scraped_news_article?(news,link,dict: dict,is_file: is_file)
+          next if !redo_scrapes && scraped_news_article?(news,link)
           
           url = link.url
           
-          if (new_url = scrape_news_article(url,dict: dict,is_file: is_file,link: link,
-              new_articles: new_articles,news: news))
+          if (new_url = scrape_news_article(url,link: link,new_articles: new_articles,news: news))
             # --show-dict
             url = new_url
             scrape_count = max_scrapes - 1
@@ -227,7 +255,7 @@ module CLI
           links.add_link(link)
         end
         
-        scrape_news_article(url,dict: dict,is_file: is_file,link: link,new_articles: new_articles,news: news)
+        scrape_news_article(url,link: link,new_articles: new_articles,news: news)
         
         scrape_count += 1
       end
@@ -269,18 +297,18 @@ module CLI
       end
     end
     
-    def scrape_news_article(url,dict:,is_file:,link:,new_articles:,news:)
+    def scrape_news_article(url,link:,new_articles:,news:)
       show_dict = @cmd_opts[:show_dict]
       
       if show_dict
-        scraper = DictScraper.new(url,is_file: is_file,**@scraper_kargs)
+        scraper = DictScraper.new(url,**@news_dict_scraper_kargs)
         
         @cmd_opts[:show_dict] = scraper.scrape().to_s()
         
         return scraper.url
       end
       
-      scraper = ArticleScraper.new(url,dict: dict,is_file: is_file,**@scraper_kargs)
+      scraper = ArticleScraper.new(url,**@news_article_scraper_kargs)
       article = scraper.scrape()
       
       # run_news_cmd() handles overwriting with --redo or not
@@ -292,10 +320,10 @@ module CLI
       
       new_articles << article
       
-      return false
+      return false # No --show-dict
     end
     
-    def scraped_news_article?(news,link,dict:,is_file:)
+    def scraped_news_article?(news,link)
       return true if link.scraped?()
       
       article = news.article(link.url)
@@ -306,7 +334,7 @@ module CLI
         end
         
         if article.nil?()
-          scraper = ArticleScraper.new(link.url,dict: dict,is_file: is_file,**@scraper_kargs)
+          scraper = ArticleScraper.new(link.url,**@news_article_scraper_kargs)
           
           sha256 = scraper.scrape_sha256_only()
           
