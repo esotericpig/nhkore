@@ -63,32 +63,16 @@ require 'nhkore/cli/sift_cmd'
 ###
 module NHKore
   # @since 0.2.0
-  def self.new(args=ARGV)
-    return AppRunner.new(args)
-  end
-  
-  ###
-  # @author Jonathan Bradley Whited (@esotericpig)
-  # @since  0.2.0
-  ###
-  class AppRunner
-    attr_accessor :args
+  def self.run(args=ARGV)
+    app = App.new(args)
     
-    def initialize(args=ARGV)
-      @args = args
-    end
-    
-    def run()
-      app = App.new(args)
-      
-      begin
-        app.run()
-      rescue CLIError => e
-        puts "Error: #{e}"
-        exit 1
-      end
+    begin
+      app.run()
+    rescue CLIError => e
+      puts "Error: #{e}"
+      exit 1
     end
   end
 end
 
-NHKore.new().run() if TESTING
+NHKore.run() if TESTING

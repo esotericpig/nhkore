@@ -24,6 +24,4 @@
 require 'nhkore'
 
 
-app = NHKore.new()
-
-app.run()
+NHKore.run()
