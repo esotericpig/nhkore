@@ -23,6 +23,7 @@
 
 require 'csv'
 
+require 'nhkore/article'
 require 'nhkore/fileable'
 require 'nhkore/util'
 
@@ -288,50 +289,47 @@ module NHKore
     end
     
     def sift()
-      words = {}
+      master_article = Article.new()
       
       @articles.each() do |article|
         next if filter?(article)
         
         article.words.values().each() do |word|
-          sift_word = words[word.key]
-          
-          if sift_word.nil?()
-            words[word.key] = word
-          else
-            sift_word.freq += word.freq
-          end
+          master_article.add_word(word,use_freq: true)
         end
       end
       
-      words = words.values().sort() do |word1,word2|
-        # Descending order by frequency.
+      words = master_article.words.values()
+      
+      words = words.sort() do |word1,word2|
+        # Order by freq DESC (most frequent words to top).
         i = (word2.freq <=> word1.freq)
         
-        # Favor words that have definitions (bubble to top),
-        #   but also sort in ascending order.
-        if i == 0
-          cmp_defn = false
-          has_defn1 = !Util.empty_web_str?(word1.defn)
-          has_defn2 = !Util.empty_web_str?(word2.defn)
-          
-          if has_defn1 && has_defn2
-            cmp_defn = true # Sort on words, etc. first
-          elsif has_defn1 && !has_defn2
-            i = -1 # Bubble word1 to top
-          elsif !has_defn1 && has_defn2
-            i = 1 # Bubble word2 to top
-          end
-          
-          i = (word1.word.to_s() <=> word2.word.to_s()) if i == 0
-          i = (word2.kana.to_s() <=> word1.kana.to_s()) if i == 0 # Favor words that have kana
-          i = (word2.defn.to_s() <=> word1.defn.to_s()) if i == 0 && cmp_defn # Favor longer definitions
-        end
+        # Order by !defn.empty, word ASC, !kana.empty, kana ASC, defn.len DESC, defn ASC.
+        i = compare_empty_str(word1.defn,word2.defn) if i == 0 # Favor words that have definitions
+        i = (word1.word.to_s() <=> word2.word.to_s()) if i == 0
+        i = compare_empty_str(word1.kana,word2.kana) if i == 0 # Favor words that have kana
+        i = (word1.kana.to_s() <=> word2.kana.to_s()) if i == 0
+        i = (word2.defn.to_s().length <=> word1.defn.to_s().length) if i == 0 # Favor longer definitions
+        i = (word1.defn.to_s() <=> word2.defn.to_s()) if i == 0
         
         i
       end
       
       return words
+    end
+    
+    def compare_empty_str(str1,str2)
+      has_str1 = !Util.empty_web_str?(str1)
+      has_str2 = !Util.empty_web_str?(str2)
+      
+      if has_str1 && !has_str2
+        return -1 # Bubble word1 to top
+      elsif !has_str1 && has_str2
+        return 1 # Bubble word2 to top
+      end
+      
+      return 0 # Further comparison needed
     end
     
     def to_s()

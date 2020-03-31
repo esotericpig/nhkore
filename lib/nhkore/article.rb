@@ -51,14 +51,24 @@ module NHKore
       @words = {}
     end
     
-    def add_word(word)
+    # Why does this not look up the kanji/kana only and then update the other
+    # kana/kanji part appropriately?
+    # - There are some words like +行って+. Without the kana, it's difficult to
+    #   determine what kana it should be. Should it be +いって+ or +おこなって+?
+    # - Similarly, if we just have +いって+, should this be +行って+ or +言って+?
+    # - Therefore, if we only have the kanji or only have the kana, we don't
+    #   try to populate the other value.
+    def add_word(word,use_freq: false)
       curr_word = words[word.key]
       
       if curr_word.nil?()
         words[word.key] = word
         curr_word = word
       else
-        curr_word.freq += 1
+        curr_word.freq += (use_freq ? word.freq : 1)
+        
+        curr_word.defn = word.defn if word.defn.to_s().length > curr_word.defn.to_s().length
+        curr_word.eng = word.eng if word.eng.to_s().length > curr_word.eng.to_s().length
       end
       
       return curr_word
