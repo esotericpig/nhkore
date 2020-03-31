@@ -39,6 +39,8 @@ GEM
     rake (13.0.1)
     raketeer (0.2.9)
       rake
+    rdoc (6.2.1)
+    redcarpet (3.5.0)
     rubyzip (2.3.0)
     strings-ansi (0.1.0)
     tiny_segmenter (0.0.6)
@@ -65,8 +67,10 @@ DEPENDENCIES
   nhkore!
   rake (~> 13.0)
   raketeer (~> 0.2)
+  rdoc (~> 6.2)
+  redcarpet (~> 3.5)
   yard (~> 0.9)
-  yard_ghurt (~> 1.1)
+  yard_ghurt (~> 1.2)
 
 BUNDLED WITH
    2.1.2
