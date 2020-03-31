@@ -40,10 +40,10 @@ module NHKore
     YASASHII_SITE = 'nhk.or.jp/news/easy/'
     
     # https://www3.nhk.or.jp/news/html/20200220/k10012294001000.html
-    FUTSUU_REGEX = /#{Regexp.quote(FUTSUU_SITE)}.+\/k.+\.html?/i
+    FUTSUU_REGEX = /\A[^\.]+\.#{Regexp.quote(FUTSUU_SITE)}.+\.html?/i
     # https://www3.nhk.or.jp/news/easy/k10012294001000/k10012294001000.html
     # - https://www3.nhk.or.jp/news/easy/article/disaster_heat.html
-    YASASHII_REGEX = /#{Regexp.quote(YASASHII_SITE)}.*\.html?/i
+    YASASHII_REGEX = /\A[^\.]+\.#{Regexp.quote(YASASHII_SITE)}.+\.html?/i
     
     # Pass in +header: {}+ to trigger using the default HTTP header fields.
     def initialize(url,header: {},**kargs)
