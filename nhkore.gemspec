@@ -78,8 +78,10 @@ Gem::Specification.new() do |spec|
   spec.add_development_dependency 'minitest'  ,'~> 5.14'
   spec.add_development_dependency 'rake'      ,'~> 13.0'
   spec.add_development_dependency 'raketeer'  ,'~> 0.2'  # For extra Rake tasks
+  spec.add_development_dependency 'rdoc'      ,'~> 6.2'  # For YARDoc RDoc (*.rb)
+  spec.add_development_dependency 'redcarpet' ,'~> 3.5'  # For YARDoc Markdown (*.md)
   spec.add_development_dependency 'yard'      ,'~> 0.9'  # For documentation
-  spec.add_development_dependency 'yard_ghurt','~> 1.1'  # For extra YARDoc Rake tasks
+  spec.add_development_dependency 'yard_ghurt','~> 1.2'  # For extra YARDoc Rake tasks
   
   spec.post_install_message = "You can now use [#{spec.executables.join(', ')}] on the command line."
 end
