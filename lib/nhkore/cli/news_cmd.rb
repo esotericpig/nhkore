@@ -274,6 +274,16 @@ module CLI
       
       if scrape_count <= 0
         puts 'Nothing scraped!'
+        
+        if !dry_run && !show_dict
+          puts
+          start_spin('Saving updated links to file')
+          
+          links.save_file(links_file)
+          
+          stop_spin()
+          puts "> #{links_file}"
+        end
       else
         puts 'Last URL scraped:'
         puts "> #{url}"
