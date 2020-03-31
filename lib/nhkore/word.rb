@@ -54,6 +54,7 @@ module NHKore
       raise ArgumentError,"freq[#{freq}] cannot be < 1" if freq < 1
       
       if !unknown.nil?()
+        # kanji?() only tests if it contains kanji, so don't use kana?().
         if Util.kanji?(unknown)
           raise ArgumentError,"unknown[#{unknown}] will overwrite kanji[#{kanji}]" unless Util.empty_web_str?(kanji)
           
@@ -111,7 +112,7 @@ module NHKore
     
     # Do not clean and/or strip spaces, as the raw text is important for
     #   Defn and ArticleScraper.
-    def self.scrape_ruby_tag(tag,url: nil)
+    def self.scrape_ruby_tag(tag,missingno: nil,url: nil)
       # First, try <rb> tags.
       kanji = tag.css('rb')
       # Second, try text nodes.
@@ -123,9 +124,6 @@ module NHKore
       raise ScrapeError,"too many kanji at URL[#{url}] in tag[#{tag}]" if kanji.length > 1
       
       kanji = kanji[0].text
-      
-      raise ScrapeError,"empty kanji at URL[#{url}] in tag[#{tag}]" if kanji.empty?()
-      
       kana = tag.css('rt')
       
       raise ScrapeError,"no kana at URL[#{url}] in tag[#{tag}]" if kana.length < 1
@@ -133,7 +131,27 @@ module NHKore
       
       kana = kana[0].text
       
-      raise ScrapeError,"empty kana at URL[#{url}] in tag[#{tag}]" if kana.empty?()
+      if !missingno.nil?()
+        # Check kana first, since this is the typical scenario.
+        # - https://www3.nhk.or.jp/news/easy/k10012331311000/k10012331311000.html
+        # - '窓' in '（８）窓を開けて外の空気を入れましょう'
+        if Util.empty_web_str?(kana)
+          kana = missingno.kana_from_kanji(kanji)
+          
+          if !Util.empty_web_str?(kana)
+            Util.warn("using missingno for kana[#{kana}] from kanji[#{kanji}]")
+          end
+        elsif Util.empty_web_str?(kanji)
+          kanji = missingno.kanji_from_kana(kana)
+          
+          if !Util.empty_web_str?(kanji)
+            Util.warn("using missingno for kanji[#{kanji}] from kana[#{kana}]")
+          end
+        end
+      end
+      
+      raise ScrapeError,"empty kanji at URL[#{url}] in tag[#{tag}]" if Util.empty_web_str?(kanji)
+      raise ScrapeError,"empty kana at URL[#{url}] in tag[#{tag}]" if Util.empty_web_str?(kana)
       
       word = Word.new(kana: kana,kanji: kanji)
       
@@ -145,10 +163,10 @@ module NHKore
     def self.scrape_text_node(tag,url: nil)
       text = tag.text
       
-      # No error; empty text is fine (not strictly kanji/kana only)
+      # No error; empty text is fine (not strictly kanji/kana only).
       return nil if Util.empty_web_str?(text)
       
-      word = Word.new(kana: text) # Assume kana
+      word = Word.new(unknown: text)
       
       return word
     end
@@ -167,7 +185,7 @@ module NHKore
       s << "'#{@key}': "
       s << "{ kanji=>'#{@kanji}'"
       s << ", kana=>'#{@kana}'"
-      s << ", freq=>'#{@freq}'"
+      s << ", freq=>#{@freq}"
       s << ", defn=>'#{@defn.to_s().gsub("\n",'\\n')}'"
       s << ", eng=>'#{@eng}'"
       s << ' }'

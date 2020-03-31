@@ -24,6 +24,7 @@
 require 'time'
 
 require 'nhkore/error'
+require 'nhkore/missingno'
 require 'nhkore/news'
 require 'nhkore/search_link'
 require 'nhkore/util'
@@ -86,6 +87,12 @@ module CLI
         EOD
           app.check_empty_opt(:links,value)
         end
+        flag :M,:missingno,<<-EOD
+          very rarely an article will not have kana or kanji for a Ruby tag;
+          to not raise an error, this will use previously scraped data to fill it in;
+          example URL:
+          -https://www3.nhk.or.jp/news/easy/k10012331311000/k10012331311000.html
+        EOD
         flag :D,:'no-dict',<<-EOD
           do not try to parse the dictionary files for the articles; useful in case of errors trying to load
           the dictionaries (or for offline testing)
@@ -188,6 +195,7 @@ module CLI
       links_file = @cmd_opts[:links]
       max_scrapes = @cmd_opts[:scrape]
       max_scrapes = DEFAULT_NEWS_SCRAPE if max_scrapes.nil?()
+      missingno = @cmd_opts[:missingno]
       out_file = @cmd_opts[:out]
       redo_scrapes = @cmd_opts[:redo]
       show_dict = @cmd_opts[:show_dict]
@@ -220,6 +228,7 @@ module CLI
         datetime: datetime,
         dict: dict,
         is_file: is_file,
+        missingno: missingno ? Missingno.new(news) : nil,
         mode: lenient ? :lenient : nil,
       })
       @news_dict_scraper_kargs = @scraper_kargs.merge({

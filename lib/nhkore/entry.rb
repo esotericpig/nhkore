@@ -72,7 +72,7 @@ module NHKore
       return hyoukis.keys.join(HYOUKI_SEP)
     end
     
-    def self.scrape(id,array,url: nil)
+    def self.scrape(id,array,missingno: nil,url: nil)
       entry = Entry.new()
       
       entry.id = Util.unspace_web_str(id.to_s()).downcase()
@@ -80,7 +80,7 @@ module NHKore
       return nil if entry.id.empty?()
       
       array.each() do |hash|
-        defn = Defn.scrape(hash,url: url)
+        defn = Defn.scrape(hash,missingno: missingno,url: url)
         entry.defns << defn unless defn.nil?()
       end
       

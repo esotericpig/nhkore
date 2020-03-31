@@ -34,10 +34,14 @@ module NHKore
   # @since  0.2.0
   ###
   class DictScraper < Scraper
-    def initialize(url,parse_url: true,**kargs)
+    attr_accessor :missingno
+    
+    def initialize(url,missingno: nil,parse_url: true,**kargs)
       url = self.class.parse_url(url) if parse_url
       
       super(url,**kargs)
+      
+      @missingno = missingno
     end
     
     def self.parse_url(url,basename: nil)
@@ -66,7 +70,7 @@ module NHKore
       hash = hash['entries']
       
       return Dict.new() if hash.nil?()
-      return Dict.scrape(hash,url: @url)
+      return Dict.scrape(hash,missingno: @missingno,url: @url)
     end
   end
 end

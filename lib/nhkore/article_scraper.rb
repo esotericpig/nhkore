@@ -46,6 +46,7 @@ module NHKore
     attr_accessor :datetime
     attr_accessor :dict
     attr_reader :kargs
+    attr_accessor :missingno
     attr_accessor :mode
     attr_reader :polishers
     attr_accessor :splitter
@@ -55,14 +56,17 @@ module NHKore
     # @param dict [Dict,:scrape,nil] the {Dict} (dictionary) to use for {Word#defn} (definitions)
     #             [+:scrape+] auto-scrape it using {DictScraper}
     #             [+nil+]     don't scrape/use it
+    # @param missingno [Missingno] data to use as a fallback for Ruby words without kana/kanji,
+    #                  instead of raising an error
     # @param mode [nil,:lenient]
-    def initialize(url,cleaners: [BestCleaner.new()],datetime: nil,dict: :scrape,mode: nil,polishers: [BestPolisher.new()],splitter: BestSplitter.new(),variators: [BestVariator.new()],year: nil,**kargs)
+    def initialize(url,cleaners: [BestCleaner.new()],datetime: nil,dict: :scrape,missingno: nil,mode: nil,polishers: [BestPolisher.new()],splitter: BestSplitter.new(),variators: [BestVariator.new()],year: nil,**kargs)
       super(url,**kargs)
       
       @cleaners = Array(cleaners)
       @datetime = datetime.nil?() ? nil : Util.jst_time(datetime)
       @dict = dict
       @kargs = kargs
+      @missingno = missingno
       @mode = mode
       @polishers = Array(polishers)
       @splitter = splitter
@@ -274,7 +278,7 @@ module NHKore
       retries = 0
       
       begin
-        scraper = DictScraper.new(dict_url,parse_url: false,**@kargs)
+        scraper = DictScraper.new(dict_url,missingno: @missingno,parse_url: false,**@kargs)
       rescue OpenURI::HTTPError => e
         if retries == 0 && e.to_s().include?('404')
           @str_or_io = @str_or_io.read() if @str_or_io.respond_to?(:read)
@@ -397,7 +401,7 @@ module NHKore
     end
     
     def scrape_ruby_word(tag,result: ScrapeWordsResult.new())
-      word = Word.scrape_ruby_tag(tag,url: @url)
+      word = Word.scrape_ruby_tag(tag,missingno: @missingno,url: @url)
       
       return nil if word.nil?()
       
@@ -406,11 +410,30 @@ module NHKore
       result.add_text(word.kanji)
       
       kanji = clean(word.kanji)
-      
-      raise ScrapeError,"empty kanji at URL[#{@url}] in tag[#{tag}]" if kanji.empty?()
-      
       kana = clean(word.kana)
       
+      if !@missingno.nil?()
+        # Check kana first, since this is the typical scenario.
+        # - https://www3.nhk.or.jp/news/easy/k10012331311000/k10012331311000.html
+        # - '窓' in '（８）窓を開けて外の空気を入れましょう'
+        if kana.empty?()
+          kana = @missingno.kana_from_kanji(kanji)
+          kana = kana.nil?() ? '' : clean(kana)
+          
+          if !kana.empty?()
+            Util.warn("using missingno for kana[#{kana}] from kanji[#{kanji}]")
+          end
+        elsif kanji.empty?()
+          kanji = @missingno.kanji_from_kana(kana)
+          kanji = kanji.nil?() ? '' : clean(kanji)
+          
+          if !kanji.empty?()
+            Util.warn("using missingno for kanji[#{kanji}] from kana[#{kana}]")
+          end
+        end
+      end
+      
+      raise ScrapeError,"empty kanji at URL[#{@url}] in tag[#{tag}]" if kanji.empty?()
       raise ScrapeError,"empty kana at URL[#{@url}] in tag[#{tag}]" if kana.empty?()
       
       word = Word.new(

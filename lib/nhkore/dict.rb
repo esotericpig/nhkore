@@ -47,11 +47,11 @@ module NHKore
       return @entries[id] = entry
     end
     
-    def self.scrape(hash,url: nil)
+    def self.scrape(hash,missingno: nil,url: nil)
       dict = Dict.new()
       
       hash.each() do |id,array|
-        entry = Entry.scrape(id,array,url: url)
+        entry = Entry.scrape(id,array,missingno: missingno,url: url)
         
         next if entry.nil?()
         raise ScrapeError,"duplicate ID[#{id}] at URL[#{url}] in hash[#{hash}]" if dict.key?(id)

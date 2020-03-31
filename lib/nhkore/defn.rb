@@ -46,7 +46,7 @@ module NHKore
     end
     
     # If no data, don't raise errors; don't care if have a definition or not.
-    def self.scrape(hash,url: nil)
+    def self.scrape(hash,missingno: nil,url: nil)
       defn = Defn.new()
       
       hyoukis = hash['hyouki']
@@ -76,7 +76,7 @@ module NHKore
         word = nil
         
         if name == 'ruby'
-          word = Word.scrape_ruby_tag(child,url: url)
+          word = Word.scrape_ruby_tag(child,missingno: missingno,url: url)
         elsif child.respond_to?(:text) # Don't do child.text?(), just want content
           word = Word.scrape_text_node(child,url: url)
           is_text = true
