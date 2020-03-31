@@ -22,8 +22,6 @@
 
 require 'bundler/gem_tasks'
 
-require 'nhkore/util'
-require 'nhkore/version'
 require 'rake/clean'
 require 'rake/testtask'
 require 'raketeer/irb'
@@ -31,6 +29,9 @@ require 'raketeer/nokogiri_installs'
 require 'raketeer/run'
 require 'yard'
 require 'yard_ghurt'
+
+require 'nhkore/util'
+require 'nhkore/version'
 
 
 PKG_DIR = 'pkg'
@@ -92,4 +93,10 @@ YardGhurt::GFMFixTask.new() do |task|
     task.css_styles << %Q(<link rel="stylesheet" type="text/css" href="#{GHP_ROOT}/css/prism.css" />)
     task.js_scripts << %Q(<script src="#{GHP_ROOT}/js/prism.js"></script>)
   end
+end
+
+# Probably not useful for others.
+YardGhurt::GHPSyncTask.new() do |task|
+  task.ghp_dir = '../esotericpig.github.io/docs/nhkore/yardoc'
+  task.sync_args << '--delete-after'
 end
