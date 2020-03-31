@@ -81,6 +81,8 @@ module NHKore
             # Use URI.open() instead of (Kernel.)open() for safety (code-injection attack).
             @str_or_io = URI.open(url,redirect: false,**kargs)
             @url = url
+          rescue OpenURI::HTTPError => e
+            raise e.exception("HTTP error[#{e.to_s()}] at URL[#{url}]")
           rescue OpenURI::HTTPRedirect => redirect
             redirect_uri = redirect.uri
             
