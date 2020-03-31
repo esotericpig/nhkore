@@ -30,10 +30,10 @@ require 'raketeer/run'
 require 'yard'
 require 'yard_ghurt'
 
-require 'nhkore/util'
 require 'nhkore/version'
 
 
+CORE_PKG_DIR = 'core_pkg'
 PKG_DIR = 'pkg'
 
 CLEAN.exclude('.git/','stock/')
@@ -46,14 +46,16 @@ desc 'Generate documentation (YARDoc)'
 task :doc => [:yard,:yard_gfm_fix] do |task|
 end
 
-desc "Package '#{File.join(NHKore::Util::CORE_DIR,'')}' data as a Zip file into '#{File.join(PKG_DIR,'')}'"
+desc "Package '#{File.join(CORE_PKG_DIR,'')}' data as a Zip file into '#{File.join(PKG_DIR,'')}'"
 task :pkg_core do |task|
-  pattern = File.join(NHKore::Util::CORE_DIR,'*.{csv,html,yml}')
-  zip_file = File.join(PKG_DIR,'nhkore-core.zip')
-  
   mkdir_p PKG_DIR
   
-  sh 'zip','-9rv',zip_file,*Dir.glob(pattern).sort()
+  cd CORE_PKG_DIR do
+    pattern = File.join('core','*.{csv,html,yml}')
+    zip_file = File.join('..',PKG_DIR,'nhkore-core.zip')
+    
+    sh 'zip','-9rv',zip_file,*Dir.glob(pattern).sort()
+  end
 end
 
 Rake::TestTask.new() do |task|
@@ -98,5 +100,4 @@ end
 # Probably not useful for others.
 YardGhurt::GHPSyncTask.new() do |task|
   task.ghp_dir = '../esotericpig.github.io/docs/nhkore/yardoc'
-  task.sync_args << '--delete-after'
 end
