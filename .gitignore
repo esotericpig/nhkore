@@ -4,7 +4,8 @@
 *.rbc
 
 /.yardoc/
-/core_pkg/
+/core/
 /doc/
 /pkg/
 /stock/
+/web/
