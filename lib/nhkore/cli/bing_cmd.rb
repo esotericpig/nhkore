@@ -72,16 +72,15 @@ module CLI
           useful for manually writing/updating scripts (but not for use in a variable);
           implies '--dry-run' option
         EOD
-        option nil,:'show-urls',<<-EOD do |value,cmd|
+        option nil,:'show-urls',<<-EOD
           show the URLs used when scraping and exit; you can download these for offline testing and/or
           slow internet (see '--in' option)
         EOD
-          puts "Easy:    #{BingScraper.build_url(SearchScraper::YASASHII_SITE)}"
-          puts "Regular: #{BingScraper.build_url(SearchScraper::FUTSUU_SITE)}"
-          exit
-        end
         
         run do |opts,args,cmd|
+          app.refresh_cmd(opts,args,cmd)
+          app.show_bing_urls()
+          
           puts cmd.help
         end
       end
@@ -122,6 +121,8 @@ module CLI
     end
     
     def run_bing_cmd(type)
+      show_bing_urls()
+      
       @cmd_opts[:dry_run] = true if @cmd_opts[:show_count]
       
       build_in_file(:in)
@@ -214,6 +215,18 @@ module CLI
         puts 'Saved scraped links to file:'
         puts "> #{out_file}"
       end
+    end
+    
+    def show_bing_urls()
+      return unless @cmd_opts[:show_urls]
+      
+      count = @cmd_opts[:results]
+      count = SearchScraper::DEFAULT_RESULT_COUNT if count.nil?()
+      
+      puts "Easy:    #{BingScraper.build_url(SearchScraper::YASASHII_SITE,count: count)}"
+      puts "Regular: #{BingScraper.build_url(SearchScraper::FUTSUU_SITE,count: count)}"
+      
+      exit
     end
   end
 end
