@@ -24,6 +24,7 @@
 require 'cri'
 require 'highline'
 require 'rainbow'
+require 'set'
 require 'tty-progressbar'
 require 'tty-spinner'
 
@@ -47,30 +48,20 @@ module NHKore
   end
   
   ###
-  # For disabling color output.
+  # For disabling/enabling color output.
   # 
   # @author Jonathan Bradley Whited (@esotericpig)
-  # @since  0.2.0
+  # @since  0.2.1
   ###
-  module CriStringFormatterExt
-    def blue(str)
-      return str
+  module CriColorExt
+    @@color = true
+    
+    def color=(color)
+      @@color = color
     end
     
-    def bold(str)
-      return str
-    end
-    
-    def green(str)
-      return str
-    end
-    
-    def red(str)
-      return str
-    end
-    
-    def yellow(str)
-      return str
+    def color?(io)
+      return @@color
     end
   end
   
@@ -87,14 +78,17 @@ module NHKore
     
     NAME = 'nhkore'
     
+    DEFAULT_SLEEP_TIME = 0.1 # So that sites don't ban us (i.e., think we are human)
+    
+    COLOR_OPTS = [:c,:color]
+    NO_COLOR_OPTS = [:C,:'no-color']
+    
     SPINNER_MSG = '[:spinner] :title:detail...'
     CLASSIC_SPINNER = TTY::Spinner.new(SPINNER_MSG,format: :classic)
     DEFAULT_SPINNER = TTY::Spinner.new(SPINNER_MSG,interval: 5,
       frames: ['〜〜〜','日〜〜','日本〜','日本語'])
     NO_SPINNER = {} # Still outputs status & stores tokens
     NO_SPINNER_MSG = '%{title}%{detail}...'
-    
-    DEFAULT_SLEEP_TIME = 0.1 # So that sites don't ban us (i.e., think we are human)
     
     attr_accessor :progress_bar
     attr_accessor :scraper_kargs
@@ -130,18 +124,24 @@ module NHKore
     end
     
     def autodetect_color()
-      disable = false
+      Cri::Platform.singleton_class.prepend(CriColorExt)
       
-      if !$stdout.tty?() || ENV['TERM'] == 'dumb'
-        disable = true
-      elsif !@args.empty?()
+      color = nil # Must be nil, not true/false
+      
+      if !@args.empty?()
         # Kind of hacky, but necessary for Rainbow.
         
-        no_color_args = Set['-C','--no-color']
+        color_opts = opts_to_set(COLOR_OPTS)
+        no_color_opts = opts_to_set(NO_COLOR_OPTS)
         
         @args.each() do |arg|
-          if no_color_args.include?(arg)
-            disable = true
+          if color_opts.include?(arg)
+            color = true
+            break
+          end
+          
+          if no_color_opts.include?(arg)
+            color = false
             break
           end
           
@@ -149,11 +149,11 @@ module NHKore
         end
       end
       
-      if disable
-        disable_color()
-      else
-        @rainbow.enabled = true # Force it in case Rainbow auto-disabled it
+      if color.nil?()
+        color = ($stdout.tty?() && ENV['TERM'] != 'dumb')
       end
+      
+      enable_color(color)
     end
     
     def build_app_cmd()
@@ -171,11 +171,14 @@ module NHKore
           This is similar to a core word/vocabulary list.
         EOD
         
-        flag :c,:'classic-fx',<<-EOD do |value,cmd|
+        flag :s,:'classic-fx',<<-EOD do |value,cmd|
           use classic spinner/progress special effects (in case of no Unicode support) when running long tasks
         EOD
           app.progress_bar = :classic
           app.spinner = CLASSIC_SPINNER
+        end
+        flag COLOR_OPTS[0],COLOR_OPTS[1],%q{force color output (for commands like '| less -R')} do |value,cmd|
+          app.enable_color(true)
         end
         flag :n,:'dry-run',<<-EOD
           do a dry run without making changes; do not write to files, create directories, etc.
@@ -194,8 +197,8 @@ module NHKore
           
           app.scraper_kargs[:max_retries] = value
         end
-        flag :C,:'no-color','disable color output' do |value,cmd|
-          app.disable_color()
+        flag NO_COLOR_OPTS[0],NO_COLOR_OPTS[1],'disable color output' do |value,cmd|
+          app.enable_color(false)
         end
         flag :X,:'no-fx','disable spinner/progress special effects when running long tasks' do |value,cmd|
           app.progress_bar = :no
@@ -478,9 +481,18 @@ module NHKore
       return color(str).green
     end
     
-    def disable_color()
-      Cri::StringFormatter.prepend(CriStringFormatterExt)
-      @rainbow.enabled = false
+    def enable_color(enabled)
+      Cri::Platform.color = enabled
+      @rainbow.enabled = enabled
+    end
+    
+    def opts_to_set(ary)
+      set = Set.new()
+      
+      set.add("-#{ary[0].to_s()}") unless ary[0].nil?()
+      set.add("--#{ary[1].to_s()}") unless ary[1].nil?()
+      
+      return set
     end
     
     def refresh_cmd(opts,args,cmd)

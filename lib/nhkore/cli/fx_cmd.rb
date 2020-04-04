@@ -38,7 +38,7 @@ module CLI
         
         description <<-EOD
           Test if the special effects work on your command line:\n
-          - #{App::NAME} [-c/-X] fx
+          - #{App::NAME} [-s/-X] fx
         EOD
         
         flag :a,:all,'test all special effects regardless of global options'
