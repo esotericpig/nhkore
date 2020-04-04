@@ -14,16 +14,28 @@ In the future, I would like to add the regular NHK News, using the links from th
 
 ## Contents
 
-- [Installing](#installing)
-- [Using](#using)
-- [Hacking](#hacking)
-- [License](#license)
+- [For Non-Power Users](#for-non-power-users-)
+- [Installing](#installing-)
+- [Using](#using-)
+    - [The Basics](#the-basics-)
+- [Hacking](#hacking-)
+- [License](#license-)
 
-## [Installing](#contents)
+## For Non-Power Users [^](#contents)
+
+For non-Power Users, you're probably just interested in the data.
+
+[Click here](https://esotericpig.github.io/showcase/nhkore-ez.html) for a big HTML file with the final result from all of the current articles scraped.
+
+Also, [click here](https://github.com/esotericpig/nhkore/releases/latest) to go to the latest release and download `nhkore-core.zip` from the `Assets`. It contains all of the links scraped, all of the data scraped per article, and a final CSV file.
+
+If you'd like to try using the app, please download and install [Ruby](https://www.ruby-lang.org/en/downloads/) and then follow the instructions below. You'll need to be able to use the command line.
+
+## Installing [^](#contents)
 
 Pick your poison...
 
-With the RubyGems CLI package manager:
+With the RubyGems package manager:
 
 `$ gem install nhkore`
 
@@ -35,11 +47,73 @@ $ cd nhkore
 $ rake install
 ```
 
-## [Using](#contents)
+## Using [^](#contents)
 
-TODO: update README Using section
+### The Basics [^](#contents)
 
-## [Hacking](#contents)
+The most useful thing to do is to simply scrape one article and then study the most frequent words before reading that article.
+
+First, scrape the article:
+
+`$ nhkore news easy -u 'https://www3.nhk.or.jp/news/easy/k10011862381000/k10011862381000.html'`
+
+If your internet is slow, there are several global options to help alleviate your internet woes, which can be used with any sub command:
+
+```
+-m --max-retry=<value>         maximum number of times to retry URLs (-1
+                               or integer >= 0) (default: 3)
+-o --open-timeout=<value>      seconds for URL open timeouts (-1 or
+                               decimal >= 0)
+-r --read-timeout=<value>      seconds for URL read timeouts (-1 or
+                               decimal >= 0)
+-t --timeout=<value>           seconds for all URL timeouts: [open, read]
+                               (-1 or decimal >= 0)
+```
+
+Example usage:
+
+`$ nhkore -t 300 -m 10 news easy -u 'https://www3.nhk.or.jp/news/easy/k10011862381000/k10011862381000.html'`
+
+Some older articles will fail to scrape and need additional options (this is very rare):
+
+```
+-D --no-dict                   do not try to parse the dictionary files
+                               for the articles; useful in case of errors
+                               trying to load the dictionaries (or for
+                               offline testing)
+-L --lenient                   leniently (not strict) scrape articles:
+                               body & title content without the proper
+                               HTML/CSS classes/IDs and no futsuurl;
+                               example URLs that need this flag:
+                               -https://www3.nhk.or.jp/news/easy/article/disaster_earthquake_02.html
+                               -https://www3.nhk.or.jp/news/easy/tsunamikeihou/index.html
+-M --missingno                 very rarely an article will not have kana
+                               or kanji for a Ruby tag; to not raise an
+                               error, this will use previously scraped
+                               data to fill it in; example URL:
+                               -https://www3.nhk.or.jp/news/easy/k10012331311000/k10012331311000.html
+-d --datetime=<value>          date time to use as a fallback in cases
+                               when an article doesn't have one; format:
+                               YYYY-mm-dd H:M; example: 2020-03-30 15:30
+```
+
+Example usage:
+
+`$ nhkore -t 300 -m 10 news -D -L -M -d '2011-03-07 06:30' easy -u 'https://www3.nhk.or.jp/news/easy/tsunamikeihou/index.html'`
+
+Now that the data from the article has been scraped, you can generate a CSV/HTML/YAML file of the words ordered by frequency:
+
+```
+$ nhkore sift easy -e csv
+$ nhkore sift easy -e html
+$ nhkore sift easy -e yml
+```
+
+Complete example:
+
+[![asciinema Demo - The Basics](https://asciinema.org/a/316571.png)](https://asciinema.org/a/316571)
+
+## Hacking [^](#contents)
 
 ```
 $ git clone 'https://github.com/esotericpig/nhkore.git'
@@ -60,7 +134,7 @@ $ bundle exec rake test
 $ bundle exec rake doc
 ```
 
-## [License](#contents)
+## License [^](#contents)
 
 [GNU LGPL v3+](LICENSE.txt)
 

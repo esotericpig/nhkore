@@ -8,9 +8,9 @@
     - [x] Manually download Google results and scrape them
         - Ensures have all article links
 - [x] `get` command for downloading release files
-- [ ] Add `sift` HTML output to my GitHub Pages
+- [x] Add `sift` HTML output to my GitHub Pages
 - [ ] Finish fleshing out README
-    - [ ] Add a section for non-coders (non-power-users) to README
+    - [x] Add a section for non-coders (non-power-users) to README
     - [ ] Create & add asciinema links
 - [ ] Create tests
     - [ ] Add to CI
