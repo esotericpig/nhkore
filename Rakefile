@@ -26,7 +26,6 @@ require 'rake/clean'
 require 'rake/testtask'
 require 'raketeer/irb'
 require 'raketeer/nokogiri_installs'
-require 'raketeer/run'
 require 'yard'
 require 'yard_ghurt'
 
@@ -75,8 +74,8 @@ YARD::Rake::YardocTask.new() do |task|
   task.options += ['--title',"NHKore v#{NHKore::VERSION} Doc"]
 end
 
-# Execute "yard_gfm_fix" for production.
-# Execute "yard_gfm_fix[true]" for testing locally.
+# Execute "rake yard_gfm_fix" for production.
+# Execute "rake yard_gfm_fix[true]" for testing locally.
 YardGhurt::GFMFixTask.new() do |task|
   task.arg_names = [:dev]
   task.dry_run = false
@@ -84,10 +83,10 @@ YardGhurt::GFMFixTask.new() do |task|
   task.md_files = ['index.html']
   
   task.before = Proc.new() do |task,args|
-    # Delete this file as it's never used (index.html is an exact copy)
+    # Delete this file as it's never used (index.html is an exact copy).
     YardGhurt::Util.rm_exist(File.join(task.doc_dir,'file.README.html'))
     
-    # Root dir of my GitHub Page for CSS/JS
+    # Root dir of my GitHub Page for CSS/JS.
     GHP_ROOT = YardGhurt::Util.to_bool(args.dev) ? '../../esotericpig.github.io' : '../../..'
     
     task.css_styles << %Q(<link rel="stylesheet" type="text/css" href="#{GHP_ROOT}/css/prism.css" />)
