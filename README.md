@@ -12,6 +12,8 @@ This is similar to a [core word/vocabulary list](https://www.fluentin3months.com
 
 In the future, I would like to add the regular NHK News, using the links from the easy versions.
 
+[![asciinema Demo - Help](https://asciinema.org/a/MQTJ9vxcpB7VYAKzke7m4QM7P.png)](https://asciinema.org/a/MQTJ9vxcpB7VYAKzke7m4QM7P?speed=2)
+
 ## Contents
 
 - [For Non-Power Users](#for-non-power-users-)
