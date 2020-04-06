@@ -46,8 +46,11 @@ Manually:
 ```
 $ git clone 'https://github.com/esotericpig/nhkore.git'
 $ cd nhkore
-$ rake install
+$ gem build nhkore.gemspec
+$ gem install *.gem
 ```
+
+If there are errors running `nhkore`, you may need to also [install Nokogiri](https://nokogiri.org/tutorials/installing_nokogiri.html) manually, which is used for scraping HTML.
 
 ## Using [^](#contents)
 
@@ -122,6 +125,20 @@ $ git clone 'https://github.com/esotericpig/nhkore.git'
 $ cd nhkore
 $ bundle install
 $ bundle exec rake -T
+```
+
+Install Nokogiri:
+
+```
+$ bundle exec rake nokogiri_apt   # Ubuntu/Debian
+$ bundle exec rake nokogiri_dnf   # Fedora/CentOS/Red Hat
+$ bundle exec rake nokogiri_other # macOS, Windows, etc.
+```
+
+### Running
+
+```
+$ ruby -w lib/nhkore.rb
 ```
 
 ### Testing
