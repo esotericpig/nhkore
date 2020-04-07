@@ -20,6 +20,13 @@ In the future, I would like to add the regular NHK News, using the links from th
 - [Installing](#installing-)
 - [Using](#using-)
     - [The Basics](#the-basics-)
+    - [Unlimited Power!](#unlimited-power-)
+        - [Get Command](#get-command-)
+        - [Sift Command](#sift-command-)
+    - [Sakura Fields Forever](#sakura-fields-forever-)
+        - [Bing Command](#bing-command-)
+        - [News Command](#news-command-)
+- [Using the Library](#using-the-library-)
 - [Hacking](#hacking-)
 - [License](#license-)
 
@@ -118,6 +125,30 @@ Complete example:
 
 [![asciinema Demo - The Basics](https://asciinema.org/a/316571.png)](https://asciinema.org/a/316571)
 
+### Unlimited Power! [^](#contents)
+
+#### Get Command [^](#contents)
+
+The `get` command will download and extract `nhkore-core.zip` from the [latest release](https://github.com/esotericpig/nhkore/releases/latest) for you.
+
+This already has tons of articles scraped so that you don't have to re-scrape them. Then, for example, you can easily create a CSV file from all of `2019` or all of `December 2019`.
+
+Example usage:
+
+`$ nhkore get`
+
+By default, it will extract the data to `./core/`. You can change this:
+
+`$ nhkore get -o 'my dir/'`
+
+Complete example:
+
+[![asciinema Demo - Get](https://asciinema.org/a/317433.png)](https://asciinema.org/a/317433)
+
+#### Sift Command [^](#contents)
+
+
+
 ## Hacking [^](#contents)
 
 ```
@@ -137,21 +168,23 @@ $ bundle exec rake nokogiri_other # macOS, Windows, etc.
 
 ### Running
 
-```
-$ ruby -w lib/nhkore.rb
-```
+`$ ruby -w lib/nhkore.rb`
 
 ### Testing
 
-```
-$ bundle exec rake test
-```
+`$ bundle exec rake test`
 
 ### Generating Doc
 
-```
-$ bundle exec rake doc
-```
+`$ bundle exec rake doc`
+
+### Installing Locally
+
+`$ bundle exec rake install:local`
+
+### Releasing/Publishing
+
+`$ bundle exec rake release`
 
 ## License [^](#contents)
 
