@@ -402,8 +402,8 @@ module NHKore
       
       force = @cmd_opts[:force]
       
-      if !force && Dir.exist?(out_dir)
-        puts 'Warning: output directory already exists!'
+      if !force && Dir.exist?(out_dir) && !Dir.empty?(out_dir)
+        puts 'Warning: output directory already exists with files!'
         puts '       : Files inside of this directory may be overwritten!'
         puts "> '#{out_dir}'"
         

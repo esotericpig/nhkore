@@ -99,15 +99,14 @@ module CLI
         
         return if dry_run
         
-        Tempfile.create([App::NAME,'.zip'],binmode: true) do |file|
+        Tempfile.create(["#{App::NAME}_",'.zip'],binmode: true) do |file|
           puts
-          puts 'Downloading to temp file:'
+          puts "Downloading #{GET_URL_FILENAME} to temp file:"
           puts "> #{file.path}"
-          puts
           
           len = down.size
-          len = DEFAULT_GET_LENGTH if len.nil?()
-          bar = build_progress_bar("Downloading #{GET_URL_FILENAME}",download: true,total: len)
+          len = DEFAULT_GET_LENGTH if len.nil?() || len < 1
+          bar = build_progress_bar('> Downloading',download: true,total: len)
           
           bar.start()
           
@@ -120,9 +119,12 @@ module CLI
           file.close()
           bar.finish()
           
-          start_spin("Extracting #{GET_URL_FILENAME}")
+          puts
+          puts "Extracting #{GET_URL_FILENAME}..."
           
-          Zip.on_exists_proc = force # true will force overwriting files on extract()
+          # We manually ask the user whether to overwrite each file, so set this to
+          # true so that Zip extract() will force overwrites and not raise an error.
+          Zip.on_exists_proc = true
           
           Zip::File.open(file) do |zip_file|
             zip_file.each() do |entry|
@@ -131,16 +133,26 @@ module CLI
               end
               
               name = File.basename(entry.name)
+              out_file = File.join(out_dir,name)
               
-              update_spin_detail(" (file=#{name})")
+              puts "> #{name}"
               
-              entry.extract(File.join(out_dir,name))
+              if !force && File.exist?(out_file)
+                puts
+                puts 'Warning: output file already exists!'
+                puts "> '#{out_file}'"
+                
+                overwrite = @high.agree('Overwrite this file (yes/no)? ')
+                puts
+                
+                next unless overwrite
+              end
+              
+              entry.extract(out_file)
             end
           end
           
-          stop_spin()
           puts
-          
           puts "Extracted #{GET_URL_FILENAME} to directory:"
           puts "> #{out_dir}"
         end
