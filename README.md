@@ -143,7 +143,7 @@ By default, it will extract the data to `./core/`. You can change this:
 
 Complete example:
 
-[![asciinema Demo - Get](https://asciinema.org/a/317433.png)](https://asciinema.org/a/317433)
+[![asciinema Demo - Get](https://asciinema.org/a/317773.png)](https://asciinema.org/a/317773)
 
 #### Sift Command [^](#contents)
 
