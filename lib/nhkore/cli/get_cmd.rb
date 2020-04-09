@@ -132,7 +132,10 @@ module CLI
                 raise ZipError,"unsafe entry name[#{entry.name}] in Zip file"
               end
               
-              name = File.basename(entry.name)
+              name = Util.strip_web_str(File.basename(entry.name))
+              
+              next if name.empty?()
+              
               out_file = File.join(out_dir,name)
               
               puts "> #{name}"
