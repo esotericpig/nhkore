@@ -236,10 +236,22 @@ module CLI
       })
       
       if url.nil?()
-        links.each() do |key,link|
+        # Why store each() and do `links_len` instead of `links-len - 1`?
+        # 
+        # If links contains 5 entries and you scrape all 5, then the output of
+        # update_spin_detail() will end on 4, so all of this complexity is so
+        # that update_spin_detail() only needs to be written/updated on one line.
+        
+        links_each = links.each()
+        links_len = links.length()
+        
+        0.upto(links_len) do |i|
           update_spin_detail(" (scraped=#{scrape_count}, considered=#{link_count += 1})")
           
-          break if scrape_count >= max_scrapes
+          break if i >= links_len || scrape_count >= max_scrapes
+          
+          key,link = links_each.next()
+          
           next if !like.nil?() && !link.url.to_s().downcase().include?(like)
           next if !redo_scrapes && scraped_news_article?(news,link)
           
@@ -248,7 +260,7 @@ module CLI
           if (new_url = scrape_news_article(url,link: link,new_articles: new_articles,news: news))
             # --show-dict
             url = new_url
-            scrape_count = max_scrapes - 1
+            scrape_count = max_scrapes - 1 # Break on next iteration for update_spin_detail()
           end
           
           # Break on next iteration for update_spin_detail().
