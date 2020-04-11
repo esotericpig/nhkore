@@ -24,7 +24,9 @@
 require 'cgi'
 require 'psychgus'
 require 'public_suffix'
+require 'set'
 require 'time'
+require 'uri'
 
 
 module NHKore
@@ -69,7 +71,7 @@ module NHKore
     
     def self.domain(host,clean: true)
       domain = PublicSuffix.domain(host)
-      domain = unspace_web_str(domain).downcase() if clean
+      domain = unspace_web_str(domain).downcase() if !domain.nil?() && clean
       
       return domain
     end
@@ -162,6 +164,39 @@ module NHKore
     
     def self.reduce_space(str)
       return str.gsub(WEB_SPACES_REGEX,' ')
+    end
+    
+    def self.replace_uri_query!(uri,**new_query)
+      return uri if new_query.empty?()
+      
+      query = uri.query
+      query = query.nil?() ? [] : URI.decode_www_form(query)
+      
+      # First, remove the old ones.
+      if !query.empty?()
+        new_query_keys = Set.new(new_query.keys.map() {|key|
+          unspace_web_str(key.to_s()).downcase()
+        })
+        
+        query.filter!() do |q|
+          if q.nil?() || q.empty?()
+            false
+          else
+            key = unspace_web_str(q[0].to_s()).downcase()
+            
+            !new_query_keys.include?(key)
+          end
+        end
+      end
+      
+      # Next, add the new ones.
+      new_query.each() do |key,value|
+        query << [key,value.nil?() ? '' : value]
+      end
+      
+      uri.query = URI.encode_www_form(query)
+      
+      return uri
     end
     
     def self.sane_year?(year)

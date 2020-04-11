@@ -242,7 +242,7 @@ module CLI
         # update_spin_detail() will end on 4, so all of this complexity is so
         # that update_spin_detail() only needs to be written/updated on one line.
         
-        links_each = links.each()
+        links_each = links.links.values.each()
         links_len = links.length()
         
         0.upto(links_len) do |i|
@@ -250,7 +250,7 @@ module CLI
           
           break if i >= links_len || scrape_count >= max_scrapes
           
-          key,link = links_each.next()
+          link = links_each.next()
           
           next if !like.nil?() && !link.url.to_s().downcase().include?(like)
           next if !redo_scrapes && scraped_news_article?(news,link)

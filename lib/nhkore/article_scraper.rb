@@ -124,7 +124,7 @@ module NHKore
       #   - https://www3.nhk.or.jp/news/easy/k10012118911000/k10012118911000.html
       #   - '</p><br><「<ruby>台風<rt>たいふう</rt></ruby>'
       
-      @str_or_io = @str_or_io.read() if @str_or_io.respond_to?(:read)
+      read()
       
       # To add a new one, simply add '|(...)' on a newline and test $#.
       @str_or_io = @str_or_io.gsub(/
@@ -281,7 +281,7 @@ module NHKore
         scraper = DictScraper.new(dict_url,missingno: @missingno,parse_url: false,**@kargs)
       rescue OpenURI::HTTPError => e
         if retries == 0 && e.to_s().include?('404')
-          @str_or_io = @str_or_io.read() if @str_or_io.respond_to?(:read)
+          read()
           
           scraper = ArticleScraper.new(@url,str_or_io: @str_or_io,**@kargs)
           
