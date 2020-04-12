@@ -10,7 +10,7 @@ A CLI app that scrapes [NHK News Web Easy](https://www3.nhk.or.jp/news/easy/) to
 
 This is similar to a [core word/vocabulary list](https://www.fluentin3months.com/core-japanese-words/), hence the name NHKore.
 
-[![asciinema Demo - Help](https://asciinema.org/a/MQTJ9vxcpB7VYAKzke7m4QM7P.png)](https://asciinema.org/a/MQTJ9vxcpB7VYAKzke7m4QM7P?speed=2)
+[![asciinema Demo](https://asciinema.org/a/318958.png)](https://asciinema.org/a/318958)
 
 ## Contents
 
@@ -131,7 +131,7 @@ If you have other scraped articles, then you'll need to filter down to the speci
 
 Complete demo:
 
-[![asciinema Demo - The Basics](https://asciinema.org/a/316571.png)](https://asciinema.org/a/316571)
+[![asciinema Demo - The Basics](https://asciinema.org/a/318958.png)](https://asciinema.org/a/318958)
 
 ### Unlimited Power! [^](#contents)
 
@@ -151,7 +151,7 @@ By default, it will extract the data to `./core/`. You can change this:
 
 Complete demo:
 
-[![asciinema Demo - Get](https://asciinema.org/a/317773.png)](https://asciinema.org/a/317773)
+[![asciinema Demo - Get](https://asciinema.org/a/318967.png)](https://asciinema.org/a/318967)
 
 #### Sift Command [^](#contents)
 
@@ -232,7 +232,7 @@ Lastly, you can ignore certain columns from the output. Definitions can be quite
 
 Complete demo:
 
-[![asciinema Demo - Sift](https://asciinema.org/a/318119.png)](https://asciinema.org/a/318119)
+[![asciinema Demo - Sift](https://asciinema.org/a/318982.png)](https://asciinema.org/a/318982)
 
 ### Sakura Fields Forever [^](#contents)
 
