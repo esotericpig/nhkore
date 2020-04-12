@@ -2,7 +2,41 @@
 
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.2.0...master)
+## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.0...master)
+
+## [v0.3.0] - 2020-04-12
+
+### Added
+- UserAgents
+    - Tons of random `User-Agent` strings for `Scraper`.
+
+### Changed
+- BingCmd => SearchCmd
+    - Major (breaking) change.
+    - Changed `$nhkore bing easy` to:
+        - `$ nhkore search easy bing`
+        - `$ nhkore se ez b`
+- App
+    - Added options:
+        - `--color` (force color output for demos)
+        - `--user-agent` (specify a custom HTTP header field `User-Agent`)
+    - If `out_dir` is empty, don't prompt if okay to overwrite.
+- README/nhkore.gemspec
+    - Added more info.
+    - Changed description.
+
+### Fixed
+- Scraper/BingScraper
+    - Big fix.
+    - Fixed to get around bing's strictness.
+        - Use a random `User-Agent` from `UserAgents`.
+        - Set HTTP header field `cookie` from `set-cookie` response.
+            - Added `http-cookie` gem.
+        - Use RSS as a fallback.
+- GetCmd
+    - When extracting files...
+        - ignore empty filenames in the Zip for safety.
+        - ask to overwrite files instead of erroring.
 
 ## [v0.2.0] - 2020-04-01
 First working version.
