@@ -226,7 +226,7 @@ module NHKore
           app.sleep_time = value.to_f()
           app.sleep_time = 0.0 if app.sleep_time < 0.0
         end
-        option :t,:'timeout',<<-EOD,argument: :required do |value,cmd|
+        option :t,:timeout,<<-EOD,argument: :required do |value,cmd|
           seconds for all URL timeouts: [open, read] (-1 or decimal >= 0)
         EOD
           value = value.to_f()
@@ -234,6 +234,14 @@ module NHKore
           
           app.scraper_kargs[:open_timeout] = value
           app.scraper_kargs[:read_timeout] = value
+        end
+        option :u,:'user-agent',<<-EOD,argument: :required do |value,cmd|
+          HTTP header field 'User-Agent' to use instead of a random one
+        EOD
+          value = app.check_empty_opt(:'user-agent',value)
+          
+          app.scraper_kargs[:header] ||= {}
+          app.scraper_kargs[:header]['user-agent'] = value
         end
         # Big V, not small.
         flag :V,:version,'show the version and exit' do |value,cmd|
