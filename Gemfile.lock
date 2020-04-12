@@ -16,7 +16,6 @@ PATH
       tiny_segmenter (~> 0.0)
       tty-progressbar (~> 0.17)
       tty-spinner (~> 0.9)
-      user-agent-randomizer (~> 0.2)
 
 GEM
   remote: https://rubygems.org/
@@ -63,7 +62,6 @@ GEM
       unf_ext
     unf_ext (0.0.7.7)
     unicode-display_width (1.7.0)
-    user-agent-randomizer (0.2.0)
     yard (0.9.24)
     yard_ghurt (1.2.0)
       rake
