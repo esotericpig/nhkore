@@ -82,8 +82,8 @@ module CLI
           value
         end
         option :l,:links,<<-EOD,argument: :required,transform: -> (value) do
-          'directory/file' of article links (from a Search Engine) to scrape (see '#{App::NAME} bing';
-          defaults: #{SearchLinks::DEFAULT_BING_YASASHII_FILE}, #{SearchLinks::DEFAULT_BING_FUTSUU_FILE})
+          'directory/file' of article links to scrape (see '#{App::NAME} search';
+          defaults: #{SearchLinks::DEFAULT_YASASHII_FILE}, #{SearchLinks::DEFAULT_FUTSUU_FILE})
         EOD
           app.check_empty_opt(:links,value)
         end
@@ -170,12 +170,12 @@ module CLI
       
       case type
       when :futsuu
-        build_in_file(:links,default_dir: SearchLinks::DEFAULT_DIR,default_filename: SearchLinks::DEFAULT_BING_FUTSUU_FILENAME)
+        build_in_file(:links,default_dir: SearchLinks::DEFAULT_DIR,default_filename: SearchLinks::DEFAULT_FUTSUU_FILENAME)
         build_out_file(:out,default_dir: News::DEFAULT_DIR,default_filename: FutsuuNews::DEFAULT_FILENAME)
         
         news_name = 'Regular'
       when :yasashii
-        build_in_file(:links,default_dir: SearchLinks::DEFAULT_DIR,default_filename: SearchLinks::DEFAULT_BING_YASASHII_FILENAME)
+        build_in_file(:links,default_dir: SearchLinks::DEFAULT_DIR,default_filename: SearchLinks::DEFAULT_YASASHII_FILENAME)
         build_out_file(:out,default_dir: News::DEFAULT_DIR,default_filename: YasashiiNews::DEFAULT_FILENAME)
         
         news_name = 'Easy'

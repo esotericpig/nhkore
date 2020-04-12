@@ -32,10 +32,10 @@ require 'nhkore/error'
 require 'nhkore/util'
 require 'nhkore/version'
 
-require 'nhkore/cli/bing_cmd'
 require 'nhkore/cli/fx_cmd'
 require 'nhkore/cli/get_cmd'
 require 'nhkore/cli/news_cmd'
+require 'nhkore/cli/search_cmd'
 require 'nhkore/cli/sift_cmd'
 
 
@@ -70,10 +70,10 @@ module NHKore
   # @since  0.2.0
   ###
   class App
-    include CLI::BingCmd
     include CLI::FXCmd
     include CLI::GetCmd
     include CLI::NewsCmd
+    include CLI::SearchCmd
     include CLI::SiftCmd
     
     NAME = 'nhkore'
@@ -90,6 +90,9 @@ module NHKore
     NO_SPINNER = {} # Still outputs status & stores tokens
     NO_SPINNER_MSG = '%{title}%{detail}...'
     
+    attr_reader :cmd
+    attr_reader :cmd_args
+    attr_reader :cmd_opts
     attr_accessor :progress_bar
     attr_accessor :scraper_kargs
     attr_accessor :sleep_time
@@ -113,10 +116,10 @@ module NHKore
       
       build_app_cmd()
       
-      build_bing_cmd()
       build_fx_cmd()
       build_get_cmd()
       build_news_cmd()
+      build_search_cmd()
       build_sift_cmd()
       build_version_cmd()
       

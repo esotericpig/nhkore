@@ -81,12 +81,10 @@ module NHKore
         regex = YASASHII_REGEX if regex.nil?()
         site = YASASHII_SITE
       else
-        site = Util.strip_web_str(site.to_s())
-        regex = /#{Regexp.quote(site)}/i if regex.nil?()
+        raise ArgumentError,"invalid site[#{site}]"
       end
       
       raise ArgumentError,"empty regex[#{regex}]" if regex.nil?()
-      raise ArgumentError,"empty site[#{site}]" if site.empty?()
       
       @regex = regex
       @site = site

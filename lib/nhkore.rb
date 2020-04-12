@@ -52,10 +52,10 @@ require 'nhkore/variator'
 require 'nhkore/version'
 require 'nhkore/word'
 
-require 'nhkore/cli/bing_cmd'
 require 'nhkore/cli/fx_cmd'
 require 'nhkore/cli/get_cmd'
 require 'nhkore/cli/news_cmd'
+require 'nhkore/cli/search_cmd'
 require 'nhkore/cli/sift_cmd'
 
 

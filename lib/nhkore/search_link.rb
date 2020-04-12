@@ -118,15 +118,15 @@ module NHKore
     
     DEFAULT_DIR = Util::CORE_DIR
     
-    DEFAULT_BING_FUTSUU_FILENAME = 'bing_nhk_news_web_regular.yml'
-    DEFAULT_BING_YASASHII_FILENAME = 'bing_nhk_news_web_easy.yml'
+    DEFAULT_FUTSUU_FILENAME = 'links_nhk_news_web_regular.yml'
+    DEFAULT_YASASHII_FILENAME = 'links_nhk_news_web_easy.yml'
     
     def self.build_file(filename)
       return File.join(DEFAULT_DIR,filename)
     end
     
-    DEFAULT_BING_FUTSUU_FILE = build_file(DEFAULT_BING_FUTSUU_FILENAME)
-    DEFAULT_BING_YASASHII_FILE = build_file(DEFAULT_BING_YASASHII_FILENAME)
+    DEFAULT_FUTSUU_FILE = build_file(DEFAULT_FUTSUU_FILENAME)
+    DEFAULT_YASASHII_FILE = build_file(DEFAULT_YASASHII_FILENAME)
     
     attr_reader :links
     
