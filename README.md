@@ -22,7 +22,7 @@ This is similar to a [core word/vocabulary list](https://www.fluentin3months.com
         - [Get Command](#get-command-)
         - [Sift Command](#sift-command-)
     - [Sakura Fields Forever](#sakura-fields-forever-)
-        - [Bing Command](#bing-command-)
+        - [Search Command](#search-command-)
         - [News Command](#news-command-)
 - [Using the Library](#using-the-library-)
 - [Hacking](#hacking-)
@@ -125,9 +125,9 @@ If you have other scraped articles, then you'll need to filter down to the speci
 | `$ nhkore sift easy -u k10011862381000` | Filter by URL |
 | `$ nhkore sift easy -t '植えられた桜'` | Filter by title |
 | `$ nhkore sift easy -d '2019-3-29 11:30'` | Filter by date time |
-| `$ nhkore sift easy -d '2019-3-29' -t '桜'` | Filter by multiple |
-| `$ nhkore sift easy -d '2019-3-29' -t '桜' -e html` | Filter & output HTML |
-| `$ nhkore sift easy -d '2019-3-29' -t '桜' -o 'sakura.html'` | Filter & output HTML |
+| `$ nhkore sift easy -d '2019-3-29' -t '桜'` | Filter by date time &amp; title |
+| `$ nhkore sift easy -d '2019-3-29' -t '桜' -e html` | Filter &amp; output HTML |
+| `$ nhkore sift easy -d '2019-3-29' -t '桜' -o 'sakura.html'` | Filter &amp; output HTML |
 
 Complete demo:
 
@@ -233,6 +233,83 @@ Lastly, you can ignore certain columns from the output. Definitions can be quite
 Complete demo:
 
 [![asciinema Demo - Sift](https://asciinema.org/a/318119.png)](https://asciinema.org/a/318119)
+
+### Sakura Fields Forever [^](#contents)
+
+#### Search Command [^](#contents)
+
+The [news](#news-command-) command (for scraping articles) relies on having a file of article links.
+
+Currently, the NHK website doesn't provide an historical record of all of its articles, and it's up to the user to find them.
+
+The format of the file is simple, so you can edit it by hand (or programmatically) very easily:
+
+```YAML
+# core/links_nhk_news_web_easy.yml
+---
+links:
+  https://www3.nhk.or.jp/news/easy/k10012323711000/k10012323711000.html:
+    url: https://www3.nhk.or.jp/news/easy/k10012323711000/k10012323711000.html
+    scraped: false
+  https://www3.nhk.or.jp/news/easy/k10012321401000/k10012321401000.html:
+    url: https://www3.nhk.or.jp/news/easy/k10012321401000/k10012321401000.html
+    scraped: false
+```
+
+Only the key (which is the URL) and the `url` field are required. The rest of the fields will be populated when you scrape the data.
+
+> &lt;rambling&gt;
+> Originally, I was planning on using a different key so that's why the URL is duplicated. This also allows for a possible future breaking version (major version change) to alter the key. In addition, I was originally planning to allow filtering in this file, so that's why additional fields are populated after scraping the data.
+> &lt;/rambling&gt;
+
+Example after running the `news` command:
+
+```YAML
+# core/links_nhk_news_web_easy.yml
+# - After being scraped
+---
+links:
+  https://www3.nhk.or.jp/news/easy/k10012323711000/k10012323711000.html:
+    url: https://www3.nhk.or.jp/news/easy/k10012323711000/k10012323711000.html
+    scraped: true
+    datetime: '2020-03-11T16:00:00+09:00'
+    title: 安倍総理大臣「今月２０日ごろまで大きなイベントをしないで」
+    futsuurl: https://www3.nhk.or.jp/news/html/20200310/k10012323711000.html
+    sha256: d1186ebbc2013564e52f21a2e8ecd56144ed5fe98c365f6edbd4eefb2db345eb
+  https://www3.nhk.or.jp/news/easy/k10012321401000/k10012321401000.html:
+    url: https://www3.nhk.or.jp/news/easy/k10012321401000/k10012321401000.html
+    scraped: true
+    datetime: '2020-03-11T11:30:00+09:00'
+    title: 島根県の会社　中国から技能実習生が来なくて困っている
+    futsuurl: https://www3.nhk.or.jp/news/html/20200309/k10012321401000.html
+    sha256: 2df91884fbbafdc69bc3126cb0cb7b63b2c24e85bc0de707643919e4581927a9
+```
+
+If you don't wish to edit this file by hand (or programmatically), that's where the `search` command comes into play.
+
+#### News Command [^](#contents)
+
+## Using the Library [^](#contents)
+
+### Setup
+
+Pick your poison...
+
+In your *Gemspec* (*&lt;project&gt;.gemspec*):
+
+```Ruby
+spec.add_runtime_dependency 'nhkore', '~> X.X'
+```
+
+In your *Gemfile*:
+
+```Ruby
+# Pick one...
+gem 'nhkore', '~> X.X'
+gem 'nhkore', :git => 'https://github.com/esotericpig/psychgus.git', :tag => 'vX.X'
+```
+
+### Scraper
 
 ## Hacking [^](#contents)
 
