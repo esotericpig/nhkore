@@ -13,7 +13,7 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - BingCmd => SearchCmd
     - Major (breaking) change.
-    - Changed `$nhkore bing easy` to:
+    - Changed `$ nhkore bing easy` to:
         - `$ nhkore search easy bing`
         - `$ nhkore se ez b`
 - App
