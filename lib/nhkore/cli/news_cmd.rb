@@ -97,6 +97,11 @@ module CLI
           do not try to parse the dictionary files for the articles; useful in case of errors trying to load
           the dictionaries (or for offline testing)
         EOD
+        flag :H,'no-sha256',<<-EOD
+          do not check the SHA-256 of the content to see if an article has already been scraped;
+          for example, 2 URLs with the same content, but 1 with 'http' & 1 with 'https', will both be scraped;
+          this is useful if 2 articles have the same SHA-256, but different content (unlikely)
+        EOD
         option :o,:out,<<-EOD,argument: :required,transform: -> (value) do
           'directory/file' to save words to; if you only specify a directory or a file, it will attach
           the appropriate default directory/file name
@@ -357,9 +362,11 @@ module CLI
     def scraped_news_article?(news,link)
       return true if link.scraped?()
       
+      no_sha256 = @cmd_opts[:no_sha256]
+      
       article = news.article(link.url)
       
-      if article.nil?()
+      if !no_sha256 && article.nil?()
         if !Util.empty_web_str?(link.sha256) && news.sha256?(link.sha256)
           article = news.article_with_sha256(link.sha256)
         end
