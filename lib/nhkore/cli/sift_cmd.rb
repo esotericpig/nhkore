@@ -118,6 +118,10 @@ module CLI
         EOD
           app.check_empty_opt(:out,value)
         end
+        flag :H,'no-sha256',<<-EOD
+          if you used this option with the 'news' command, then you'll also need this option here
+          to not fail on "duplicate" articles; see '#{App::NAME} news'
+        EOD
         option :t,:title,'title to filter on, where search text only needs to be somewhere in the title',
           argument: :required
         option :u,:url,'URL to filter on, where search text only needs to be somewhere in the URL',
@@ -326,13 +330,16 @@ module CLI
       in_file = @cmd_opts[:in]
       no_defn = @cmd_opts[:no_defn]
       no_eng = @cmd_opts[:no_eng]
+      no_sha256 = @cmd_opts[:no_sha256]
       out_file = @cmd_opts[:out]
       title_filter = @cmd_opts[:title]
       url_filter = @cmd_opts[:url]
       
       start_spin("Sifting NHK News Web #{news_name} data")
       
-      news = (type == :yasashii) ? YasashiiNews.load_file(in_file) : FutsuuNews.load_file(in_file)
+      news = (type == :yasashii) ?
+        YasashiiNews.load_file(in_file,overwrite: no_sha256) :
+        FutsuuNews.load_file(in_file,overwrite: no_sha256)
       
       sifter = Sifter.new(news)
       
