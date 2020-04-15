@@ -13,6 +13,8 @@
     - Either by `seek to end, and then write new data` or by using multiple files?
 - [ ] Make `sifting` faster somehow? Multiple threads?
     - [ ] Multiple threads option for `get` and other compatible commands as well (global option)?
+- [ ] Add `clean` command to clean up sifted data better?
+    - Will need additional Japanese gems
 
 ## [v1.0.0]
 - [x] `news` command
