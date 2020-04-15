@@ -201,6 +201,7 @@ module CLI
       max_scrapes = @cmd_opts[:scrape]
       max_scrapes = DEFAULT_NEWS_SCRAPE if max_scrapes.nil?()
       missingno = @cmd_opts[:missingno]
+      no_sha256 = @cmd_opts[:no_sha256]
       out_file = @cmd_opts[:out]
       redo_scrapes = @cmd_opts[:redo]
       show_dict = @cmd_opts[:show_dict]
@@ -224,7 +225,9 @@ module CLI
       scrape_count = 0
       
       if File.exist?(out_file)
-        news = (type == :yasashii) ? YasashiiNews.load_file(out_file) : FutsuuNews.load_file(out_file)
+        news = (type == :yasashii) ?
+          YasashiiNews.load_file(out_file,overwrite: no_sha256) :
+          FutsuuNews.load_file(out_file,overwrite: no_sha256)
       else
         news = (type == :yasashii) ? YasashiiNews.new() : FutsuuNews.new()
       end

@@ -73,7 +73,7 @@ module NHKore
       coder[:articles] = @articles
     end
     
-    def self.load_data(data,article_class: Article,file: nil,news_class: News,**kargs)
+    def self.load_data(data,article_class: Article,file: nil,news_class: News,overwrite: false,**kargs)
       data = Util.load_yaml(data,file: file)
       
       articles = data[:articles]
@@ -83,7 +83,7 @@ module NHKore
       if !articles.nil?()
         articles.each() do |key,hash|
           key = key.to_s() # Change from a symbol
-          news.add_article(article_class.load_data(key,hash),key: key)
+          news.add_article(article_class.load_data(key,hash),key: key,overwrite: overwrite)
         end
       end
       
