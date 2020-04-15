@@ -258,9 +258,9 @@ links:
 
 Only the key (which is the URL) and the `url` field are required. The rest of the fields will be populated when you scrape the data.
 
-> &lt;rambling&gt;
-> Originally, I was planning on using a different key so that's why the URL is duplicated. This also allows for a possible future breaking version (major version change) to alter the key. In addition, I was originally planning to allow filtering in this file, so that's why additional fields are populated after scraping the data.
-> &lt;/rambling&gt;
+> &lt;rambling&gt;  
+> Originally, I was planning on using a different key so that's why the URL is duplicated. This also allows for a possible future breaking version (major version change) to alter the key. In addition, I was originally planning to allow filtering in this file, so that's why additional fields are populated after scraping the data.  
+> &lt;/rambling&gt;  
 
 Example after running the `news` command:
 
@@ -286,6 +286,30 @@ links:
 ```
 
 If you don't wish to edit this file by hand (or programmatically), that's where the `search` command comes into play.
+
+Currently, it only searches &amp; scrapes `bing.com`, but other search engines and/or methods can easily be added in the future.
+
+Example usage:
+
+`$ nhkore search easy bing`
+
+There are a few notable options:
+
+```
+-r --results=<value>    number of results per page to request from search
+                        (default: 100)
+   --show-count         show the number of links scraped and exit;
+                        useful for manually writing/updating scripts
+                        (but not for use in a variable);
+                        implies '--dry-run' option
+   --show-urls          show the URLs -- if any -- used when searching &
+                        scraping and exit; you can download these for offline
+                        testing and/or slow internet (see '--in' option)
+```
+
+Complete demo:
+
+[![asciinema Demo - Search](https://asciinema.org/a/320457.png)](https://asciinema.org/a/320457)
 
 #### News Command [^](#contents)
 
