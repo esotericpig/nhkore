@@ -59,13 +59,13 @@ module CLI
       bars = nil
       
       if @cmd_opts[:all]
-        bars = [:default,:classic,:no]
+        bars = {default: :default,classic: :classic,no: :no}
       else
-        bars = [@progress_bar]
+        bars = {user: @progress_bar}
       end
       
-      bars.each() do |bar|
-        name = (bars.length == 1) ? 'User' : bar.to_s().capitalize()
+      bars.each() do |name,bar|
+        name = name.to_s().capitalize()
         bar = build_progress_bar("Testing #{name} progress",download: false,type: bar)
         
         bar.start()
