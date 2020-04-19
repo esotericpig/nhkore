@@ -40,7 +40,7 @@ module NHKore
       'dnt' => '1',
     }
     
-    attr_accessor :is_cookie
+    attr_accessor :eat_cookie
     attr_accessor :is_file
     attr_reader :kargs
     attr_accessor :max_redirects
@@ -49,7 +49,7 @@ module NHKore
     attr_accessor :str_or_io
     attr_accessor :url
     
-    alias_method :is_cookie?,:is_cookie
+    alias_method :eat_cookie?,:eat_cookie
     alias_method :is_file?,:is_file
     
     # +max_redirects+ defaults to 3 for safety (infinite-loop attack).
@@ -58,10 +58,10 @@ module NHKore
     # 
     # Pass in +header: {}+ for the default HTTP header fields to be set.
     # 
-    # @param is_cookie [true,false] true to set the HTTP header field 'cookie', which can be an expensive
-    #                  (time-consuming) operation since it opens the URL again, but necessary for some URLs.
+    # @param eat_cookie [true,false] true to set the HTTP header field 'cookie', which can be an expensive
+    #                   (time-consuming) operation since it opens the URL again, but necessary for some URLs.
     # @param redirect_rule [nil,:lenient,:strict]
-    def initialize(url,header: nil,is_cookie: false,is_file: false,max_redirects: 3,max_retries: 3,redirect_rule: :strict,str_or_io: nil,**kargs)
+    def initialize(url,eat_cookie: false,header: nil,is_file: false,max_redirects: 3,max_retries: 3,redirect_rule: :strict,str_or_io: nil,**kargs)
       super()
       
       if !header.nil?() && !is_file
@@ -75,7 +75,7 @@ module NHKore
         kargs.merge!(header)
       end
       
-      @is_cookie = is_cookie
+      @eat_cookie = eat_cookie
       @is_file = is_file
       @kargs = kargs
       @max_redirects = max_redirects
@@ -128,7 +128,7 @@ module NHKore
           # NHK's website tends to always use UTF-8.
           @str_or_io = File.open(url,'rt:UTF-8',**@kargs)
         else
-          fetch_cookie(url) if @is_cookie
+          fetch_cookie(url) if @eat_cookie
           open_url(url)
         end
       end
