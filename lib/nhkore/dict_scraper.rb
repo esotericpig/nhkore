@@ -21,7 +21,6 @@
 #++
 
 
-require 'json'
 require 'nhkore/dict'
 require 'nhkore/error'
 require 'nhkore/scraper'
@@ -59,6 +58,8 @@ module NHKore
     end
     
     def scrape()
+      require 'json'
+      
       json = JSON.load(@str_or_io)
       
       return Dict.new() if json.nil?()

@@ -21,8 +21,6 @@
 #++
 
 
-require 'csv'
-
 require 'nhkore/article'
 require 'nhkore/fileable'
 require 'nhkore/util'
@@ -143,6 +141,8 @@ module NHKore
     
     # This does not output {caption}.
     def put_csv!()
+      require 'csv'
+      
       words = sift()
       
       @output = CSV.generate(headers: :first_row,write_headers: true) do |csv|

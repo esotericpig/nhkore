@@ -24,7 +24,6 @@
 require 'cgi'
 require 'psychgus'
 require 'public_suffix'
-require 'set'
 require 'time'
 require 'uri'
 

@@ -21,10 +21,8 @@
 #++
 
 
-require 'http-cookie'
 require 'nokogiri'
 require 'open-uri'
-require 'rss'
 
 require 'nhkore/user_agents'
 require 'nhkore/util'
@@ -88,6 +86,8 @@ module NHKore
     end
     
     def fetch_cookie(url)
+      require 'http-cookie'
+      
       open_url(url)
       
       cookies = Array(@str_or_io.meta['set-cookie']) # nil will be []
@@ -195,6 +195,8 @@ module NHKore
     end
     
     def rss_doc()
+      require 'rss'
+      
       return RSS::Parser.parse(@str_or_io,validate: false)
     end
   end

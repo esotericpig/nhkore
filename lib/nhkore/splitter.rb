@@ -21,9 +21,6 @@
 #++
 
 
-require 'bimyou_segmenter'
-require 'tiny_segmenter'
-
 require 'nhkore/util'
 
 
@@ -59,6 +56,12 @@ module NHKore
   # @since  0.2.0
   ###
   class BimyouSplitter < Splitter
+    def initialize(*)
+      require 'bimyou_segmenter'
+      
+      super
+    end
+    
     def end_split(str)
       return BimyouSegmenter.segment(str,symbol: false,white_space: false)
     end
@@ -71,6 +74,8 @@ module NHKore
     attr_accessor :tiny
     
     def initialize(*)
+      require 'tiny_segmenter'
+      
       super
       
       @tiny = TinySegmenter.new()

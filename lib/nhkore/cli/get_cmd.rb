@@ -21,10 +21,6 @@
 #++
 
 
-require 'down/net_http'
-require 'tempfile'
-require 'zip'
-
 require 'nhkore/util'
 
 
@@ -73,6 +69,10 @@ module CLI
     end
     
     def run_get_cmd()
+      require 'down/net_http'
+      require 'tempfile'
+      require 'zip'
+      
       build_out_dir(:out,default_dir: Util::CORE_DIR)
       
       return unless check_out_dir(:out)

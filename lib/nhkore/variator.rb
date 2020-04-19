@@ -21,9 +21,6 @@
 #++
 
 
-require 'japanese_deinflector'
-
-
 module NHKore
   ###
   # @author Jonathan Bradley Whited (@esotericpig)
@@ -63,6 +60,8 @@ module NHKore
     attr_accessor :deinflector
     
     def initialize(*)
+      require 'japanese_deinflector'
+      
       super
       
       @deinflector = JapaneseDeinflector.new()

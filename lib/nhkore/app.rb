@@ -24,8 +24,6 @@
 require 'cri'
 require 'highline'
 require 'rainbow'
-require 'set'
-require 'tty-progressbar'
 require 'tty-spinner'
 
 require 'nhkore/error'
@@ -320,6 +318,8 @@ module NHKore
     def build_progress_bar(title,download: false,total: 100,type: @progress_bar,width: 33,**kargs)
       case type
       when :default,:classic
+        require 'tty-progressbar'
+        
         msg = "#{title} [:bar] :percent :eta".dup()
         msg << ' :byte_rate/s' if download
         
