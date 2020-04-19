@@ -59,6 +59,7 @@ module NHKore
       return true if link =~ /\/about\.html?/ # https://www3.nhk.or.jp/news/easy/about.html
       return true if link =~ /\/movieplayer\.html?/ # https://www3.nhk.or.jp/news/easy/movieplayer.html?id=k10038422811_1207251719_1207251728.mp4&teacuprbbs=4feb73432045dbb97c283d64d459f7cf
       return true if link =~ /\/audio\.html?/ # https://www3.nhk.or.jp/news/easy/player/audio.html?id=k10011555691000
+      return true if link =~ /\/news\/easy\/index\.html?/ # http://www3.nhk.or.jp/news/easy/index.html
       
       return false
     end
