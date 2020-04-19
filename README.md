@@ -18,7 +18,7 @@ This is similar to a [core word/vocabulary list](https://www.fluentin3months.com
 - [Installing](#installing-)
 - [Using](#using-)
     - [The Basics](#the-basics-)
-    - [Unlimited Power!](#unlimited-power-)
+    - [Unlimited Powah!](#unlimited-powah-)
         - [Get Command](#get-command-)
         - [Sift Command](#sift-command-)
     - [Sakura Fields Forever](#sakura-fields-forever-)
@@ -51,8 +51,8 @@ Manually:
 ```
 $ git clone 'https://github.com/esotericpig/nhkore.git'
 $ cd nhkore
-$ gem build nhkore.gemspec
-$ gem install *.gem
+$ bundle install
+$ bundle exec rake install:local
 ```
 
 If there are errors running `nhkore`, you may need to also [install Nokogiri](https://nokogiri.org/tutorials/installing_nokogiri.html) manually, which is used for scraping HTML.
@@ -118,22 +118,15 @@ $ nhkore sift easy -e html
 $ nhkore sift easy -e yml
 ```
 
-If you have other scraped articles, then you'll need to filter down to the specific one:
-
-| Command | Description |
-| --- | --- |
-| `$ nhkore sift easy -u k10011862381000` | Filter by URL |
-| `$ nhkore sift easy -t '植えられた桜'` | Filter by title |
-| `$ nhkore sift easy -d '2019-3-29 11:30'` | Filter by date time |
-| `$ nhkore sift easy -d '2019-3-29' -t '桜'` | Filter by date time &amp; title |
-| `$ nhkore sift easy -d '2019-3-29' -t '桜' -e html` | Filter &amp; output HTML |
-| `$ nhkore sift easy -d '2019-3-29' -t '桜' -o 'sakura.html'` | Filter &amp; output HTML |
-
 Complete demo:
 
 [![asciinema Demo - The Basics](https://asciinema.org/a/318958.png)](https://asciinema.org/a/318958)
 
-### Unlimited Power! [^](#contents)
+### Unlimited Powah! [^](#contents)
+
+Generate a core word list (e.g., CSV file) for 1 or more pre-scraped articles with ease.
+
+Unlimited powah at your finger tips!
 
 #### Get Command [^](#contents)
 
@@ -189,12 +182,21 @@ You can filter the data by using different options:
 Filter examples:
 
 ```
+# Filter by URL.
+$ nhkore sift easy -u 'k10011862381000'
+
+# Filter by title.
+$ nhkore sift easy -t 'マリオ'
+$ nhkore sift easy -t '植えられた桜'
+
+# Filter by date time.
 $ nhkore sift easy -d 2019
 $ nhkore sift easy -d '2019-12'
-$ nhkore sift easy -d '2019-7-4...9'     # July 4th to 9th of 2019
+$ nhkore sift easy -d '2019-7-4...9' # July 4th to 9th of 2019
 $ nhkore sift easy -d '2019-12-25 13:10'
-$ nhkore sift easy -t 'マリオ'
-$ nhkore sift easy -u 'k10011862381000'
+
+# Filter by date time & title.
+$ nhkore sift easy -d '2019-3-29' -t '桜'
 ```
 
 You can save the data to a different format using one of these options:
@@ -235,6 +237,10 @@ Complete demo:
 [![asciinema Demo - Sift](https://asciinema.org/a/318982.png)](https://asciinema.org/a/318982)
 
 ### Sakura Fields Forever [^](#contents)
+
+No more waiting on a new release with pre-scraped files.
+
+Scrape all of the latest articles for yourself, forever!
 
 #### Search Command [^](#contents)
 
@@ -330,7 +336,7 @@ In your *Gemfile*:
 ```Ruby
 # Pick one...
 gem 'nhkore', '~> X.X'
-gem 'nhkore', :git => 'https://github.com/esotericpig/psychgus.git', :tag => 'vX.X'
+gem 'nhkore', :git => 'https://github.com/esotericpig/psychgus.git', :tag => 'vX.X.X'
 ```
 
 ### Scraper
