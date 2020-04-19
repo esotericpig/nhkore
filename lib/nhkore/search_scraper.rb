@@ -45,9 +45,10 @@ module NHKore
     # - https://www3.nhk.or.jp/news/easy/article/disaster_heat.html
     YASASHII_REGEX = /\A[^\.]+\.#{Regexp.quote(YASASHII_SITE)}.+\.html?/i
     
-    # Pass in +header: {}+ to trigger using the default HTTP header fields.
-    def initialize(url,header: {},is_cookie: true,**kargs)
-      super(url,header: header,is_cookie: is_cookie,**kargs)
+    # Search Engines are strict, so trigger using the default HTTP header fields
+    # with +header: {}+ and fetch/set the cookie using +eat_cookie: true+.
+    def initialize(url,eat_cookie: true,header: {},**kargs)
+      super(url,eat_cookie: eat_cookie,header: header,**kargs)
     end
     
     def ignore_link?(link,cleaned: true)
@@ -158,10 +159,13 @@ module NHKore
         open(uri)
         
         doc = rss_doc()
+        rss_links = []
         
         doc.items.each() do |item|
           link = item.link.to_s()
           link = Util.unspace_web_str(link).downcase()
+          
+          rss_links << link
           
           next if ignore_link?(link)
           next if link !~ regex
@@ -171,9 +175,14 @@ module NHKore
           link_count += 1
         end
         
-        if link_count >= 1 && next_page.empty?()
+        # For RSS, Bing will keep returning the same links over and over
+        # if it's the last page or the "first=" query is the wrong count.
+        # Therefore, we have to test the previous RSS links (+page.rss_links+).
+        if next_page.empty?() && doc.items.length >= 1 && page.rss_links != rss_links
           next_page.count = (page.count < 0) ? 0 : page.count
-          next_page.count += doc.items.length - 1 # -1 because 1st item is sometimes junk (search URL)
+          next_page.count += doc.items.length
+          next_page.rss_links = rss_links
+          
           uri = URI(page.url.nil?() ? @url : page.url)
           
           Util.replace_uri_query!(uri,first: next_page.count)
@@ -192,12 +201,14 @@ module NHKore
   ###
   class NextPage
     attr_accessor :count
+    attr_accessor :rss_links
     attr_accessor :url
     
     def initialize()
       super()
       
       @count = -1
+      @rss_links = nil
       @url = nil
     end
     
