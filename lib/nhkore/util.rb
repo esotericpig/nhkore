@@ -22,8 +22,6 @@
 
 
 require 'cgi'
-require 'psychgus'
-require 'public_suffix'
 require 'time'
 require 'uri'
 
@@ -68,6 +66,8 @@ module NHKore
     end
     
     def self.domain(host,clean: true)
+      require 'public_suffix'
+      
       domain = PublicSuffix.domain(host)
       domain = unspace_web_str(domain).downcase() if !domain.nil?() && clean
       
@@ -75,6 +75,8 @@ module NHKore
     end
     
     def self.dump_yaml(obj,flow_level: 8)
+      require 'psychgus'
+      
       return Psychgus.dump(obj,
         deref_aliases: true, # Dereference aliases for load_yaml()
         line_width: 10000, # Try not to wrap; ichiman!
@@ -142,6 +144,8 @@ module NHKore
     end
     
     def self.load_yaml(data,file: nil,**kargs)
+      require 'psychgus'
+      
       return Psych.safe_load(data,
         aliases: false,
         filename: file,
