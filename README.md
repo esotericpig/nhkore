@@ -375,7 +375,7 @@ In your *Gemfile*:
 ```Ruby
 # Pick one...
 gem 'nhkore', '~> X.X'
-gem 'nhkore', :git => 'https://github.com/esotericpig/psychgus.git', :tag => 'vX.X.X'
+gem 'nhkore', :git => 'https://github.com/esotericpig/nhkore.git', :tag => 'vX.X.X'
 ```
 
 ### Scraper
