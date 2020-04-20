@@ -319,6 +319,45 @@ Complete demo:
 
 #### News Command [^](#contents)
 
+In [The Basics](#the-basics-), you learned how to scrape 1 article using the `-u/--url` option with the `news` command.
+
+After creating a file of links from the [search](#search-command-) command (or manually/programmatically), you can also scrape multiple articles from this file using the `news` command.
+
+The defaults will scrape the 1st unscraped article from the `links` file:
+
+`$ nhkore news easy`
+
+You can scrape the 1st **X** unscraped articles with the `-s/--scrape` option:
+
+```
+# Scrape the 1st 11 unscraped articles.
+$ nhkore news -s 11 easy
+```
+
+You may wish to re-scrape articles that have already been scraped with the `-r/--redo` option:
+
+`$ nhkore news -r -s 11 easy`
+
+If you only wish to scrape specific article links, then you should use the `-k/--like` option, which does a fuzzy search on the URLs. For example, `--like '00123'` will match these links:
+
+- http<span>s://w</span>ww3.nhk.or.jp/news/easy/k1**00123**23711000/k10012323711000.html
+- http<span>s://w</span>ww3.nhk.or.jp/news/easy/k1**00123**21401000/k10012321401000.html
+- http<span>s://w</span>ww3.nhk.or.jp/news/easy/k1**00123**21511000/k10012321511000.html
+- ...
+
+`$ nhkore news -k '00123' -s 11 easy`
+
+Lastly, you can show the dictionary URL and contents for the 1st article if you're getting dictionary-related errors:
+
+```
+# This will exit after showing the 1st article's dictionary.
+$ nhkore news easy --show-dict
+```
+
+For the rest of the options, please see [The Basics](#the-basics-).
+
+Complete demo:
+
 ## Using the Library [^](#contents)
 
 ### Setup
