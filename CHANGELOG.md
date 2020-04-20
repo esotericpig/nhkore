@@ -2,7 +2,21 @@
 
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.0...master)
+## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.1...master)
+
+## [v0.3.1] - 2020-04-20
+
+### Changed
+- Fleshed out more of README.
+- NewsCmd/SiftCmd
+    - Added `--no-sha256` option to not check if article links have already been scraped based on their contents' SHA-256.
+- Util
+    - Changed `dir_str?()` and `filename_str?()` to check any slash. Previously, it only checked the slash for your system. But now on both Windows &amp; Linux, it will check for both `/` &amp; `\`.
+
+### Fixed
+- Reduced load time of app from ~1s to ~0.3-5s by moving some requires into methods.
+- BingScraper
+    - Fixed possible RSS infinite loop.
 
 ## [v0.3.0] - 2020-04-12
 
