@@ -64,8 +64,7 @@ module NHKore
     MIN_SANE_YEAR = 1924
     
     def self.dir_str?(str)
-      # File.join() will add the appropriate slash.
-      return File.join(str,'') == str
+      return str.match?(/[\/\\]\s*\z/)
     end
     
     def self.domain(host,clean: true)
@@ -99,7 +98,8 @@ module NHKore
     end
     
     def self.filename_str?(str)
-      return File.basename(str) == str
+      # Do not use "!dir_str?()"! It's not the same meaning!
+      return !str.match?(/[\/\\]/)
     end
     
     def self.guess_year(year)
