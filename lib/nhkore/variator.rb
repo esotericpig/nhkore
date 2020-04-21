@@ -60,6 +60,7 @@ module NHKore
     attr_accessor :deinflector
     
     def initialize(*)
+      require 'set' # Must require manually because JapaneseDeinflector is old
       require 'japanese_deinflector'
       
       super
