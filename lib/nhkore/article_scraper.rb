@@ -47,19 +47,21 @@ module NHKore
     attr_accessor :dict
     attr_reader :kargs
     attr_accessor :missingno
-    attr_accessor :mode
     attr_reader :polishers
     attr_accessor :splitter
+    attr_accessor :strict
     attr_reader :variators
     attr_accessor :year
+    
+    alias_method :strict?,:strict
     
     # @param dict [Dict,:scrape,nil] the {Dict} (dictionary) to use for {Word#defn} (definitions)
     #             [+:scrape+] auto-scrape it using {DictScraper}
     #             [+nil+]     don't scrape/use it
     # @param missingno [Missingno] data to use as a fallback for Ruby words without kana/kanji,
     #                  instead of raising an error
-    # @param mode [nil,:lenient]
-    def initialize(url,cleaners: [BestCleaner.new()],datetime: nil,dict: :scrape,missingno: nil,mode: nil,polishers: [BestPolisher.new()],splitter: BestSplitter.new(),variators: [BestVariator.new()],year: nil,**kargs)
+    # @param strict [true,false]
+    def initialize(url,cleaners: [BestCleaner.new()],datetime: nil,dict: :scrape,missingno: nil,polishers: [BestPolisher.new()],splitter: BestSplitter.new(),strict: true,variators: [BestVariator.new()],year: nil,**kargs)
       super(url,**kargs)
       
       @cleaners = Array(cleaners)
@@ -67,9 +69,9 @@ module NHKore
       @dict = dict
       @kargs = kargs
       @missingno = missingno
-      @mode = mode
       @polishers = Array(polishers)
       @splitter = splitter
+      @strict = strict
       @variators = Array(variators)
       @year = year
     end
@@ -188,7 +190,7 @@ module NHKore
       tag = doc.css('div.article-body') if tag.length < 1
       
       # - https://www3.nhk.or.jp/news/easy/tsunamikeihou/index.html
-      tag = doc.css('div#main') if tag.length < 1 && @mode == :lenient
+      tag = doc.css('div#main') if tag.length < 1 && !@strict
       
       if tag.length > 0
         text = Util.unspace_web_str(tag.text.to_s())
@@ -481,7 +483,7 @@ module NHKore
     def scrape_title(doc,article)
       tag = doc.css('h1.article-main__title')
       
-      if tag.length < 1 && @mode == :lenient
+      if tag.length < 1 && !@strict
         # This shouldn't be used except for select sites.
         # - https://www3.nhk.or.jp/news/easy/tsunamikeihou/index.html
         
@@ -604,11 +606,10 @@ module NHKore
     end
     
     def warn_or_error(klass,msg)
-      case @mode
-      when :lenient
-        Util.warn(msg)
-      else
+      if @strict
         raise klass,msg
+      else
+        Util.warn(msg)
       end
     end
   end

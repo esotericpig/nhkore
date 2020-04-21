@@ -237,7 +237,7 @@ module CLI
         dict: dict,
         is_file: is_file,
         missingno: missingno ? Missingno.new(news) : nil,
-        mode: lenient ? :lenient : nil,
+        strict: !lenient,
       })
       @news_dict_scraper_kargs = @scraper_kargs.merge({
         is_file: is_file,
