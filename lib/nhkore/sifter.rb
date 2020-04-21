@@ -93,24 +93,29 @@ module NHKore
       return false
     end
     
-    def filter_by_datetime(datetime_filter=nil,from_filter: nil,to_filter: nil)
+    def filter_by_datetime(datetime_filter=nil,from: nil,to: nil)
       if !datetime_filter.nil?()
-        # If out-of-bounds, just nil.
-        from_filter = datetime_filter[0]
-        to_filter = datetime_filter[1]
+        if datetime_filter.respond_to?(:'[]')
+          # If out-of-bounds, just nil.
+          from = datetime_filter[0] if from.nil?()
+          to = datetime_filter[1] if to.nil?()
+        else
+          from = datetime_filter if from.nil?()
+          to = datetime_filter if to.nil?()
+        end
       end
       
-      from_filter = to_filter if from_filter.nil?()
-      to_filter = from_filter if to_filter.nil?()
+      from = to if from.nil?()
+      to = from if to.nil?()
       
-      from_filter = Util.jst_time(from_filter) unless from_filter.nil?()
-      to_filter = Util.jst_time(to_filter) unless to_filter.nil?()
+      from = Util.jst_time(from) unless from.nil?()
+      to = Util.jst_time(to) unless to.nil?()
       
-      datetime_filter = [from_filter,to_filter]
+      datetime_filter = [from,to]
       
       return self if datetime_filter.flatten().compact().empty?()
       
-      @filters[:datetime] = {from: from_filter,to: to_filter}
+      @filters[:datetime] = {from: from,to: to}
       
       return self
     end
