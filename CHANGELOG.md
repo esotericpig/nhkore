@@ -23,10 +23,7 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     - In filter_by_datetime(), renamed keyword args `from_filter,to_filter` to simply `from,to`.
 
 ### Fixed
-- Reduced load time of app from ~1s to 0.3~0.5s.
-    - Moved many `require '...'` statements into methods.
-    - It looks ugly & is not a good coding practice, but a necessary evil.
-    - Load time is still pretty slow (but a lot better!).
+- Reduced load time of app a tiny bit more (see v0.3.1 for details).
 - ArticleScraper
     - Renamed `mode` param to `strict`. `mode` was overshadowing File.open()'s in Scraper.
 
@@ -40,7 +37,10 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     - Changed `dir_str?()` and `filename_str?()` to check any slash. Previously, it only checked the slash for your system. But now on both Windows & Linux, it will check for both `/` & `\`.
 
 ### Fixed
-- Reduced load time of app from ~1s to ~0.3-5s by moving some requires into methods.
+- Reduced load time of app from about 1s to about 0.3-0.5s.
+    - Moved many `require '...'` statements into methods.
+    - It looks ugly & is not good coding practice, but a necessary evil.
+    - Load time is still pretty slow (but a lot better!).
 - BingScraper
     - Fixed possible RSS infinite loop.
 
