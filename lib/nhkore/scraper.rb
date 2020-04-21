@@ -194,6 +194,10 @@ module NHKore
       return @str_or_io
     end
     
+    def reopen()
+      return open(@url)
+    end
+    
     def rss_doc()
       require 'rss'
       
