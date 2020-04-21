@@ -82,7 +82,7 @@ module NHKore
       @max_retries = max_retries
       @redirect_rule = redirect_rule
       
-      open(url,str_or_io)
+      open(url,str_or_io,is_file: is_file)
     end
     
     def fetch_cookie(url)
@@ -119,19 +119,29 @@ module NHKore
       return URI::join(@url,relative_url)
     end
     
-    def open(url,str_or_io=nil)
+    def open(url,str_or_io=nil,is_file: @is_file)
+      @is_file = is_file
       @str_or_io = str_or_io
       @url = url
       
       if str_or_io.nil?()
         if @is_file
-          # NHK's website tends to always use UTF-8.
-          @str_or_io = File.open(url,'rt:UTF-8',**@kargs)
+          open_file(url)
         else
           fetch_cookie(url) if @eat_cookie
           open_url(url)
         end
       end
+      
+      return self
+    end
+    
+    def open_file(file)
+      @is_file = true
+      @url = file
+      
+      # NHK's website tends to always use UTF-8.
+      @str_or_io = File.open(file,'rt:UTF-8',**@kargs)
       
       return self
     end
