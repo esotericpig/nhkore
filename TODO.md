@@ -31,3 +31,4 @@
 - [ ] Create tests
     - [ ] Add to CI
 - [ ] Add documentation to code
+- [ ] Make `stable` & `dev` branches
