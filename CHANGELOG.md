@@ -2,7 +2,33 @@
 
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.1...master)
+## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.2...master)
+
+## [v0.3.2] - 2020-04-22
+
+### Added
+- lib/nhkore/lib.rb
+    - Requires all files, excluding CLI-related files for speed when using this Gem as a library.
+- Scraper
+    - Added open_file() & reopen().
+- samples/looper.rb
+    - Script example of continuously scraping all articles.
+
+### Changed
+- README
+    - Finished writing the initial version of all sections.
+- ArticleScraper
+    - Changed the `year` param to expect an int, instead of a string.
+- Sifter
+    - In filter_by_datetime(), renamed keyword args `from_filter,to_filter` to simply `from,to`.
+
+### Fixed
+- Reduced load time of app from ~1s to 0.3~0.5s.
+    - Moved many `require '...'` statements into methods.
+    - It looks ugly & is not a good coding practice, but a necessary evil.
+    - Load time is still pretty slow (but a lot better!).
+- ArticleScraper
+    - Renamed `mode` param to `strict`. `mode` was overshadowing File.open()'s in Scraper.
 
 ## [v0.3.1] - 2020-04-20
 
@@ -11,7 +37,7 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - NewsCmd/SiftCmd
     - Added `--no-sha256` option to not check if article links have already been scraped based on their contents' SHA-256.
 - Util
-    - Changed `dir_str?()` and `filename_str?()` to check any slash. Previously, it only checked the slash for your system. But now on both Windows &amp; Linux, it will check for both `/` &amp; `\`.
+    - Changed `dir_str?()` and `filename_str?()` to check any slash. Previously, it only checked the slash for your system. But now on both Windows & Linux, it will check for both `/` & `\`.
 
 ### Fixed
 - Reduced load time of app from ~1s to ~0.3-5s by moving some requires into methods.
