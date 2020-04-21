@@ -583,7 +583,7 @@ module NHKore
       end
       
       # As a last resort, use our user-defined fallbacks (if specified).
-      return @year unless Util.empty_web_str?(@year)
+      return @year.to_i() unless @year.nil?()
       return @datetime.year if !@datetime.nil?() && Util.sane_year?(@datetime.year)
       
       raise ScrapeError,"could not scrape year at URL[#{@url}]"
