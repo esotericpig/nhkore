@@ -12,7 +12,7 @@
 - [ ] Save the `News` (scraped articles) faster
     - Either by `seek to end, and then write new data` or by using multiple files?
 - [ ] Make `sifting` faster somehow? Multiple threads?
-    - [ ] Multiple threads option for `get` and other compatible commands as well (global option)?
+    - [ ] Multiple threads option for other compatible commands as well (global option)?
 - [ ] Add `clean` command to clean up sifted data better?
     - Will need additional Japanese gems
 
@@ -25,9 +25,9 @@
         - Ensures have all article links
 - [x] `get` command for downloading release files
 - [x] Add `sift` HTML output to my GitHub Pages
-- [ ] Finish fleshing out README
+- [x] Finish fleshing out README
     - [x] Add a section for non-coders (non-power-users) to README
-    - [ ] Create & add asciinema links
+    - [x] Create & add asciinema links
 - [ ] Create tests
     - [ ] Add to CI
-- [ ] Add documentation
+- [ ] Add documentation to code

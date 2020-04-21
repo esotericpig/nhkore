@@ -293,7 +293,7 @@ links:
 
 If you don't wish to edit this file by hand (or programmatically), that's where the `search` command comes into play.
 
-Currently, it only searches &amp; scrapes `bing.com`, but other search engines and/or methods can easily be added in the future.
+Currently, it only searches & scrapes `bing.com`, but other search engines and/or methods can easily be added in the future.
 
 Example usage:
 
@@ -451,10 +451,420 @@ In order to not require all of the CLI-related files, require this file instead:
 ```Ruby
 require 'nhkore/lib'
 
-# require 'nhkore' # Slower
+#require 'nhkore' # Slower
 ```
 
 ### Scraper
+
+All scraper classes extend this class. You can either extend it or use it by itself. It's a simple wrapper around *open-uri*, *Nokogiri*, etc.
+
+`initialize` automatically opens (connects to) the URL.
+
+```Ruby
+require 'nhkore/scraper'
+
+class MyScraper < NHKore::Scraper
+  def initialize()
+    super('https://www3.nhk.or.jp/news/easy/')
+  end
+end
+
+m = MyScraper.new()
+s = NHKore::Scraper.new('https://www3.nhk.or.jp/news/easy/')
+
+# Read all content into a String.
+mstr = m.read()
+sstr = s.read()
+
+# Get a Nokogiri::HTML object.
+mdoc = m.html_doc()
+sdoc = s.html_doc()
+
+# Get a RSS object.
+s = NHKore::Scraper.new('https://www.bing.com/search?format=rss&q=site%3Anhk.or.jp%2Fnews%2Feasy%2F&count=100')
+
+rss = s.rss_doc()
+```
+
+There are several useful options:
+
+```Ruby
+require 'nhkore/scraper'
+
+s = NHKore::Scraper.new('https://www3.nhk.or.jp/news/easy/',
+  open_timeout: 300, # Open timeout in seconds (default: nil)
+  read_timeout: 300, # Read timeout in seconds (default: nil)
+  
+  # Maximum number of times to retry the URL
+  # - default: 3
+  # - Open/connect will fail a couple of times on a bad/slow internet connection.
+  max_retries: 10,
+  
+  # Maximum number of redirects allowed.
+  # - default: 3
+  # - You can set this to nil or -1, but I recommend using a number
+  #   for safety (infinite-loop attack).
+  max_redirects: 1,
+  
+  # How to check redirect URLs for safety.
+  # - default: :strict
+  # - nil      => do not check
+  # - :lenient => check the scheme only
+  #               (i.e., if https, redirect URL must be https)
+  # - :strict  => check the scheme and domain
+  #               (i.e., if https://bing.com, redirect URL must be https://bing.com)
+  redirect_rule: :lenient,
+  
+  # Set the HTTP header field 'cookie' from the 'set-cookie' response.
+  # - default: false
+  # - Currently uses the 'http-cookie' Gem.
+  # - This is currently a time-consuming operation because it opens the URL twice.
+  # - Necessary for Search Engines or other sites that require cookies
+  #   in order to block bots.
+  eat_cookie: true,
+  
+  # Set HTTP header fields.
+  # - default: nil
+  # - Necessary for Search Engines or other sites that try to block bots.
+  # - Simply pass in a Hash (not nil) to set the default ones.
+  header: {'user-agent' => 'Skynet'}, # Must use strings
+)
+
+# Open the URL yourself. This will be passed in directly to Nokogiri::HTML().
+# - In this way, you can use Faraday, HTTParty, RestClient, httprb/http, or
+#   some other Gem.
+s = NHKore::Scraper.new('https://www3.nhk.or.jp/news/easy/',
+  str_or_io: URI.open('https://www3.nhk.or.jp/news/easy/',redirect: false)
+)
+
+# Open and parse a file instead of a URL (for offline testing or slow internet).
+s = NHKore::Scraper.new('./my_article.html',is_file: true)
+
+doc = s.html_doc()
+```
+
+Here are some other useful methods:
+
+```Ruby
+require 'nhkore/scraper'
+
+s = NHKore::Scraper.new('https://www3.nhk.or.jp/news/easy/')
+
+s.reopen() # Re-open the current URL.
+
+# Get a relative URL.
+url = s.join_url('../../monkey.html')
+puts url # https://www3.nhk.or.jp/monkey.html
+
+# Open a new URL or file.
+s.open(url)
+s.open(url,URI.open(url,redirect: false))
+
+s.open('./my_article.html',is_file: true)
+
+# Open a file manually.
+s.open_file('./my_article.html')
+
+# Fetch the cookie & open a new URL manually.
+s.fetch_cookie(url)
+s.open_url(url)
+```
+
+### SearchScraper & BingScraper
+
+`SearchScraper` is used for scraping Search Engines for NHK News Web (Easy) links. It can also be used for search in general.
+
+By default, it sets the default HTTP header fields and fetches & sets the cookie.
+
+```Ruby
+require 'nhkore/search_scraper'
+
+ss = NHKore::SearchScraper.new('https://www.bing.com/search?q=nhk&count=100')
+
+doc = ss.html_doc()
+
+doc.css('a').each() do |anchor|
+  link = anchor['href']
+  
+  next if ss.ignore_link?(link)
+  
+  if link.include?('https://www3.nhk')
+    puts link
+  end
+end
+```
+
+`BingScraper` will search `bing.com` for you.
+
+```Ruby
+require 'nhkore/search_link'
+require 'nhkore/search_scraper'
+
+bs     = NHKore::BingScraper.new(:yasashii)
+slinks = NHKore::SearchLinks.new()
+
+next_page = bs.scrape(slinks)
+page_num  = 1
+
+while !next_page.empty?()
+  puts "Page #{page_num += 1}: #{next_page.count}"
+  
+  bs = NHKore::BingScraper.new(:yasashii,url: next_page.url)
+  
+  next_page = bs.scrape(slinks,next_page)
+end
+
+slinks.links.values.each() do |link|
+  puts link.url
+end
+```
+
+### ArticleScraper & DictScraper
+
+`ArticleScraper` scrapes an NHK News Web Easy article. Regular articles aren't currently supported.
+
+```Ruby
+require 'nhkore/article_scraper'
+
+as = NHKore::ArticleScraper.new(
+  'https://www3.nhk.or.jp/news/easy/k10011862381000/k10011862381000.html',
+  
+  # If false, scrape the article leniently (for older articles which
+  # may not have certain tags, etc.).
+  # - default: true
+  strict: false,
+  
+  # {Dict} to use as the dictionary for words (Easy articles).
+  # - default: :scrape
+  # - nil     => don't scrape/use it (necessary for Regular articles)
+  # - :scrape => auto-scrape it using {DictScraper}
+  # - {Dict}  => your own {Dict}
+  dict: nil,
+  
+  # Date time to use as a fallback if the article doesn't have one
+  # (for older articles).
+  # - default: nil
+  datetime: Time.new(2020,2,2),
+  
+  # Year to use as a fallback if the article doesn't have one
+  # (for older articles).
+  # - default: nil
+  year: 2020,
+)
+
+article = as.scrape()
+
+article.datetime
+article.futsuurl
+article.sha256
+article.title
+article.url
+
+article.words.each() do |key,word|
+  word.defn
+  word.eng
+  word.freq
+  word.kana
+  word.kanji
+  word.key
+end
+
+puts article.to_s(mini: true)
+puts '---'
+puts article
+```
+
+`DictScraper` scrapes an Easy article's dictionary file (JSON).
+
+```Ruby
+require 'nhkore/dict_scraper'
+
+url = 'https://www3.nhk.or.jp/news/easy/k10011862381000/k10011862381000.html'
+ds  = NHKore::DictScraper.new(
+  url,
+  
+  # Change the URL appropriately to the dictionary URL.
+  # - default: true
+  parse_url: true,
+)
+
+puts NHKore::DictScraper.parse_url(url)
+puts
+
+dict = ds.scrape()
+
+dict.entries.each() do |key,entry|
+  entry.id
+  
+  entry.defns.each() do |defn|
+    defn.hyoukis.each() {|hyouki| }
+    defn.text
+    defn.words.each() {|word| }
+  end
+  
+  puts entry.build_hyouki()
+  puts entry.build_defn()
+  puts '---'
+end
+
+puts
+puts dict
+```
+
+### Fileable
+
+Any class that includes the `Fileable` mixin will have the following methods:
+
+- Class.load_file(file,mode: 'rt:BOM|UTF-8',**kargs)
+- save_file(file,mode: 'wt',**kargs)
+
+Any *kargs* will be passed to `File.open()`.
+
+```Ruby
+require 'nhkore/news'
+require 'nhkore/search_link'
+
+yn = NHKore::YasashiiNews.load_file()
+sl = NHKore::SearchLinks.load_file(NHKore::SearchLinks::DEFAULT_YASASHII_FILE)
+
+yn.articles.each() {|key,article| }
+yn.sha256s.each()  {|sha256,url|  }
+
+sl.links.each() do |key,link|
+  link.datetime
+  link.futsuurl
+  link.scraped?
+  link.sha256
+  link.title
+  link.url
+end
+
+#yn.save_file()
+#sl.save_file(NHKore::SearchLinks::DEFAULT_YASASHII_FILE)
+```
+
+### Sifter
+
+`Sifter` will sift & sort the `News` data into a single file. The data is sorted by frequency in descending order (i.e., most frequent words first).
+
+```Ruby
+require 'nhkore/news'
+require 'nhkore/sifter'
+require 'time'
+
+news = NHKore::YasashiiNews.load_file()
+
+sifter = NHKore::Sifter.new(news)
+
+sifter.caption = 'Sakura Fields Forever!'
+
+# Filter the data.
+#sifter.filter_by_datetime(Time.new(2019,12,5))
+sifter.filter_by_datetime(
+  from: Time.new(2019,12,4),to: Time.new(2019,12,7)
+)
+sifter.filter_by_title('桜')
+sifter.filter_by_url('k100')
+
+# Ignore (or blank out) certain columns from the output.
+sifter.ignore(:defn)
+sifter.ignore(:eng)
+
+# An array of the filtered & sorted words.
+words = sifter.sift()
+
+# Choose the file format.
+#sifter.put_csv!()
+#sifter.put_html!()
+sifter.put_yaml!()
+
+# Save to a file.
+file = 'sakura.yml'
+
+if !File.exist?(file)
+  sifter.save_file(file)
+end
+```
+
+### Util & UserAgents
+
+These provide a variety of useful methods/constants.
+
+Here are some of the most useful ones:
+
+```Ruby
+require 'nhkore/user_agents'
+require 'nhkore/util'
+
+include NHKore
+
+puts '======='
+puts '[ Net ]'
+puts '======='
+# Get a random User Agent for HTTP header field 'User-Agent'.
+# - This is used by default in Scraper/SearchScraper.
+puts "User-Agent:  #{UserAgents.sample()}"
+
+uri = URI('https://www.bing.com/search?q=nhk')
+Util.replace_uri_query!(uri,q: 'banana')
+
+puts "URI query:   #{uri}" # https://www.bing.com/search?q=banana
+# nhk.or.jp
+puts "Domain:      #{Util.domain(URI('https://www.nhk.or.jp/news/easy').host)}"
+# Ben &amp; Jerry&#39;s<br>
+puts "Escape HTML: #{Util.escape_html("Ben & Jerry's\n")}"
+puts
+
+puts '========'
+puts '[ Time ]'
+puts '========'
+puts "JST now:   #{Util.jst_now}"
+# Drops in JST_OFFSET, does not change hour/min.
+puts "JST time:  #{Util.jst_time(Time.now)}"
+puts "JST year:  #{Util::JST_YEAR}"
+puts "1999 sane? #{Util.sane_year?(1999)}" # true
+puts "1776 sane? #{Util.sane_year?(1776)}" # false
+puts "Guess 5:   #{Util.guess_year(5)}"    # 2005
+puts "Guess 99:  #{Util.guess_year(99)}"   # 1999
+puts
+puts "JST timezone offset:        #{Util::JST_OFFSET}"
+puts "JST timezone offset hour:   #{Util::JST_OFFSET_HOUR}"
+puts "JST timezone offset minute: #{Util::JST_OFFSET_MIN}"
+puts
+
+puts '============'
+puts '[ Japanese ]'
+puts '============'
+
+JPN = ['桜','ぶ','ブ']
+
+def fmt_jpn()
+  fmt = []
+  
+  JPN.each() do |x|
+    x = yield(x)
+    x = x ? "\u2B55" : Util::JPN_SPACE unless x.is_a?(String)
+    fmt << x
+  end
+  
+  return "[ #{fmt.join(' | ')} ]"
+end
+
+puts "          #{fmt_jpn{|x| x}}"
+puts "Hiragana? #{fmt_jpn{|x| !!Util.hiragana?(x)}}"
+puts "Kana?     #{fmt_jpn{|x| !!Util.kana?(x)}}"
+puts "Kanji?    #{fmt_jpn{|x| !!Util.kanji?(x)}}"
+puts "Reduce:   #{Util.reduce_jpn_space("'     '")}"
+puts
+
+puts '========='
+puts '[ Files ]'
+puts '========='
+puts "Dir str?   #{Util.dir_str?('dir/')}"          # true
+puts "Dir str?   #{Util.dir_str?('dir')}"           # false
+puts "File str?  #{Util.filename_str?('file')}"     # true
+puts "File str?  #{Util.filename_str?('dir/file')}" # false
+```
 
 ## Hacking [^](#contents)
 
@@ -485,7 +895,9 @@ $ bundle exec rake nokogiri_other # macOS, Windows, etc.
 
 `$ bundle exec rake doc`
 
-### Installing Locally (without Network Access)
+### Installing Locally
+
+You can make some changes/fixes to the code and then install your local version:
 
 `$ bundle exec rake install:local`
 
