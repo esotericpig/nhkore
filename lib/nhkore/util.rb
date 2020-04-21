@@ -22,6 +22,7 @@
 
 
 require 'cgi'
+require 'set'
 require 'time'
 require 'uri'
 

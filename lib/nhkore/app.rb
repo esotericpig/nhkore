@@ -24,6 +24,7 @@
 require 'cri'
 require 'highline'
 require 'rainbow'
+require 'set'
 require 'tty-spinner'
 
 require 'nhkore/error'
