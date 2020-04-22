@@ -21,6 +21,7 @@
 #++
 
 
+require 'attr_bool'
 require 'time'
 
 require 'nhkore/fileable'
@@ -35,12 +36,10 @@ module NHKore
   class SearchLink
     attr_accessor :datetime
     attr_accessor :futsuurl
-    attr_accessor :scraped
+    attr_accessor? :scraped
     attr_accessor :sha256
     attr_accessor :title
     attr_accessor :url
-    
-    alias_method :scraped?,:scraped
     
     def initialize(url,scraped: false)
       super()

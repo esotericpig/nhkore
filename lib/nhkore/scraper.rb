@@ -21,6 +21,7 @@
 #++
 
 
+require 'attr_bool'
 require 'nokogiri'
 require 'open-uri'
 
@@ -40,17 +41,14 @@ module NHKore
       'dnt' => '1',
     }
     
-    attr_accessor :eat_cookie
-    attr_accessor :is_file
+    attr_accessor? :eat_cookie
+    attr_accessor? :is_file
     attr_reader :kargs
     attr_accessor :max_redirects
     attr_accessor :max_retries
     attr_accessor :redirect_rule
     attr_accessor :str_or_io
     attr_accessor :url
-    
-    alias_method :eat_cookie?,:eat_cookie
-    alias_method :is_file?,:is_file
     
     # +max_redirects+ defaults to 3 for safety (infinite-loop attack).
     # 

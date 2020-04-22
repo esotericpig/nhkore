@@ -59,6 +59,7 @@ Gem::Specification.new() do |spec|
   
   spec.requirements << 'Nokogiri: https://www.nokogiri.org/tutorials/installing_nokogiri.html'
   
+  spec.add_runtime_dependency 'attr_bool'            ,'~> 0.1'  # For attr_accessor?/attr_reader?
   spec.add_runtime_dependency 'bimyou_segmenter'     ,'~> 1.2'  # For splitting Japanese sentences into words
   spec.add_runtime_dependency 'cri'                  ,'~> 2.15' # For CLI commands/options
   spec.add_runtime_dependency 'down'                 ,'~> 5.1'  # For downloading files (GetCmd)

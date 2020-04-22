@@ -21,6 +21,7 @@
 #++
 
 
+require 'attr_bool'
 require 'digest'
 
 require 'nhkore/article'
@@ -49,11 +50,9 @@ module NHKore
     attr_accessor :missingno
     attr_reader :polishers
     attr_accessor :splitter
-    attr_accessor :strict
+    attr_accessor? :strict
     attr_reader :variators
     attr_accessor :year
-    
-    alias_method :strict?,:strict
     
     # @param dict [Dict,:scrape,nil] the {Dict} (dictionary) to use for {Word#defn} (definitions)
     #             [+:scrape+] auto-scrape it using {DictScraper}
