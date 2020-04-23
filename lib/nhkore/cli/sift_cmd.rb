@@ -39,7 +39,7 @@ module CLI
     DEFAULT_SIFT_EXT = :csv
     DEFAULT_SIFT_FUTSUU_FILE = "#{Sifter::DEFAULT_FUTSUU_FILE}{search.criteria}{file.ext}"
     DEFAULT_SIFT_YASASHII_FILE = "#{Sifter::DEFAULT_YASASHII_FILE}{search.criteria}{file.ext}"
-    SIFT_EXTS = [:csv,:htm,:html,:yaml,:yml]
+    SIFT_EXTS = [:csv,:htm,:html,:json,:yaml,:yml]
     
     # Order matters.
     SIFT_DATETIME_FMTS = [
@@ -364,6 +364,8 @@ module CLI
         sifter.put_csv!()
       when :htm,:html
         sifter.put_html!()
+      when :json
+        sifter.put_json!()
       when :yaml,:yml
         sifter.put_yaml!()
       else

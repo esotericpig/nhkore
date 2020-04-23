@@ -110,11 +110,12 @@ Example usage:
 
 `$ nhkore -t 300 -m 10 news -D -L -M -d '2011-03-07 06:30' easy -u 'https://www3.nhk.or.jp/news/easy/tsunamikeihou/index.html'`
 
-Now that the data from the article has been scraped, you can generate a CSV/HTML/YAML file of the words ordered by frequency:
+Now that the data from the article has been scraped, you can generate a CSV/HTML/JSON/YAML file of the words ordered by frequency:
 
 ```
 $ nhkore sift easy -e csv
 $ nhkore sift easy -e html
+$ nhkore sift easy -e json
 $ nhkore sift easy -e yml
 ```
 
@@ -154,11 +155,11 @@ After obtaining the scraped data, you can `sift` all of the data (or select data
 | --- | --- |
 | CSV | For uploading to a flashcard website (e.g., Memrise, Anki, Buffl) after changing the data appropriately. |
 | HTML | For comfortable viewing in a web browser or for sharing. |
-| YAML | For developers to automatically add translations or to manipulate the data in some other way programmatically. |
+| YAML/JSON | For developers to automatically add translations or to manipulate the data in some other way programmatically. |
 
 The data is sorted by frequency in descending order (i.e., most frequent words first).
 
-If you wish to sort/arrange the data in some other way, CSV editors (e.g., LibreOffice, WPS Office, Microsoft Office) can do this easily and efficiently, or if you are code-savvy, you can programmatically manipulate the CSV/YAML/HTML file.
+If you wish to sort/arrange the data in some other way, CSV editors (e.g., LibreOffice, WPS Office, Microsoft Office) can do this easily and efficiently, or if you are code-savvy, you can programmatically manipulate the CSV/YAML/JSON/HTML file.
 
 The defaults will sift all of the data into a CSV file, which may not be what you want:
 
@@ -203,7 +204,7 @@ You can save the data to a different format using one of these options:
 
 ```
 -e --ext=<value>    type of file (extension) to save;
-                    valid options: [csv, htm, html, yaml, yml];
+                    valid options: [csv, htm, html, json, yaml, yml];
                     not needed if you specify a file extension with
                     the '--out' option: '--out sift.html'
                     (default: csv)
@@ -704,16 +705,18 @@ sifter.filter_by_datetime(
 sifter.filter_by_title('桜')
 sifter.filter_by_url('k100')
 
-# Ignore (or blank out) certain columns from the output.
+# Ignore certain columns from the output.
 sifter.ignore(:defn)
 sifter.ignore(:eng)
 
-# An array of the filtered & sorted words.
-words = sifter.sift()
+# An array of the sifted words.
+words = sifter.sift() # Filtered & Sorted array of Word
+rows  = sifter.build_rows(words) # Ignored array of array
 
 # Choose the file format.
 #sifter.put_csv!()
 #sifter.put_html!()
+#sifter.put_json!()
 sifter.put_yaml!()
 
 # Save to a file.

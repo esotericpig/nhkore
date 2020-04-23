@@ -75,17 +75,20 @@ module NHKore
       return domain
     end
     
-    def self.dump_yaml(obj,flow_level: 8)
+    def self.dump_yaml(obj,flow_level: 8,stylers: nil)
       require 'psychgus'
+      
+      stylers = Array(stylers)
       
       return Psychgus.dump(obj,
         deref_aliases: true, # Dereference aliases for load_yaml()
+        header: true, # %YAML [version]
         line_width: 10000, # Try not to wrap; ichiman!
         stylers: [
           Psychgus::FlowStyler.new(flow_level), # Put extra details on one line (flow/inline style)
           Psychgus::NoSymStyler.new(cap: false), # Remove symbols, don't capitalize
           Psychgus::NoTagStyler.new(), # Remove class names (tags)
-        ],
+        ].concat(stylers),
       )
     end
     

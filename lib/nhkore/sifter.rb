@@ -60,6 +60,40 @@ module NHKore
       @output = nil
     end
     
+    def build_header()
+      header = []
+      
+      header << 'Frequency' unless @ignores[:freq]
+      header << 'Word' unless @ignores[:word]
+      header << 'Kana' unless @ignores[:kana]
+      header << 'English' unless @ignores[:eng]
+      header << 'Definition' unless @ignores[:defn]
+      
+      return header
+    end
+    
+    def build_rows(words)
+      rows = []
+      
+      words.each() do |word|
+        rows << build_word_row(word)
+      end
+      
+      return rows
+    end
+    
+    def build_word_row(word)
+      row = []
+      
+      row << word.freq unless @ignores[:freq]
+      row << word.word unless @ignores[:word]
+      row << word.kana unless @ignores[:kana]
+      row << word.eng unless @ignores[:eng]
+      row << word.defn unless @ignores[:defn]
+      
+      return row
+    end
+    
     def filter?(article)
       return false if @filters.empty?()
       
@@ -151,26 +185,10 @@ module NHKore
       words = sift()
       
       @output = CSV.generate(headers: :first_row,write_headers: true) do |csv|
-        row = []
-        
-        row << 'Frequency' unless @ignores[:freq]
-        row << 'Word' unless @ignores[:word]
-        row << 'Kana' unless @ignores[:kana]
-        row << 'English' unless @ignores[:eng]
-        row << 'Definition' unless @ignores[:defn]
-        
-        csv << row
+        csv << build_header()
         
         words.each() do |word|
-          row = []
-          
-          row << word.freq unless @ignores[:freq]
-          row << word.word unless @ignores[:word]
-          row << word.kana unless @ignores[:kana]
-          row << word.eng unless @ignores[:eng]
-          row << word.defn unless @ignores[:defn]
-          
-          csv << row
+          csv << build_word_row(word)
         end
       end
       
@@ -232,7 +250,7 @@ module NHKore
         <h2>#{@caption}</h2>
         <table>
       EOH
-      #" # Fix for editor
+      #"
       
       # If have too few or too many '<col>', invalid HTML.
       @output << %Q{<col style="width:6em;">\n} unless @ignores[:freq]
@@ -242,20 +260,20 @@ module NHKore
       @output << "<col>\n" unless @ignores[:defn] # No width for defn, fills rest of page
       
       @output << '<tr>'
-      @output << '<th>Frequency</th>' unless @ignores[:freq]
-      @output << '<th>Word</th>' unless @ignores[:word]
-      @output << '<th>Kana</th>' unless @ignores[:kana]
-      @output << '<th>English</th>' unless @ignores[:eng]
-      @output << '<th>Definition</th>' unless @ignores[:defn]
+      
+      build_header().each() do |h|
+        @output << "<th>#{h}</th>"
+      end
+      
       @output << "</tr>\n"
       
       words.each() do |word|
         @output << '<tr>'
-        @output << "<td>#{Util.escape_html(word.freq.to_s())}</td>" unless @ignores[:freq]
-        @output << "<td>#{Util.escape_html(word.word.to_s())}</td>" unless @ignores[:word]
-        @output << "<td>#{Util.escape_html(word.kana.to_s())}</td>" unless @ignores[:kana]
-        @output << "<td>#{Util.escape_html(word.eng.to_s())}</td>" unless @ignores[:eng]
-        @output << "<td>#{Util.escape_html(word.defn.to_s())}</td>" unless @ignores[:defn]
+        
+        build_word_row(word).each() do |w|
+          @output << "<td>#{Util.escape_html(w.to_s())}</td>"
+        end
+        
         @output << "</tr>\n"
       end
       
@@ -264,31 +282,63 @@ module NHKore
         </body>
         </html>
       EOH
-      #/ # Fix for editor
+      #/
+      
+      return @output
+    end
+    
+    def put_json!()
+      require 'json'
+      
+      words = sift()
+      
+      @output = ''.dup()
+      
+      @output << <<~EOJ
+        {
+        "caption": #{JSON.generate(@caption)},
+        "header": #{JSON.generate(build_header())},
+        "words": [
+      EOJ
+      
+      if !words.empty?()
+        0.upto(words.length - 2) do |i|
+          @output << "  #{JSON.generate(build_word_row(words[i]))},\n"
+        end
+        
+        @output << "  #{JSON.generate(build_word_row(words[-1]))}\n"
+      end
+      
+      @output << "]\n}\n"
       
       return @output
     end
     
     def put_yaml!()
-      words = sift()
+      require 'psychgus'
       
-      # Just blank out ignores.
-      if !@ignores.empty?()
-        words.each() do |word|
-          # word/kanji/kana do not have setters/mutators.
-          word.defn = nil if @ignores[:defn]
-          word.eng = nil if @ignores[:eng]
-          word.freq = nil if @ignores[:freq]
-        end
-      end
+      words = sift()
       
       yaml = {
         caption: @caption,
-        words: words
+        header: build_header(),
+        words: build_rows(words),
       }
       
+      header_styler = Class.new() do
+        include Psychgus::Styler
+        
+        def style_sequence(sniffer,node)
+          parent = sniffer.parent
+          
+          if !parent.nil?() && parent.node.respond_to?(:value) && parent.value == 'header'
+            node.style = Psychgus::SEQUENCE_FLOW
+          end
+        end
+      end
+      
       # Put each Word on one line (flow/inline style).
-      @output = Util.dump_yaml(yaml,flow_level: 4)
+      @output = Util.dump_yaml(yaml,flow_level: 4,stylers: header_styler.new())
       
       return @output
     end
@@ -306,7 +356,7 @@ module NHKore
       
       words = master_article.words.values()
       
-      words = words.sort() do |word1,word2|
+      words.sort!() do |word1,word2|
         # Order by freq DESC (most frequent words to top).
         i = (word2.freq <=> word1.freq)
         

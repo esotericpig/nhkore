@@ -49,7 +49,7 @@ desc "Package '#{File.join(NHKore::Util::CORE_DIR,'')}' data as a Zip file into 
 task :pkg_core do |task|
   mkdir_p PKG_DIR
   
-  pattern = File.join(NHKore::Util::CORE_DIR,'*.{csv,html,yml}')
+  pattern = File.join(NHKore::Util::CORE_DIR,'*.{csv,html,json,yml}')
   zip_file = File.join(PKG_DIR,'nhkore-core.zip')
   
   sh 'zip','-9rv',zip_file,*Dir.glob(pattern).sort()
