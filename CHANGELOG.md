@@ -2,7 +2,13 @@
 
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.2...master)
+## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.3...master)
+
+## [v0.3.3] - 2020-04-23
+
+### Added
+- Added JSON support to Sifter & SiftCmd.
+- Added use of `attr_bool` Gem for `attr_accessor?` & `attr_reader?`.
 
 ## [v0.3.2] - 2020-04-22
 
