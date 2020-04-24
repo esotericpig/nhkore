@@ -525,7 +525,7 @@ doc = ss.html_doc()
 doc.css('a').each() do |anchor|
   link = anchor['href']
   
-  next if ss.ignore_link?(link)
+  next if ss.ignore_link?(link,cleaned: false)
   
   if link.include?('https://www3.nhk')
     puts link
@@ -759,7 +759,7 @@ puts
 puts '========'
 puts '[ Time ]'
 puts '========'
-puts "JST now:   #{Util.jst_now}"
+puts "JST now:   #{Util.jst_now()}"
 # Drops in JST_OFFSET, does not change hour/min.
 puts "JST time:  #{Util.jst_time(Time.now)}"
 puts "JST year:  #{Util::JST_YEAR}"
@@ -792,9 +792,9 @@ def fmt_jpn()
 end
 
 puts "          #{fmt_jpn{|x| x}}"
-puts "Hiragana? #{fmt_jpn{|x| !!Util.hiragana?(x)}}"
-puts "Kana?     #{fmt_jpn{|x| !!Util.kana?(x)}}"
-puts "Kanji?    #{fmt_jpn{|x| !!Util.kanji?(x)}}"
+puts "Hiragana? #{fmt_jpn{|x| Util.hiragana?(x)}}"
+puts "Kana?     #{fmt_jpn{|x| Util.kana?(x)}}"
+puts "Kanji?    #{fmt_jpn{|x| Util.kanji?(x)}}"
 puts "Reduce:   #{Util.reduce_jpn_space("'     '")}"
 puts
 
