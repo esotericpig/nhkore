@@ -83,7 +83,7 @@ module CLI
             key = key.to_s()
             
             if key.include?('show')
-              raise CLIError.new("must specify a sub command for option[#{key}]")
+              raise CLIError,"must specify a sub command for option[#{key}]"
             end
           end
           
@@ -283,7 +283,7 @@ module CLI
         puts "> Easy:    #{BingScraper.build_url(SearchScraper::YASASHII_SITE,count: count)}"
         puts "> Regular: #{BingScraper.build_url(SearchScraper::FUTSUU_SITE,count: count)}"
       else
-        raise CLIError.new('must specify a sub command for option[show-urls]')
+        raise CLIError,'must specify a sub command for option[show-urls]'
       end
       
       return true
