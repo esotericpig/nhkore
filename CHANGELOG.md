@@ -2,7 +2,28 @@
 
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.3...master)
+## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.4...master)
+
+## [v0.3.4] - 2020-04-25
+
+### Added
+- DatetimeParser
+    - Extracted from SiftCmd into its own class
+    - Fixed some minor logic bugs from the old code
+    - Added new feature where 1 range can be empty:
+        - `sift ez -d '...2019'` (from = 1924)
+        - `sift ez -d '2019...'` (to = current year)
+        - `sift ez -d '...'` (still an error)
+- Added `update_core` rake task for dev
+    - Makes pushing a new release much easier
+    - See *Hacking.Releasing* section in *README*
+
+### Fixed
+- SiftCmd `parse_sift_datetime()` for `-d/--datetime` option
+    - Didn't work exactly right (as written in *README*) for some special inputs:
+        - `-d '2019...3'`
+        - `-d '3-3'`
+        - `-d '3'`
 
 ## [v0.3.3] - 2020-04-23
 
