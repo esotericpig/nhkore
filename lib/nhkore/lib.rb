@@ -24,6 +24,7 @@
 require 'nhkore/article'
 require 'nhkore/article_scraper'
 require 'nhkore/cleaner'
+require 'nhkore/datetime_parser'
 require 'nhkore/defn'
 require 'nhkore/dict'
 require 'nhkore/dict_scraper'

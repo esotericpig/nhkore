@@ -24,6 +24,7 @@
 require 'date'
 require 'time'
 
+require 'nhkore/datetime_parser'
 require 'nhkore/news'
 require 'nhkore/sifter'
 require 'nhkore/util'
@@ -40,26 +41,6 @@ module CLI
     DEFAULT_SIFT_FUTSUU_FILE = "#{Sifter::DEFAULT_FUTSUU_FILE}{search.criteria}{file.ext}"
     DEFAULT_SIFT_YASASHII_FILE = "#{Sifter::DEFAULT_YASASHII_FILE}{search.criteria}{file.ext}"
     SIFT_EXTS = [:csv,:htm,:html,:json,:yaml,:yml]
-    
-    # Order matters.
-    SIFT_DATETIME_FMTS = [
-      '%Y-%m-%d %H:%M',
-      '%Y-%m-%d %H',
-      '%Y-%m-%d',
-      '%m-%d %H:%M',
-      '%Y-%m %H:%M',
-      '%m-%d %H',
-      '%Y-%m %H',
-      '%m-%d',
-      '%Y-%m',
-      '%d %H:%M',
-      '%y %H:%M',
-      '%d %H',
-      '%Y %H',
-      '%H:%M',
-      '%d',
-      '%Y'
-    ]
     
     attr_accessor :sift_datetime_text
     attr_accessor :sift_search_criteria
@@ -90,7 +71,11 @@ module CLI
           '9' (9th of Current Year & Month)
         EOD
           app.sift_datetime_text = value # Save the original value for the file name
-          value = app.parse_sift_datetime(value)
+          
+          value = DatetimeParser.parse_range(value)
+          
+          app.check_empty_opt(:datetime,value) if value.nil?()
+          
           value
         end
         option :e,:ext,<<-EOD,argument: :required,default: DEFAULT_SIFT_EXT,transform: -> (value) do
@@ -209,96 +194,6 @@ module CLI
       filename = "#{filename}#{clean_search_criteria}.#{file_ext}"
       
       return filename
-    end
-    
-    # TODO: This should probably be moved into its own class, into Util, or into Sifter?
-    def parse_sift_datetime(value)
-      value = Util.reduce_space(value).strip() # Don't use unspace_web_str(), want spaces for formats
-      value = value.split('...',2)
-      
-      check_empty_opt(:datetime,nil) if value.empty?() # For ''
-      
-      # Make a "to" and a "from" date time range.
-      value << value[0].dup() if value.length == 1
-      
-      to_day = nil
-      to_hour = 23
-      to_minute = 59
-      to_month = 12
-      to_year = Util::MAX_SANE_YEAR
-      
-      value.each_with_index() do |v,i|
-        v = check_empty_opt(:datetime,v) # For '...', '12-25...', or '...12-25'
-        
-        has_day = false
-        has_hour = false
-        has_minute = false
-        has_month = false
-        has_year = false
-        
-        SIFT_DATETIME_FMTS.each_with_index() do |fmt,i|
-          begin
-            # If don't do this, "%d" values will be parsed using "%d %H".
-            #   It seems as though strptime() ignores space.
-            raise ArgumentError if !v.include?(' ') && fmt.include?(' ')
-            
-            # If don't do this, "%y" values will be parsed using "%d".
-            raise ArgumentError if fmt == '%d' && v.length > 2
-            
-            v = Time.strptime(v,fmt,&Util.method(:guess_year))
-            
-            has_day = fmt.include?('%d')
-            has_hour = fmt.include?('%H')
-            has_minute = fmt.include?('%M')
-            has_month = fmt.include?('%m')
-            has_year = fmt.include?('%Y')
-            
-            break # No problem; this format worked
-          rescue ArgumentError
-            # Out of formats.
-            raise if i >= (SIFT_DATETIME_FMTS.length - 1)
-          end
-        end
-        
-        # "From" date time.
-        if i == 0
-          # Set these so that "2012-7-4...7-9" will use the appropriate year
-          #   of "2012" for "7-9".
-          to_day = v.day if has_day
-          to_hour = v.hour if has_hour
-          to_minute = v.min if has_minute
-          to_month = v.month if has_month
-          to_year = v.year if has_year
-          
-          v = Time.new(
-            has_year ? v.year : Util::MIN_SANE_YEAR,
-            has_month ? v.month : 1,
-            has_day ? v.day : 1,
-            has_hour ? v.hour : 0,
-            has_minute ? v.min : 0
-          )
-        # "To" date time.
-        else
-          to_hour = v.hour if has_hour
-          to_minute = v.min if has_minute
-          to_month = v.month if has_month
-          to_year = v.year if has_year
-          
-          if has_day
-            to_day = v.day
-          # Nothing passed from the "from" date time?
-          elsif to_day.nil?()
-            # Last day of month.
-            to_day = Date.new(to_year,to_month,-1).day
-          end
-          
-          v = Time.new(to_year,to_month,to_day,to_hour,to_minute)
-        end
-        
-        value[i] = v
-      end
-      
-      return value
     end
     
     def run_sift_cmd(type)

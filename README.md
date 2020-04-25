@@ -564,6 +564,7 @@ end
 
 ```Ruby
 require 'nhkore/article_scraper'
+require 'time'
 
 as = NHKore::ArticleScraper.new(
   'https://www3.nhk.or.jp/news/easy/k10011862381000/k10011862381000.html',
@@ -687,6 +688,7 @@ end
 `Sifter` will sift & sort the `News` data into a single file. The data is sorted by frequency in descending order (i.e., most frequent words first).
 
 ```Ruby
+require 'nhkore/datetime_parser'
 require 'nhkore/news'
 require 'nhkore/sifter'
 require 'time'
@@ -698,7 +700,8 @@ sifter = NHKore::Sifter.new(news)
 sifter.caption = 'Sakura Fields Forever!'
 
 # Filter the data.
-#sifter.filter_by_datetime(Time.new(2019,12,5))
+sifter.filter_by_datetime(NHKore::DatetimeParser.parse_range('2019-12-4...7'))
+sifter.filter_by_datetime([Time.new(2019,12,4),Time.new(2019,12,7)])
 sifter.filter_by_datetime(
   from: Time.new(2019,12,4),to: Time.new(2019,12,7)
 )
@@ -727,13 +730,14 @@ if !File.exist?(file)
 end
 ```
 
-### Util & UserAgents
+### Util, UserAgents, & DatetimeParser
 
 These provide a variety of useful methods/constants.
 
 Here are some of the most useful ones:
 
 ```Ruby
+require 'nhkore/datetime_parser'
 require 'nhkore/user_agents'
 require 'nhkore/util'
 
@@ -765,8 +769,10 @@ puts "JST time:  #{Util.jst_time(Time.now)}"
 puts "JST year:  #{Util::JST_YEAR}"
 puts "1999 sane? #{Util.sane_year?(1999)}" # true
 puts "1776 sane? #{Util.sane_year?(1776)}" # false
-puts "Guess 5:   #{Util.guess_year(5)}"    # 2005
-puts "Guess 99:  #{Util.guess_year(99)}"   # 1999
+puts "Guess 5:   #{DatetimeParser.guess_year(5)}"  # 2005
+puts "Guess 99:  #{DatetimeParser.guess_year(99)}" # 1999
+# => [2020-12-01 00:00:00 +0900, 2020-12-31 23:59:59 +0900]
+puts "Parse:     #{DatetimeParser.parse_range('2020-12')}"
 puts
 puts "JST timezone offset:        #{Util::JST_OFFSET}"
 puts "JST timezone offset hour:   #{Util::JST_OFFSET_HOUR}"

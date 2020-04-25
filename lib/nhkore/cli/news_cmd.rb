@@ -23,6 +23,7 @@
 
 require 'time'
 
+require 'nhkore/datetime_parser'
 require 'nhkore/error'
 require 'nhkore/missingno'
 require 'nhkore/news'
@@ -57,7 +58,7 @@ module CLI
           date time to use as a fallback in cases when an article doesn't have one;
           format: YYYY-mm-dd H:M; example: 2020-03-30 15:30
         EOD
-          value = Time.strptime(value,'%Y-%m-%d %H:%M',&Util.method(:guess_year))
+          value = Time.strptime(value,'%Y-%m-%d %H:%M',&DatetimeParser.method(:guess_year))
           value = Util.jst_time(value)
           value
         end
