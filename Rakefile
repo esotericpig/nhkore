@@ -63,6 +63,31 @@ Rake::TestTask.new() do |task|
   task.warning = true
 end
 
+# If you need to run a part after the 1st part,
+# just type 'n' to not overwrite the file and then 'y' for continue.
+desc "Update '#{File.join(NHKore::Util::CORE_DIR,'')}' files for release"
+task :update_core do |task|
+  require 'highline'
+  
+  CONTINUE_MSG = "\nContinue (y/n)? "
+  
+  cmd = ['ruby','-w','./lib/nhkore.rb','-t','300','-m','10']
+  hl = HighLine.new()
+  
+  next unless sh(*cmd,'se','ez','bing')
+  next unless hl.agree(CONTINUE_MSG)
+  puts
+  
+  next unless sh(*cmd,'news','-s','100','ez')
+  next unless hl.agree(CONTINUE_MSG)
+  puts
+  
+  next unless sh(*cmd,'sift','-e','csv' ,'ez')
+  next unless sh(*cmd,'sift','-e','html','ez')
+  next unless sh(*cmd,'sift','-e','json','ez')
+  next unless sh(*cmd,'sift','-e','yml' ,'ez')
+end
+
 YARD::Rake::YardocTask.new() do |task|
   task.files = [File.join('lib','**','*.rb')]
   

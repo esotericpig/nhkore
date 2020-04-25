@@ -26,6 +26,8 @@ This is similar to a [core word/vocabulary list](https://www.fluentin3months.com
         - [News Command](#news-command-)
 - [Using the Library](#using-the-library-)
 - [Hacking](#hacking-)
+    - [Updating](#updating-)
+    - [Releasing](#releasing-)
 - [License](#license-)
 
 ## For Non-Power Users [^](#contents)
@@ -848,9 +850,23 @@ You can make some changes/fixes to the code and then install your local version:
 
 `$ bundle exec rake install:local`
 
-### Releasing/Publishing
+### Updating [^](#contents)
 
-`$ bundle exec rake release`
+This will update *core/* for you:
+
+`$ bundle exec rake update_core`
+
+### Releasing [^](#contents)
+
+1. Update `CHANGELOG.md` & `version.rb`
+    - *Raketary*: `$ raketary bump -v`
+2. Run: `$ bundle exec rake update_core`
+3. Run: `$ bundle exec rake clobber pkg_core`
+4. Create a new release & tag
+    - Add `pkg/nhkore-core.zip`
+5. Run: `$ bundle exec rake release`
+6. Upload GitHub package
+    - *Raketary*: `$ raketary github_pkg`
 
 ## License [^](#contents)
 
