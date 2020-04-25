@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    nhkore (0.3.3)
+    nhkore (0.3.4)
       attr_bool (~> 0.1)
       bimyou_segmenter (~> 1.2)
       cri (~> 2.15)
@@ -39,7 +39,7 @@ GEM
     nokogiri (1.10.9)
       mini_portile2 (~> 2.4.0)
     psych (3.1.0)
-    psychgus (1.2.2)
+    psychgus (1.3.2)
       psych (>= 3.0)
     public_suffix (4.0.4)
     rainbow (3.0.0)
