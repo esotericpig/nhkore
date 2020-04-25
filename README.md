@@ -858,15 +858,17 @@ This will update *core/* for you:
 
 ### Releasing [^](#contents)
 
-1. Update `CHANGELOG.md` & `version.rb`
+1. Update *CHANGELOG.md*, *version.rb*, & *Gemfile.lock*
     - *Raketary*: `$ raketary bump -v`
+    - Run: `$ bundle update`
 2. Run: `$ bundle exec rake update_core`
 3. Run: `$ bundle exec rake clobber pkg_core`
 4. Create a new release & tag
     - Add `pkg/nhkore-core.zip`
-5. Run: `$ bundle exec rake release`
+5. Run: `$ git pull`
 6. Upload GitHub package
     - *Raketary*: `$ raketary github_pkg`
+7. Run: `$ bundle exec rake release`
 
 ## License [^](#contents)
 
