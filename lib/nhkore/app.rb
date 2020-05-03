@@ -152,7 +152,8 @@ module NHKore
       end
       
       if color.nil?()
-        color = ($stdout.tty?() && ENV['TERM'] != 'dumb')
+        # - https://no-color.org/
+        color = ($stdout.tty?() && ENV['TERM'] != 'dumb' && !ENV.key?('NO_COLOR'))
       end
       
       enable_color(color)
