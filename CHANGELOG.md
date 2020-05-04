@@ -10,6 +10,10 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added check for environment var `NO_COLOR`
     - [https://no-color.org/](https://no-color.org/)
 
+### Fixed
+- Fixed URLs stored in YAML data to always be of type String (not URI)
+    - This initially caused a problem in DictScraper.parse_url() from ArticleScraper, but fixed it for all data
+
 ## [v0.3.4] - 2020-04-25
 
 ### Added

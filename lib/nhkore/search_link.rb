@@ -34,12 +34,12 @@ module NHKore
   # @since  0.2.0
   ###
   class SearchLink
-    attr_accessor :datetime
-    attr_accessor :futsuurl
+    attr_reader :datetime
+    attr_reader :futsuurl
     attr_accessor? :scraped
     attr_accessor :sha256
     attr_accessor :title
-    attr_accessor :url
+    attr_reader :url
     
     def initialize(url,scraped: false)
       super()
@@ -49,29 +49,27 @@ module NHKore
       @scraped = scraped
       @sha256 = sha256
       @title = nil
-      @url = url
+      self.url = url
     end
     
     def encode_with(coder)
       # Order matters.
       
-      coder[:url] = @url
+      coder[:url] = @url.nil?() ? nil : @url.to_s()
       coder[:scraped] = @scraped
-      coder[:datetime] = @datetime.nil?() ? @datetime : @datetime.iso8601()
+      coder[:datetime] = @datetime.nil?() ? nil : @datetime.iso8601()
       coder[:title] = @title
-      coder[:futsuurl] = @futsuurl
+      coder[:futsuurl] = @futsuurl.nil?() ? nil : @futsuurl.to_s()
       coder[:sha256] = @sha256
     end
     
     def self.load_data(key,hash)
-      datetime = hash[:datetime]
-      
       slink = SearchLink.new(
         hash[:url],
-        scraped: hash[:scraped]
+        scraped: hash[:scraped],
       )
       
-      slink.datetime = Util.empty_web_str?(datetime) ? nil : Time.iso8601(datetime)
+      slink.datetime = hash[:datetime]
       slink.futsuurl = hash[:futsuurl]
       slink.sha256 = hash[:sha256]
       slink.title = hash[:title]
@@ -82,11 +80,29 @@ module NHKore
     def update_from_article(article)
       # Don't update the url, as it may be different (e.g., http vs https).
       
-      @datetime = article.datetime if @datetime.nil?()
-      @futsuurl = article.futsuurl if Util.empty_web_str?(@futsuurl)
+      self.datetime = article.datetime if @datetime.nil?()
+      self.futsuurl = article.futsuurl if Util.empty_web_str?(@futsuurl)
       @scraped = true # If we have an article, it's been scraped
       @sha256 = article.sha256 if Util.empty_web_str?(@sha256)
       @title = article.title if Util.empty_web_str?(@title)
+    end
+    
+    def datetime=(value)
+      if value.is_a?(Time)
+        @datetime = value
+      else
+        @datetime = Util.empty_web_str?(value) ? nil : Time.iso8601(value)
+      end
+    end
+    
+    def futsuurl=(value)
+      # Don't store URI, store String.
+      @futsuurl = value.nil?() ? nil : value.to_s()
+    end
+    
+    def url=(value)
+      # Don't store URI, store String.
+      @url = value.nil?() ? nil : value.to_s()
     end
     
     def to_s(mini: false)
@@ -136,9 +152,11 @@ module NHKore
     end
     
     def add_link(link)
-      return self if @links.key?(link.url)
+      url = link.url.nil?() ? nil : link.url.to_s()
       
-      @links[link.url] = link
+      return self if @links.key?(url)
+      
+      @links[url] = link
       
       return self
     end
@@ -162,7 +180,7 @@ module NHKore
       
       if !links.nil?()
         links.each() do |key,hash|
-          key = key.to_s() # Change from a symbol
+          key = key.to_s() unless key.nil?()
           slinks.links[key] = SearchLink.load_data(key,hash)
         end
       end
@@ -172,6 +190,7 @@ module NHKore
     
     def [](url)
       url = url.url if url.respond_to?(:url)
+      url = url.to_s() unless url.nil?()
       
       return @links[url]
     end

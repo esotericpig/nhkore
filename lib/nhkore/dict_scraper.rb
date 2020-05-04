@@ -44,7 +44,7 @@ module NHKore
     end
     
     def self.parse_url(url,basename: nil)
-      url = Util.strip_web_str(url)
+      url = Util.strip_web_str(url.to_s())
       
       raise ParseError,"cannot parse dictionary URL from URL[#{url}]" if url.empty?()
       

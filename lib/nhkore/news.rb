@@ -49,7 +49,10 @@ module NHKore
     end
     
     def add_article(article,key: nil,overwrite: false)
-      key = article.url if key.nil?()
+      url = article.url
+      url = url.to_s() unless url.nil?()
+      
+      key = key.nil?() ? url : key.to_s()
       
       if !overwrite
         raise ArgumentError,"duplicate article[#{key}] in articles" if @articles.key?(key)
@@ -57,7 +60,7 @@ module NHKore
       end
       
       @articles[key] = article
-      @sha256s[article.sha256] = article.url
+      @sha256s[article.sha256] = url
       
       return self
     end
@@ -91,16 +94,20 @@ module NHKore
     end
     
     def update_article(article,url)
+      url = url.to_s() unless url.nil?()
+      
       # Favor https.
-      return if article.url =~ FAVORED_URL
+      return if article.url.to_s() =~ FAVORED_URL
       return if url !~ FAVORED_URL
       
-      @articles.delete(article.url)
+      @articles.delete(article.url) # Probably no to_s() here
       @articles[url] = article
       article.url = url
     end
     
     def article(key)
+      key = key.to_s() unless key.nil?()
+      
       return @articles[key]
     end
     
@@ -119,6 +126,8 @@ module NHKore
     end
     
     def article?(key)
+      key = key.to_s() unless key.nil?()
+      
       return @articles.key?(key)
     end
     

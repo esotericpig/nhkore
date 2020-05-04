@@ -33,11 +33,11 @@ module NHKore
   # @since  0.2.0
   ###
   class Article
-    attr_accessor :datetime
-    attr_accessor :futsuurl
+    attr_reader :datetime
+    attr_reader :futsuurl
     attr_accessor :sha256
     attr_accessor :title
-    attr_accessor :url
+    attr_reader :url
     attr_reader :words
     
     def initialize()
@@ -79,19 +79,18 @@ module NHKore
       
       coder[:datetime] = @datetime.nil?() ? @datetime : @datetime.iso8601()
       coder[:title] = @title
-      coder[:url] = @url
-      coder[:futsuurl] = @futsuurl
+      coder[:url] = @url.nil?() ? nil : @url.to_s()
+      coder[:futsuurl] = @futsuurl.nil?() ? nil : @futsuurl.to_s()
       coder[:sha256] = @sha256
       coder[:words] = @words
     end
     
     def self.load_data(key,hash)
-      datetime = hash[:datetime]
       words = hash[:words]
       
       article = Article.new()
       
-      article.datetime = Util.empty_web_str?(datetime) ? nil : Time.iso8601(datetime)
+      article.datetime = hash[:datetime]
       article.futsuurl = hash[:futsuurl]
       article.sha256 = hash[:sha256]
       article.title = hash[:title]
@@ -105,6 +104,24 @@ module NHKore
       end
       
       return article
+    end
+    
+    def datetime=(value)
+      if value.is_a?(Time)
+        @datetime = value
+      else
+        @datetime = Util.empty_web_str?(value) ? nil : Time.iso8601(value)
+      end
+    end
+    
+    def futsuurl=(value)
+      # Don't store URI, store String.
+      @futsuurl = value.nil?() ? nil : value.to_s()
+    end
+    
+    def url=(value)
+      # Don't store URI, store String.
+      @url = value.nil?() ? nil : value.to_s()
     end
     
     def to_s(mini: false)
