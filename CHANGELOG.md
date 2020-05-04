@@ -2,7 +2,13 @@
 
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.4...master)
+## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.5...master)
+
+## [v0.3.5] - 2020-05-04
+
+### Added
+- Added check for environment var `NO_COLOR`
+    - [https://no-color.org/](https://no-color.org/)
 
 ## [v0.3.4] - 2020-04-25
 
