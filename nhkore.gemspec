@@ -49,15 +49,19 @@ Gem::Specification.new() do |spec|
   spec.bindir        = 'bin'
   spec.executables   = [spec.name]
   
-  spec.files = Dir.glob(File.join("{#{spec.require_paths.join(',')}}",'**','*.{erb,rb}')) +
-               Dir.glob(File.join(spec.bindir,'*')) +
-               Dir.glob(File.join('{test,yard}','**','*.{erb,rb}')) +
-               %W( Gemfile #{spec.name}.gemspec Rakefile ) +
-               %w( CHANGELOG.md LICENSE.txt README.md )
+  spec.files = [
+    Dir.glob(File.join("{#{spec.require_paths.join(',')}}",'**','*.{erb,rb}')),
+    Dir.glob(File.join(spec.bindir,'*')),
+    Dir.glob(File.join('{test,yard}','**','*.{erb,rb}')),
+    %W( Gemfile #{spec.name}.gemspec Rakefile ),
+    %w( CHANGELOG.md LICENSE.txt README.md ),
+  ].flatten()
   
   spec.required_ruby_version = '>= 2.4'
   
-  spec.requirements << 'Nokogiri: https://www.nokogiri.org/tutorials/installing_nokogiri.html'
+  spec.requirements = [
+    'Nokogiri: https://www.nokogiri.org/tutorials/installing_nokogiri.html',
+  ]
   
   spec.add_runtime_dependency 'attr_bool'            ,'~> 0.1'  # For attr_accessor?/attr_reader?
   spec.add_runtime_dependency 'bimyou_segmenter'     ,'~> 1.2'  # For splitting Japanese sentences into words
