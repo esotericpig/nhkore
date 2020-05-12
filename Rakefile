@@ -35,7 +35,7 @@ require 'nhkore/version'
 
 PKG_DIR = 'pkg'
 
-CLEAN.exclude('.git/','stock/')
+CLEAN.exclude('{.git,core,stock}/**/*')
 CLOBBER.include('doc/',File.join(PKG_DIR,''))
 
 
@@ -59,7 +59,7 @@ Rake::TestTask.new() do |task|
   task.libs = ['lib','test']
   task.pattern = File.join('test','**','*_test.rb')
   task.description += ": '#{task.pattern}'"
-  task.verbose = true
+  task.verbose = false
   task.warning = true
 end
 
