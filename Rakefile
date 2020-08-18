@@ -88,13 +88,28 @@ task :update_core do |task|
   next unless sh(*cmd,'sift','-e','yml' ,'ez')
 end
 
+# @since 0.3.6
+desc 'Update showcase file for release'
+task :update_showcase do |task|
+  require 'highline'
+  
+  SHOWCASE_FILE = File.join('.','nhkore-ez.html')
+  
+  hl = HighLine.new()
+  
+  next unless sh('ruby','-w','./lib/nhkore.rb',
+    'sift','ez','--no-eng',
+    '--out',SHOWCASE_FILE,
+  )
+  
+  next unless hl.agree("\nMove the file (y/n)? ")
+  puts
+  next unless sh('mv','-iv',SHOWCASE_FILE,
+    File.join('..','esotericpig.github.io','showcase',''),
+  )
+end
+
 YARD::Rake::YardocTask.new() do |task|
-  task.files = [File.join('lib','**','*.rb')]
-  
-  task.options += ['--files','CHANGELOG.md,LICENSE.txt']
-  task.options += ['--readme','README.md']
-  
-  task.options << '--protected' # Show protected methods
   task.options += ['--template-path',File.join('yard','templates')]
   task.options += ['--title',"NHKore v#{NHKore::VERSION} Doc"]
 end

@@ -870,6 +870,10 @@ This will update *core/* for you:
     - *Raketary*: `$ raketary github_pkg`
 7. Run: `$ bundle exec rake release`
 
+Releasing new HTML file for website:
+
+1. `$ bundle exec rake update_showcase`
+
 ## License [^](#contents)
 
 [GNU LGPL v3+](LICENSE.txt)
