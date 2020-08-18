@@ -291,7 +291,7 @@ module NHKore
           
           retry
         else
-          raise e.exception("could not scrape dictionary at URL[#{dict_url}]: #{e}")
+          raise e.exception("could not scrape dictionary URL[#{dict_url}] at URL[#{@url}]: #{e}")
         end
       end
       
@@ -481,19 +481,24 @@ module NHKore
     
     def scrape_title(doc,article)
       tag = doc.css('h1.article-main__title')
+      tag_name = nil
+      
+      if tag.length < 1
+        # - https://www3.nhk.or.jp/news/easy/article/disaster_earthquake_illust.html
+        tag_name = 'h1.article-eq__title'
+        tag = doc.css(tag_name)
+      end
       
       if tag.length < 1 && !@strict
         # This shouldn't be used except for select sites.
         # - https://www3.nhk.or.jp/news/easy/tsunamikeihou/index.html
-        
         tag_name = 'div#main h2'
-        
-        Util.warn("using [#{tag_name}] for title at URL[#{@url}]")
-        
         tag = doc.css(tag_name)
       end
       
       if tag.length > 0
+        Util.warn("using [#{tag_name}] for title at URL[#{@url}]") unless tag_name.nil?()
+        
         result = scrape_and_add_words(tag,article)
         title = result.text
         
