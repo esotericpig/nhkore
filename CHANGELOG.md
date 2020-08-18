@@ -2,7 +2,22 @@
 
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.5...master)
+## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.6...master)
+
+## [v0.3.6] - 2020-08-18
+
+### Added
+- `update_showcase` Rake task for development & personal site (GitHub Page)
+    - `$ bundle exec rake update_showcase`
+
+### Changed
+- Updated Gems
+
+### Fixed
+- ArticleScraper for title for specific site
+    - https://www3.nhk.or.jp/news/easy/article/disaster_earthquake_illust.html
+- Ignored `/cgi2.*enqform/` URLs from SearchScraper (Bing)
+- Added more detail to dictionary error in ArticleScraper
 
 ## [v0.3.5] - 2020-05-04
 
