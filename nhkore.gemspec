@@ -39,10 +39,10 @@ Gem::Specification.new() do |spec|
     ' Includes a CLI app and a scraper library.'
   
   spec.metadata = {
-    'bug_tracker_uri' => 'https://github.com/esotericpig/nhkore/issues',
-    'changelog_uri'   => 'https://github.com/esotericpig/nhkore/blob/master/CHANGELOG.md',
     'homepage_uri'    => 'https://github.com/esotericpig/nhkore',
-    'source_code_uri' => 'https://github.com/esotericpig/nhkore'
+    'source_code_uri' => 'https://github.com/esotericpig/nhkore',
+    'changelog_uri'   => 'https://github.com/esotericpig/nhkore/blob/master/CHANGELOG.md',
+    'bug_tracker_uri' => 'https://github.com/esotericpig/nhkore/issues',
   }
   
   spec.require_paths = ['lib']
@@ -52,13 +52,12 @@ Gem::Specification.new() do |spec|
   spec.files = [
     Dir.glob(File.join("{#{spec.require_paths.join(',')}}",'**','*.{erb,rb}')),
     Dir.glob(File.join(spec.bindir,'*')),
-    Dir.glob(File.join('{test,yard}','**','*.{erb,rb}')),
-    %W( Gemfile #{spec.name}.gemspec Rakefile ),
+    Dir.glob(File.join('{samples,test,yard}','**','*.{erb,rb}')),
+    %W( Gemfile #{spec.name}.gemspec Rakefile .yardopts ),
     %w( CHANGELOG.md LICENSE.txt README.md ),
   ].flatten()
   
   spec.required_ruby_version = '>= 2.4'
-  
   spec.requirements = [
     'Nokogiri: https://www.nokogiri.org/tutorials/installing_nokogiri.html',
   ]
