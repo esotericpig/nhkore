@@ -246,8 +246,7 @@ module NHKore
           app.scraper_kargs[:header] ||= {}
           app.scraper_kargs[:header]['user-agent'] = value
         end
-        # Big V, not small.
-        flag :V,:version,'show the version and exit' do |value,cmd|
+        flag :v,:version,'show the version and exit' do |value,cmd|
           app.show_version()
           exit
         end
