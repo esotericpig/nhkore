@@ -56,11 +56,15 @@ module NHKore
       if !unknown.nil?()
         # kanji?() only tests if it contains kanji, so don't use kana?().
         if Util.kanji?(unknown)
-          raise ArgumentError,"unknown[#{unknown}] will overwrite kanji[#{kanji}]" unless Util.empty_web_str?(kanji)
+          if !Util.empty_web_str?(kanji)
+            raise ArgumentError,"unknown[#{unknown}] will overwrite kanji[#{kanji}]"
+          end
           
           kanji = unknown
         else
-          raise ArgumentError,"unknown[#{unknown}] will overwrite kana[#{kana}]" unless Util.empty_web_str?(kana)
+          if !Util.empty_web_str?(kana)
+            raise ArgumentError,"unknown[#{unknown}] will overwrite kana[#{kana}]"
+          end
           
           kana = unknown
         end

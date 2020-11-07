@@ -465,7 +465,10 @@ module NHKore
         return nil
       end
       
-      text = word.kana # Should be kana only
+      # Kanji only for:
+      # - https://www3.nhk.or.jp/news/easy/k10012639271000/k10012639271000.html
+      #   - '第３のビール'
+      text = word.word # Should usually be kana only
       
       result.add_text(text) # No cleaning; raw text
       
@@ -474,8 +477,9 @@ module NHKore
       return nil if text.empty?() # No error; empty text is fine here
       
       word = Word.new(
-        kana: text,
-        word: word
+        kana: clean(word.kana),
+        kanji: clean(word.kanji),
+        word: word,
       )
       
       return word
