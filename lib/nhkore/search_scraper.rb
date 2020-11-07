@@ -45,6 +45,16 @@ module NHKore
     # - https://www3.nhk.or.jp/news/easy/article/disaster_heat.html
     YASASHII_REGEX = /\A[^\.]+\.#{Regexp.quote(YASASHII_SITE)}.+\.html?/i
     
+    IGNORE_LINK_REGEX = %r{
+      /about\.html?            # https://www3.nhk.or.jp/news/easy/about.html
+      |/movieplayer\.html?      # https://www3.nhk.or.jp/news/easy/movieplayer.html?id=k10038422811_1207251719_1207251728.mp4&teacuprbbs=4feb73432045dbb97c283d64d459f7cf
+      |/audio\.html?            # https://www3.nhk.or.jp/news/easy/player/audio.html?id=k10011555691000
+      |/news/easy/index\.html?  # http://www3.nhk.or.jp/news/easy/index.html
+      # https://cgi2.nhk.or.jp/news/easy/easy_enq/bin/form/enqform.html?id=k10011916321000&title=日本の会社が作った鉄道の車両「あずま」がイギリスで走る
+      # https://www3.nhk.or.jp/news/easy/easy_enq/bin/form/enqform.html?id=k10012689671000&title=「鬼滅の刃」の映画が台湾でも始まって大勢の人が見に行く
+      |/enqform\.html?
+    }x
+    
     # Search Engines are strict, so trigger using the default HTTP header fields
     # with +header: {}+ and fetch/set the cookie using +eat_cookie: true+.
     def initialize(url,eat_cookie: true,header: {},**kargs)
@@ -58,14 +68,7 @@ module NHKore
       
       return true if link.empty?()
       
-      case link
-      when /\/about\.html?/,             # https://www3.nhk.or.jp/news/easy/about.html
-           /\/movieplayer\.html?/,       # https://www3.nhk.or.jp/news/easy/movieplayer.html?id=k10038422811_1207251719_1207251728.mp4&teacuprbbs=4feb73432045dbb97c283d64d459f7cf
-           /\/audio\.html?/,             # https://www3.nhk.or.jp/news/easy/player/audio.html?id=k10011555691000
-           /\/news\/easy\/index\.html?/, # http://www3.nhk.or.jp/news/easy/index.html
-           /cgi2.*enqform/               # https://cgi2.nhk.or.jp/news/easy/easy_enq/bin/form/enqform.html?id=k10011916321000&title=日本の会社が作った鉄道の車両「あずま」がイギリスで走る
-        return true
-      end
+      return true if IGNORE_LINK_REGEX.match?(link)
       
       return false
     end
