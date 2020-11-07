@@ -34,6 +34,8 @@ module NHKore
   # @since  0.3.4
   ###
   class DatetimeParser
+    extend AttrBool::Ext
+    
     # Order matters!
     FMTS = [
       '%Y-%m-%d %H:%M',

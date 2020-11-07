@@ -34,6 +34,8 @@ module NHKore
   # @since  0.2.0
   ###
   class SearchLink
+    extend AttrBool::Ext
+    
     attr_reader :datetime
     attr_reader :futsuurl
     attr_accessor? :scraped

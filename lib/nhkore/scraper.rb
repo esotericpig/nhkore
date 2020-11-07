@@ -35,6 +35,8 @@ module NHKore
   # @since  0.2.0
   ###
   class Scraper
+    extend AttrBool::Ext
+    
     DEFAULT_HEADER = {
       'user-agent' => UserAgents.sample(),
       'accept' => 'text/html,application/xhtml+xml,application/xml,application/rss+xml,text/xml;image/webp,image/apng,*/*;application/signed-exchange',

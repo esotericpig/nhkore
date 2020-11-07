@@ -43,6 +43,8 @@ module NHKore
   # @since  0.2.0
   ###
   class ArticleScraper < Scraper
+    extend AttrBool::Ext
+    
     attr_reader :cleaners
     attr_accessor :datetime
     attr_accessor :dict
