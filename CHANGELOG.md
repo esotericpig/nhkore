@@ -2,7 +2,17 @@
 
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.6...master)
+## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.7...HEAD)
+
+## [v0.3.7] - 2020-11-07
+
+### Changed
+- Updated Gem `attr_bool` to v0.2
+- Changed upper-case *'-V'* flag for *version* to be a lower-case *'-v'*
+    - Seems like a lot of apps/people expect this
+- Refactored/Formatted some code
+    - *nhkore.gemspec* especially
+- Added *samples/*, *Gemfile.lock*, and *.yardopts* to the files in *nhkore.gemspec*
 
 ## [v0.3.6] - 2020-08-18
 
