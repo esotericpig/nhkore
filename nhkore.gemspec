@@ -25,7 +25,6 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 require 'nhkore/version'
 
-
 Gem::Specification.new() do |spec|
   spec.name        = 'nhkore'
   spec.version     = NHKore::VERSION
@@ -39,28 +38,31 @@ Gem::Specification.new() do |spec|
     ' Includes a CLI app and a scraper library.'
   
   spec.metadata = {
-    'homepage_uri'    => 'https://github.com/esotericpig/nhkore',
-    'source_code_uri' => 'https://github.com/esotericpig/nhkore',
-    'changelog_uri'   => 'https://github.com/esotericpig/nhkore/blob/master/CHANGELOG.md',
-    'bug_tracker_uri' => 'https://github.com/esotericpig/nhkore/issues',
+    'homepage_uri'      => 'https://github.com/esotericpig/nhkore',
+    'source_code_uri'   => 'https://github.com/esotericpig/nhkore',
+    'bug_tracker_uri'   => 'https://github.com/esotericpig/nhkore/issues',
+    'changelog_uri'     => 'https://github.com/esotericpig/nhkore/blob/master/CHANGELOG.md',
+    #'documentation_uri' => '',
+    #'wiki_uri'          => '',
+    #'mailing_list_uri'  => '',
   }
   
-  spec.require_paths = ['lib']
-  spec.bindir        = 'bin'
-  spec.executables   = [spec.name]
+  spec.requirements = [
+    'Nokogiri: https://www.nokogiri.org/tutorials/installing_nokogiri.html',
+  ]
+  
+  spec.required_ruby_version = '>= 2.4'
+  spec.require_paths         = ['lib']
+  spec.bindir                = 'bin'
+  spec.executables           = [spec.name]
   
   spec.files = [
     Dir.glob(File.join("{#{spec.require_paths.join(',')}}",'**','*.{erb,rb}')),
     Dir.glob(File.join(spec.bindir,'*')),
     Dir.glob(File.join('{samples,test,yard}','**','*.{erb,rb}')),
-    %W( Gemfile #{spec.name}.gemspec Rakefile .yardopts ),
-    %w( CHANGELOG.md LICENSE.txt README.md ),
+    %W[ Gemfile Gemfile.lock #{spec.name}.gemspec Rakefile .yardopts ],
+    %w[ CHANGELOG.md LICENSE.txt README.md ],
   ].flatten()
-  
-  spec.required_ruby_version = '>= 2.4'
-  spec.requirements = [
-    'Nokogiri: https://www.nokogiri.org/tutorials/installing_nokogiri.html',
-  ]
   
   spec.add_runtime_dependency 'attr_bool'            ,'~> 0.2'  # For attr_accessor?/attr_reader?
   spec.add_runtime_dependency 'bimyou_segmenter'     ,'~> 1.2'  # For splitting Japanese sentences into words
@@ -96,8 +98,17 @@ Gem::Specification.new() do |spec|
   Homepage:  #{spec.homepage}
   
   Code:      #{spec.metadata['source_code_uri']}
-  Changelog: #{spec.metadata['changelog_uri']}
   Bugs:      #{spec.metadata['bug_tracker_uri']}
   
+  Changelog: #{spec.metadata['changelog_uri']}
+  
   EOM
+  
+  spec.extra_rdoc_files = %w[ CHANGELOG.md LICENSE.txt README.md ]
+  
+  spec.rdoc_options = [
+    '--hyperlink-all','--show-hash',
+    '--title',"NHKore v#{NHKore::VERSION} Doc",
+    '--main','README.md',
+  ]
 end
