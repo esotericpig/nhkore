@@ -14,6 +14,12 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     - *nhkore.gemspec* especially
 - Added *samples/*, *Gemfile.lock*, and *.yardopts* to the files in *nhkore.gemspec*
 
+### Fixed
+- ArticleScraper
+    - Fixed to accept text nodes that have Kanji, due to bad article:
+        - https://www3.nhk.or.jp/news/easy/k10012639271000/k10012639271000.html
+            - `第３のビール` should have HTML ruby tags around *第*
+
 ## [v0.3.6] - 2020-08-18
 
 ### Added
