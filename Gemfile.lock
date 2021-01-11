@@ -47,7 +47,7 @@ GEM
     raketeer (0.2.9)
       rake
     rdoc (6.2.1)
-    redcarpet (3.5.0)
+    redcarpet (3.5.1)
     rubyzip (2.3.0)
     strings-ansi (0.1.0)
     tiny_segmenter (0.0.6)
