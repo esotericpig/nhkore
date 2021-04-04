@@ -1,38 +1,43 @@
-#!/usr/bin/env ruby
 # encoding: UTF-8
 # frozen_string_literal: true
 
 #--
 # This file is part of NHKore.
 # Copyright (c) 2020 Jonathan Bradley Whited (@esotericpig)
-# 
+#
 # NHKore is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # NHKore is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public License
 # along with NHKore.  If not, see <https://www.gnu.org/licenses/>.
 #++
 
 
-if $0 == __FILE__
-  # `gem install 'user-agent-randomizer'` required.
-  
+if $PROGRAM_NAME == __FILE__
+  require 'bundler/inline'
+
+  gemfile do
+    source 'https://rubygems.org'
+
+    gem 'user-agent-randomizer','~> 0.2',require: false
+  end
+
   require 'set'
   require 'user_agent_randomizer'
-  
+
   agents = Set.new()
-  
+
   while agents.length < 1111
     agents.add(UserAgentRandomizer::UserAgent.fetch(type: 'desktop_browser').string)
   end
-  
+
   agents.each() do |agent|
     puts "'#{agent}',"
   end
@@ -41,26 +46,27 @@ end
 module NHKore
   ###
   # 1111 user-agents produced using the +user-agent-randomizer+ gem.
-  # 
+  #
   # The gem is really old and had a lot of warnings, so decided to make this class.
   # Maybe I'll fork the gem and maintain a new version in the future...
-  # 
+  #
   # @author Jonathan Bradley Whited (@esotericpig)
   # @since  0.2.1
   ###
   class UserAgents
     attr_accessor :data
-    
+
     def self.sample()
       return UserAgents.new().data.sample()
     end
-    
+
     # Decided to store the data in an instance variable (instead of a constant)
     # because we don't need all of the data in memory after getting just 1
     # sample, even though it's slower.
     def initialize()
       super()
-      
+
+      # rubocop:disable all
       @data = [
 'ELinks/0.11.3 (textmode; Darwin 10.2.0 i386; 80x24-2)',
 'Mozilla/4.0 (compatible; MSIE 6.0; X11; Linux i686; de) Opera 10.10',
@@ -1174,6 +1180,7 @@ module NHKore
 'Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1a) Gecko/20020611',
 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_1; en-US) AppleWebKit/532.0 (KHTML, like Gecko) Chrome/4.0.212.0 Safari/532.0',
       ]
+      # rubocop:enable all
     end
   end
 end

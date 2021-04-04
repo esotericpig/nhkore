@@ -4,17 +4,17 @@
 #--
 # This file is part of NHKore.
 # Copyright (c) 2020 Jonathan Bradley Whited (@esotericpig)
-# 
+#
 # NHKore is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # NHKore is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public License
 # along with NHKore.  If not, see <https://www.gnu.org/licenses/>.
 #++
@@ -42,16 +42,16 @@ CLOBBER.include('doc/',File.join(PKG_DIR,''))
 task default: [:test]
 
 desc 'Generate documentation (YARDoc)'
-task :doc => [:yard,:yard_gfm_fix] do |task|
+task doc: %i[yard yard_gfm_fix] do |task|
 end
 
 desc "Package '#{File.join(NHKore::Util::CORE_DIR,'')}' data as a Zip file into '#{File.join(PKG_DIR,'')}'"
 task :pkg_core do |task|
   mkdir_p PKG_DIR
-  
+
   pattern = File.join(NHKore::Util::CORE_DIR,'*.{csv,html,json,yml}')
   zip_file = File.join(PKG_DIR,'nhkore-core.zip')
-  
+
   sh 'zip','-9rv',zip_file,*Dir.glob(pattern).sort()
 end
 
@@ -68,20 +68,20 @@ end
 desc "Update '#{File.join(NHKore::Util::CORE_DIR,'')}' files for release"
 task :update_core do |task|
   require 'highline'
-  
-  CONTINUE_MSG = "\nContinue (y/n)? "
-  
+
+  continue_msg = "\nContinue (y/n)? "
+
   cmd = ['ruby','-w','./lib/nhkore.rb','-t','300','-m','10']
   hl = HighLine.new()
-  
+
   next unless sh(*cmd,'se','ez','bing')
-  next unless hl.agree(CONTINUE_MSG)
+  next unless hl.agree(continue_msg)
   puts
-  
+
   next unless sh(*cmd,'news','-s','100','ez')
-  next unless hl.agree(CONTINUE_MSG)
+  next unless hl.agree(continue_msg)
   puts
-  
+
   next unless sh(*cmd,'sift','-e','csv' ,'ez')
   next unless sh(*cmd,'sift','-e','html','ez')
   next unless sh(*cmd,'sift','-e','json','ez')
@@ -92,19 +92,19 @@ end
 desc 'Update showcase file for release'
 task :update_showcase do |task|
   require 'highline'
-  
-  SHOWCASE_FILE = File.join('.','nhkore-ez.html')
-  
+
+  showcase_file = File.join('.','nhkore-ez.html')
+
   hl = HighLine.new()
-  
+
   next unless sh('ruby','-w','./lib/nhkore.rb',
     'sift','ez','--no-eng',
-    '--out',SHOWCASE_FILE,
+    '--out',showcase_file,
   )
-  
+
   next unless hl.agree("\nMove the file (y/n)? ")
   puts
-  next unless sh('mv','-iv',SHOWCASE_FILE,
+  next unless sh('mv','-iv',showcase_file,
     File.join('..','esotericpig.github.io','showcase',''),
   )
 end
@@ -121,16 +121,16 @@ YardGhurt::GFMFixTask.new() do |task|
   task.dry_run = false
   task.fix_code_langs = true
   task.md_files = ['index.html']
-  
-  task.before = Proc.new() do |task,args|
+
+  task.before = Proc.new() do |t,args|
     # Delete this file as it's never used (index.html is an exact copy).
-    YardGhurt::Util.rm_exist(File.join(task.doc_dir,'file.README.html'))
-    
+    YardGhurt::Util.rm_exist(File.join(t.doc_dir,'file.README.html'))
+
     # Root dir of my GitHub Page for CSS/JS.
-    GHP_ROOT = YardGhurt::Util.to_bool(args.dev) ? '../../esotericpig.github.io' : '../../..'
-    
-    task.css_styles << %Q(<link rel="stylesheet" type="text/css" href="#{GHP_ROOT}/css/prism.css" />)
-    task.js_scripts << %Q(<script src="#{GHP_ROOT}/js/prism.js"></script>)
+    ghp_root = YardGhurt::Util.to_bool(args.dev) ? '../../esotericpig.github.io' : '../../..'
+
+    t.css_styles << %Q(<link rel="stylesheet" type="text/css" href="#{ghp_root}/css/prism.css" />)
+    t.js_scripts << %Q(<script src="#{ghp_root}/js/prism.js"></script>)
   end
 end
 

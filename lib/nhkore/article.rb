@@ -1,21 +1,20 @@
-#!/usr/bin/env ruby
 # encoding: UTF-8
 # frozen_string_literal: true
 
 #--
 # This file is part of NHKore.
 # Copyright (c) 2020 Jonathan Bradley Whited (@esotericpig)
-# 
+#
 # NHKore is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # NHKore is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public License
 # along with NHKore.  If not, see <https://www.gnu.org/licenses/>.
 #++
@@ -39,10 +38,10 @@ module NHKore
     attr_accessor :title
     attr_reader :url
     attr_reader :words
-    
+
     def initialize()
       super()
-      
+
       @datetime = nil
       @futsuurl = nil
       @sha256 = nil
@@ -50,7 +49,7 @@ module NHKore
       @url = nil
       @words = {}
     end
-    
+
     # Why does this not look up the kanji/kana only and then update the other
     # kana/kanji part appropriately?
     # - There are some words like +行って+. Without the kana, it's difficult to
@@ -60,23 +59,23 @@ module NHKore
     #   try to populate the other value.
     def add_word(word,use_freq: false)
       curr_word = words[word.key]
-      
+
       if curr_word.nil?()
         words[word.key] = word
         curr_word = word
       else
         curr_word.freq += (use_freq ? word.freq : 1)
-        
+
         curr_word.defn = word.defn if word.defn.to_s().length > curr_word.defn.to_s().length
         curr_word.eng = word.eng if word.eng.to_s().length > curr_word.eng.to_s().length
       end
-      
+
       return curr_word
     end
-    
+
     def encode_with(coder)
       # Order matters.
-      
+
       coder[:datetime] = @datetime.nil?() ? @datetime : @datetime.iso8601()
       coder[:title] = @title
       coder[:url] = @url.nil?() ? nil : @url.to_s()
@@ -84,28 +83,26 @@ module NHKore
       coder[:sha256] = @sha256
       coder[:words] = @words
     end
-    
+
     def self.load_data(key,hash)
       words = hash[:words]
-      
+
       article = Article.new()
-      
+
       article.datetime = hash[:datetime]
       article.futsuurl = hash[:futsuurl]
       article.sha256 = hash[:sha256]
       article.title = hash[:title]
       article.url = hash[:url]
-      
-      if !words.nil?()
-        words.each() do |k,h|
-          k = k.to_s() # Change from a symbol
-          article.words[k] = Word.load_data(k,h)
-        end
+
+      words&.each() do |k,h|
+        k = k.to_s() # Change from a symbol
+        article.words[k] = Word.load_data(k,h)
       end
-      
+
       return article
     end
-    
+
     def datetime=(value)
       if value.is_a?(Time)
         @datetime = value
@@ -113,34 +110,34 @@ module NHKore
         @datetime = Util.empty_web_str?(value) ? nil : Time.iso8601(value)
       end
     end
-    
+
     def futsuurl=(value)
       # Don't store URI, store String.
       @futsuurl = value.nil?() ? nil : value.to_s()
     end
-    
+
     def url=(value)
       # Don't store URI, store String.
       @url = value.nil?() ? nil : value.to_s()
     end
-    
+
     def to_s(mini: false)
       s = ''.dup()
-      
+
       s << "'#{@url}':"
       s << "\n  datetime: '#{@datetime}'"
       s << "\n  title:    '#{@title}'"
       s << "\n  url:      '#{@url}'"
       s << "\n  futsuurl: '#{@futsuurl}'"
       s << "\n  sha256:   '#{@sha256}'"
-      
+
       if !mini
         s << "\n  words:"
         @words.each() do |key,word|
           s << "\n    #{word}"
         end
       end
-      
+
       return s
     end
   end

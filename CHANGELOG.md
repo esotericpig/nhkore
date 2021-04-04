@@ -4,6 +4,10 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.7...HEAD)
 
+### Changed
+- Formatted/Linted all code using RuboCop.
+- Updated Gems.
+
 ## [v0.3.7] - 2020-11-07
 
 ### Changed

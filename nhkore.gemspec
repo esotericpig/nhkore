@@ -4,17 +4,17 @@
 #--
 # This file is part of NHKore.
 # Copyright (c) 2020 Jonathan Bradley Whited (@esotericpig)
-# 
+#
 # NHKore is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # NHKore is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public License
 # along with NHKore.  If not, see <https://www.gnu.org/licenses/>.
 #++
@@ -36,7 +36,7 @@ Gem::Specification.new() do |spec|
   spec.description =
     'Scrapes NHK News Web (Easy) for the word frequency (core list) for Japanese language learners.' \
     ' Includes a CLI app and a scraper library.'
-  
+
   spec.metadata = {
     'homepage_uri'      => 'https://github.com/esotericpig/nhkore',
     'source_code_uri'   => 'https://github.com/esotericpig/nhkore',
@@ -46,16 +46,16 @@ Gem::Specification.new() do |spec|
     #'wiki_uri'          => '',
     #'mailing_list_uri'  => '',
   }
-  
+
   spec.requirements = [
     'Nokogiri: https://www.nokogiri.org/tutorials/installing_nokogiri.html',
   ]
-  
+
   spec.required_ruby_version = '>= 2.4'
   spec.require_paths         = ['lib']
   spec.bindir                = 'bin'
   spec.executables           = [spec.name]
-  
+
   spec.files = [
     Dir.glob(File.join("{#{spec.require_paths.join(',')}}",'**','*.{erb,rb}')),
     Dir.glob(File.join(spec.bindir,'*')),
@@ -63,7 +63,7 @@ Gem::Specification.new() do |spec|
     %W[ Gemfile Gemfile.lock #{spec.name}.gemspec Rakefile .yardopts ],
     %w[ CHANGELOG.md LICENSE.txt README.md ],
   ].flatten()
-  
+
   spec.add_runtime_dependency 'attr_bool'            ,'~> 0.2'  # For attr_accessor?/attr_reader?
   spec.add_runtime_dependency 'bimyou_segmenter'     ,'~> 1.2'  # For splitting Japanese sentences into words
   spec.add_runtime_dependency 'cri'                  ,'~> 2.15' # For CLI commands/options
@@ -79,7 +79,7 @@ Gem::Specification.new() do |spec|
   spec.add_runtime_dependency 'tiny_segmenter'       ,'~> 0.0'  # For splitting Japanese sentences into words
   spec.add_runtime_dependency 'tty-progressbar'      ,'~> 0.17' # For CLI progress bars
   spec.add_runtime_dependency 'tty-spinner'          ,'~> 0.9'  # For CLI spinning progress
-  
+
   spec.add_development_dependency 'bundler'   ,'~> 2.1'
   spec.add_development_dependency 'minitest'  ,'~> 5.14'
   spec.add_development_dependency 'rake'      ,'~> 13.0'
@@ -88,24 +88,24 @@ Gem::Specification.new() do |spec|
   spec.add_development_dependency 'redcarpet' ,'~> 3.5'  # For YARDoc Markdown (*.md)
   spec.add_development_dependency 'yard'      ,'~> 0.9'  # For documentation
   spec.add_development_dependency 'yard_ghurt','~> 1.2'  # For extra YARDoc Rake tasks
-  
+
   spec.post_install_message = <<-EOM
-  
+
   NHKore v#{NHKore::VERSION}
-  
+
   You can now use [#{spec.executables.join(', ')}] on the command line.
-  
+
   Homepage:  #{spec.homepage}
-  
+
   Code:      #{spec.metadata['source_code_uri']}
   Bugs:      #{spec.metadata['bug_tracker_uri']}
-  
+
   Changelog: #{spec.metadata['changelog_uri']}
-  
+
   EOM
-  
+
   spec.extra_rdoc_files = %w[ CHANGELOG.md LICENSE.txt README.md ]
-  
+
   spec.rdoc_options = [
     '--hyperlink-all','--show-hash',
     '--title',"NHKore v#{NHKore::VERSION} Doc",
