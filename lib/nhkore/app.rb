@@ -510,12 +510,20 @@ module NHKore
 
       # Change symbols with dashes to underscores,
       #   so don't have to type @cmd_opts[:'dry-run'] all the time.
-      opts.each() do |key,value|
-        key = key.to_s()
-        key = key.gsub('-','_')
-        key = key.to_sym()
+      opts.each do |key,value|
+        # %s(max-retry) => :max_retry
+        key = key.to_s.gsub('-','_').to_sym
 
         new_opts[key] = value
+      end
+
+      # Cri has a default proc for default values
+      #   that doesn't store the keys.
+      new_opts.default_proc = proc do |hash,key|
+        # :max_retry => %s(max-retry)
+        key = key.to_s.gsub('_','-').to_sym
+
+        opts.default_proc.call(hash,key)
       end
 
       @cmd = cmd
