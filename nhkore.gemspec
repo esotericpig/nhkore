@@ -67,24 +67,24 @@ Gem::Specification.new() do |spec|
   spec.add_runtime_dependency 'attr_bool'            ,'~> 0.2'  # For attr_accessor?/attr_reader?
   spec.add_runtime_dependency 'bimyou_segmenter'     ,'~> 1.2'  # For splitting Japanese sentences into words
   spec.add_runtime_dependency 'cri'                  ,'~> 2.15' # For CLI commands/options
-  spec.add_runtime_dependency 'down'                 ,'~> 5.1'  # For downloading files (GetCmd)
+  spec.add_runtime_dependency 'down'                 ,'~> 5.2'  # For downloading files (GetCmd)
   spec.add_runtime_dependency 'highline'             ,'~> 2.0'  # For CLI input/output
   spec.add_runtime_dependency 'http-cookie'          ,'~> 1.0'  # For parsing/setting cookies (BingScraper/Scraper)
   spec.add_runtime_dependency 'japanese_deinflector' ,'~> 0.0'  # For unconjugating Japanese words (plain/dictionary form)
-  spec.add_runtime_dependency 'nokogiri'             ,'~> 1.10' # For scraping/hacking
+  spec.add_runtime_dependency 'nokogiri'             ,'~> 1.11' # For scraping/hacking
   spec.add_runtime_dependency 'psychgus'             ,'~> 1.3'  # For styling Psych YAML
   spec.add_runtime_dependency 'public_suffix'        ,'~> 4.0'  # For parsing URL domain names
   spec.add_runtime_dependency 'rainbow'              ,'~> 3.0'  # For CLI color output
   spec.add_runtime_dependency 'rubyzip'              ,'~> 2.3'  # For extracting Zip files (GetCmd)
   spec.add_runtime_dependency 'tiny_segmenter'       ,'~> 0.0'  # For splitting Japanese sentences into words
-  spec.add_runtime_dependency 'tty-progressbar'      ,'~> 0.17' # For CLI progress bars
+  spec.add_runtime_dependency 'tty-progressbar'      ,'~> 0.18' # For CLI progress bars
   spec.add_runtime_dependency 'tty-spinner'          ,'~> 0.9'  # For CLI spinning progress
 
-  spec.add_development_dependency 'bundler'   ,'~> 2.1'
+  spec.add_development_dependency 'bundler'   ,'~> 2.2'
   spec.add_development_dependency 'minitest'  ,'~> 5.14'
   spec.add_development_dependency 'rake'      ,'~> 13.0'
   spec.add_development_dependency 'raketeer'  ,'~> 0.2'  # For extra Rake tasks
-  spec.add_development_dependency 'rdoc'      ,'~> 6.2'  # For YARDoc RDoc (*.rb)
+  spec.add_development_dependency 'rdoc'      ,'~> 6.3'  # For YARDoc RDoc (*.rb)
   spec.add_development_dependency 'redcarpet' ,'~> 3.5'  # For YARDoc Markdown (*.md)
   spec.add_development_dependency 'yard'      ,'~> 0.9'  # For documentation
   spec.add_development_dependency 'yard_ghurt','~> 1.2'  # For extra YARDoc Rake tasks
