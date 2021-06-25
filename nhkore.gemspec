@@ -7,8 +7,8 @@ require_relative 'lib/nhkore/version'
 Gem::Specification.new do |spec|
   spec.name        = 'nhkore'
   spec.version     = NHKore::VERSION
-  spec.authors     = ['Jonathan Bradley Whited (@esotericpig)']
-  spec.email       = ['bradley@esotericpig.com']
+  spec.authors     = ['Jonathan Bradley Whited']
+  spec.email       = ['code@esotericpig.com']
   spec.licenses    = ['LGPL-3.0-or-later']
   spec.homepage    = 'https://github.com/esotericpig/nhkore'
   spec.summary     = 'NHK News Web (Easy) word frequency (core) scraper for Japanese language learners.'

@@ -3,20 +3,9 @@
 
 #--
 # This file is part of NHKore.
-# Copyright (c) 2020 Jonathan Bradley Whited (@esotericpig)
+# Copyright (c) 2020-2021 Jonathan Bradley Whited
 #
-# NHKore is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# NHKore is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with NHKore.  If not, see <https://www.gnu.org/licenses/>.
+# SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
 
@@ -50,7 +39,7 @@ module NHKore
   # The gem is really old and had a lot of warnings, so decided to make this class.
   # Maybe I'll fork the gem and maintain a new version in the future...
   #
-  # @author Jonathan Bradley Whited (@esotericpig)
+  # @author Jonathan Bradley Whited
   # @since  0.2.1
   ###
   class UserAgents

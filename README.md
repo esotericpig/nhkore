@@ -435,18 +435,18 @@ require 'nhkore/scraper'
 s = NHKore::Scraper.new('https://www3.nhk.or.jp/news/easy/',
   open_timeout: 300, # Open timeout in seconds (default: nil)
   read_timeout: 300, # Read timeout in seconds (default: nil)
-  
+
   # Maximum number of times to retry the URL
   # - default: 3
   # - Open/connect will fail a couple of times on a bad/slow internet connection.
   max_retries: 10,
-  
+
   # Maximum number of redirects allowed.
   # - default: 3
   # - You can set this to nil or -1, but I recommend using a number
   #   for safety (infinite-loop attack).
   max_redirects: 1,
-  
+
   # How to check redirect URLs for safety.
   # - default: :strict
   # - nil      => do not check
@@ -455,7 +455,7 @@ s = NHKore::Scraper.new('https://www3.nhk.or.jp/news/easy/',
   # - :strict  => check the scheme and domain
   #               (i.e., if https://bing.com, redirect URL must be https://bing.com)
   redirect_rule: :lenient,
-  
+
   # Set the HTTP header field 'cookie' from the 'set-cookie' response.
   # - default: false
   # - Currently uses the 'http-cookie' Gem.
@@ -463,7 +463,7 @@ s = NHKore::Scraper.new('https://www3.nhk.or.jp/news/easy/',
   # - Necessary for Search Engines or other sites that require cookies
   #   in order to block bots.
   eat_cookie: true,
-  
+
   # Set HTTP header fields.
   # - default: nil
   # - Necessary for Search Engines or other sites that try to block bots.
@@ -526,9 +526,9 @@ doc = ss.html_doc()
 
 doc.css('a').each() do |anchor|
   link = anchor['href']
-  
+
   next if ss.ignore_link?(link,cleaned: false)
-  
+
   if link.include?('https://www3.nhk')
     puts link
   end
@@ -549,9 +549,9 @@ page_num  = 1
 
 while !next_page.empty?()
   puts "Page #{page_num += 1}: #{next_page.count}"
-  
+
   bs = NHKore::BingScraper.new(:yasashii,url: next_page.url)
-  
+
   next_page = bs.scrape(slinks,next_page)
 end
 
@@ -570,24 +570,24 @@ require 'time'
 
 as = NHKore::ArticleScraper.new(
   'https://www3.nhk.or.jp/news/easy/k10011862381000/k10011862381000.html',
-  
+
   # If false, scrape the article leniently (for older articles which
   # may not have certain tags, etc.).
   # - default: true
   strict: false,
-  
+
   # {Dict} to use as the dictionary for words (Easy articles).
   # - default: :scrape
   # - nil     => don't scrape/use it (necessary for Regular articles)
   # - :scrape => auto-scrape it using {DictScraper}
   # - {Dict}  => your own {Dict}
   dict: nil,
-  
+
   # Date time to use as a fallback if the article doesn't have one
   # (for older articles).
   # - default: nil
   datetime: Time.new(2020,2,2),
-  
+
   # Year to use as a fallback if the article doesn't have one
   # (for older articles).
   # - default: nil
@@ -624,7 +624,7 @@ require 'nhkore/dict_scraper'
 url = 'https://www3.nhk.or.jp/news/easy/k10011862381000/k10011862381000.html'
 ds  = NHKore::DictScraper.new(
   url,
-  
+
   # Change the URL appropriately to the dictionary URL.
   # - default: true
   parse_url: true,
@@ -637,13 +637,13 @@ dict = ds.scrape()
 
 dict.entries.each() do |key,entry|
   entry.id
-  
+
   entry.defns.each() do |defn|
     defn.hyoukis.each() {|hyouki| }
     defn.text
     defn.words.each() {|word| }
   end
-  
+
   puts entry.build_hyouki()
   puts entry.build_defn()
   puts '---'
@@ -789,13 +789,13 @@ JPN = ['桜','ぶ','ブ']
 
 def fmt_jpn()
   fmt = []
-  
+
   JPN.each() do |x|
     x = yield(x)
     x = x ? "\u2B55" : Util::JPN_SPACE unless x.is_a?(String)
     fmt << x
   end
-  
+
   return "[ #{fmt.join(' | ')} ]"
 end
 
@@ -879,7 +879,7 @@ Releasing new HTML file for website:
 [GNU LGPL v3+](LICENSE.txt)
 
 > NHKore (<https://github.com/esotericpig/nhkore>)  
-> Copyright (c) 2020 Jonathan Bradley Whited (@esotericpig)  
+> Copyright (c) 2020-2021 Jonathan Bradley Whited  
 > 
 > NHKore is free software: you can redistribute it and/or modify  
 > it under the terms of the GNU Lesser General Public License as published by  
