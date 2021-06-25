@@ -41,11 +41,11 @@ module NHKore
     end
 
     def self.polish_any(obj,polishers)
-      return nil if obj.nil?()
+      return nil if obj.nil?
 
       polishers = Array(polishers)
 
-      return obj if polishers.empty?()
+      return obj if polishers.empty?
 
       if obj.is_a?(Word)
         obj = Word.new(
@@ -54,7 +54,7 @@ module NHKore
           word: obj
         )
       else # String
-        polishers.each() do |polisher|
+        polishers.each do |polisher|
           obj = polisher.polish(obj)
         end
       end
@@ -77,7 +77,7 @@ module NHKore
       str = str.gsub(/[^[[:alnum:]]・]/,'')
 
       # Numbers/dots by themselves (without kanji/kana) should be ignored (empty).
-      str = '' if str.gsub(/[[[:digit:]]・]+/,'').empty?()
+      str = '' if str.gsub(/[[[:digit:]]・]+/,'').empty?
 
       return str
     end

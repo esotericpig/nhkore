@@ -32,7 +32,7 @@ module NHKore
 
     def save_file(file,mode: 'wt',**kargs)
       File.open(file,mode: mode,**kargs) do |f|
-        f.write(to_s())
+        f.write(to_s)
       end
     end
 

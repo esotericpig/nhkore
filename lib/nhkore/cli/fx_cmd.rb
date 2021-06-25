@@ -27,34 +27,34 @@ module CLI
   # @since  0.2.0
   ###
   module FXCmd
-    def build_fx_cmd()
+    def build_fx_cmd
       app = self
 
-      @fx_cmd = @app_cmd.define_command() do
+      @fx_cmd = @app_cmd.define_command do
         name    'fx'
         usage   'fx [OPTIONS] [COMMAND]...'
         summary 'Test spinner/progress special effects (for running long tasks)'
 
-        description <<-EOD
+        description <<-DESC
           Test if the special effects work on your command line:\n
           - #{App::NAME} [-s/-X] fx
-        EOD
+        DESC
 
         flag :a,:all,'test all special effects regardless of global options'
 
         run do |opts,args,cmd|
           app.refresh_cmd(opts,args,cmd)
-          app.run_fx_cmd()
+          app.run_fx_cmd
         end
       end
     end
 
-    def run_fx_cmd()
-      test_fx_progress_bar()
-      test_fx_spinner()
+    def run_fx_cmd
+      test_fx_progress_bar
+      test_fx_spinner
     end
 
-    def test_fx_progress_bar()
+    def test_fx_progress_bar
       bars = nil
 
       if @cmd_opts[:all]
@@ -63,22 +63,22 @@ module CLI
         bars = {user: @progress_bar}
       end
 
-      bars.each() do |name,bar|
-        name = name.to_s().capitalize()
+      bars.each do |name,bar|
+        name = name.to_s.capitalize
         bar = build_progress_bar("Testing #{name} progress",download: false,type: bar)
 
-        bar.start()
+        bar.start
 
         0.upto(99) do
           sleep(0.05)
-          bar.advance()
+          bar.advance
         end
 
-        bar.finish()
+        bar.finish
       end
     end
 
-    def test_fx_spinner()
+    def test_fx_spinner
       app_spinner = @spinner
       spinners = nil
 
@@ -94,17 +94,17 @@ module CLI
         }
       end
 
-      spinners.each() do |name,spinner|
+      spinners.each do |name,spinner|
         @spinner = spinner
 
-        start_spin("Testing #{name.to_s().capitalize()} spinner")
+        start_spin("Testing #{name.to_s.capitalize} spinner")
 
         1.upto(3) do |i|
           sleep(1.1)
           update_spin_detail(" (#{i}/3)")
         end
 
-        stop_spin()
+        stop_spin
       end
 
       # Reset back to users'.

@@ -35,12 +35,12 @@ module NHKore
     include Fileable
 
     DEFAULT_DIR = Util::CORE_DIR
-    FAVORED_URL = /https:/i.freeze()
+    FAVORED_URL = /https:/i.freeze
 
     attr_reader :articles
     attr_reader :sha256s
 
-    def initialize()
+    def initialize
       super()
 
       @articles = {}
@@ -49,9 +49,9 @@ module NHKore
 
     def add_article(article,key: nil,overwrite: false)
       url = article.url
-      url = url.to_s() unless url.nil?()
+      url = url.to_s unless url.nil?
 
-      key = key.nil?() ? url : key.to_s()
+      key = key.nil? ? url : key.to_s
 
       if !overwrite
         raise ArgumentError,"duplicate article[#{key}] in articles" if @articles.key?(key)
@@ -80,10 +80,10 @@ module NHKore
 
       articles = data[:articles]
 
-      news = news_class.new()
+      news = news_class.new
 
       articles&.each() do |key,hash|
-        key = key.to_s() # Change from a symbol
+        key = key.to_s # Change from a symbol
         news.add_article(article_class.load_data(key,hash),key: key,overwrite: overwrite)
       end
 
@@ -91,10 +91,10 @@ module NHKore
     end
 
     def update_article(article,url)
-      url = url.to_s() unless url.nil?()
+      url = url.to_s unless url.nil?
 
       # Favor https.
-      return if article.url.to_s() =~ FAVORED_URL
+      return if article.url.to_s =~ FAVORED_URL
       return if url !~ FAVORED_URL
 
       @articles.delete(article.url) # Probably no to_s() here
@@ -103,7 +103,7 @@ module NHKore
     end
 
     def article(key)
-      key = key.to_s() unless key.nil?()
+      key = key.to_s unless key.nil?
 
       return @articles[key]
     end
@@ -111,7 +111,7 @@ module NHKore
     def article_with_sha256(sha256)
       article = nil
 
-      @articles.each_value() do |a|
+      @articles.each_value do |a|
         if a.sha256 == sha256
           article = a
 
@@ -123,7 +123,7 @@ module NHKore
     end
 
     def article?(key)
-      key = key.to_s() unless key.nil?()
+      key = key.to_s unless key.nil?
 
       return @articles.key?(key)
     end
@@ -132,7 +132,7 @@ module NHKore
       return @sha256s.key?(sha256)
     end
 
-    def to_s()
+    def to_s
       # Put each Word on one line (flow/inline style).
       return Util.dump_yaml(self,flow_level: 8)
     end

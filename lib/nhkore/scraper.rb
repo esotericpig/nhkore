@@ -37,11 +37,11 @@ module NHKore
     extend AttrBool::Ext
 
     DEFAULT_HEADER = {
-      'user-agent' => UserAgents.sample(),
+      'user-agent' => UserAgents.sample,
       'accept' => 'text/html,application/xhtml+xml,application/xml,application/rss+xml,text/xml;image/webp' \
                   ',image/apng,*/*;application/signed-exchange',
       'dnt' => '1',
-    }.freeze()
+    }.freeze
 
     attr_accessor? :eat_cookie
     attr_accessor? :is_file
@@ -65,7 +65,7 @@ module NHKore
         redirect_rule: :strict,str_or_io: nil,**kargs)
       super()
 
-      if !header.nil?() && !is_file
+      if !header.nil? && !is_file
         # Some sites (Search Engines) hate scrapers, so need HTTP header fields.
         # If this isn't enough, look at googler for more header fields to set:
         # - https://github.com/jarun/googler
@@ -93,11 +93,11 @@ module NHKore
 
       cookies = Array(@str_or_io.meta['set-cookie']) # nil will be []
 
-      if !cookies.empty?()
-        jar = HTTP::CookieJar.new()
+      if !cookies.empty?
+        jar = HTTP::CookieJar.new
         uri = URI(url)
 
-        cookies.each() do |cookie|
+        cookies.each do |cookie|
           jar.parse(cookie,uri)
         end
 
@@ -107,7 +107,7 @@ module NHKore
       return self
     end
 
-    def html_doc()
+    def html_doc
       return Nokogiri::HTML(@str_or_io)
     end
 
@@ -125,7 +125,7 @@ module NHKore
       @str_or_io = str_or_io
       @url = url
 
-      if str_or_io.nil?()
+      if str_or_io.nil?
         if @is_file
           open_file(url)
         else
@@ -148,8 +148,8 @@ module NHKore
     end
 
     def open_url(url)
-      max_redirects = (@max_redirects.nil?() || @max_redirects < 0) ? 10_000 : @max_redirects
-      max_retries = (@max_retries.nil?() || @max_retries < 0) ? 10_000 : @max_retries
+      max_redirects = (@max_redirects.nil? || @max_redirects < 0) ? 10_000 : @max_redirects
+      max_retries = (@max_retries.nil? || @max_retries < 0) ? 10_000 : @max_retries
 
       top_uri = URI(url)
       top_domain = Util.domain(top_uri.host)
@@ -199,17 +199,17 @@ module NHKore
       return self
     end
 
-    def read()
-      @str_or_io = @str_or_io.read() if @str_or_io.respond_to?(:read)
+    def read
+      @str_or_io = @str_or_io.read if @str_or_io.respond_to?(:read)
 
       return @str_or_io
     end
 
-    def reopen()
+    def reopen
       return self.open(@url)
     end
 
-    def rss_doc()
+    def rss_doc
       require 'rss'
 
       return RSS::Parser.parse(@str_or_io,validate: false)

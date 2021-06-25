@@ -47,7 +47,7 @@ module NHKore
     app = App.new(args)
 
     begin
-      app.run()
+      app.run
     rescue CLIError => e
       puts "Error: #{e}"
       exit 1
@@ -55,4 +55,4 @@ module NHKore
   end
 end
 
-NHKore.run() if TESTING
+NHKore.run if TESTING

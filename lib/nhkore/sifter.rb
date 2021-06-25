@@ -52,14 +52,14 @@ module NHKore
     attr_accessor :output
 
     def initialize(news)
-      @articles = news.articles.values.dup()
+      @articles = news.articles.values.dup
       @caption = nil
       @filters = {}
       @ignores = {}
       @output = nil
     end
 
-    def build_header()
+    def build_header
       header = []
 
       header << 'Frequency' unless @ignores[:freq]
@@ -74,7 +74,7 @@ module NHKore
     def build_rows(words)
       rows = []
 
-      words.each() do |word|
+      words.each do |word|
         rows << build_word_row(word)
       end
 
@@ -94,31 +94,31 @@ module NHKore
     end
 
     def filter?(article)
-      return false if @filters.empty?()
+      return false if @filters.empty?
 
       datetime_filter = @filters[:datetime]
       title_filter = @filters[:title]
       url_filter = @filters[:url]
 
-      if !datetime_filter.nil?()
+      if !datetime_filter.nil?
         datetime = article.datetime
 
-        return true if datetime.nil?() ||
+        return true if datetime.nil? ||
           datetime < datetime_filter[:from] || datetime > datetime_filter[:to]
       end
 
-      if !title_filter.nil?()
-        title = article.title.to_s()
+      if !title_filter.nil?
+        title = article.title.to_s
         title = Util.unspace_web_str(title) if title_filter[:unspace]
-        title = title.downcase() if title_filter[:uncase]
+        title = title.downcase if title_filter[:uncase]
 
         return true unless title.include?(title_filter[:filter])
       end
 
-      if !url_filter.nil?()
-        url = article.url.to_s()
+      if !url_filter.nil?
+        url = article.url.to_s
         url = Util.unspace_web_str(url) if url_filter[:unspace]
-        url = url.downcase() if url_filter[:uncase]
+        url = url.downcase if url_filter[:uncase]
 
         return true unless url.include?(url_filter[:filter])
       end
@@ -127,26 +127,26 @@ module NHKore
     end
 
     def filter_by_datetime(datetime_filter=nil,from: nil,to: nil)
-      if !datetime_filter.nil?()
+      if !datetime_filter.nil?
         if datetime_filter.respond_to?(:[])
           # If out-of-bounds, just nil.
-          from = datetime_filter[0] if from.nil?()
-          to = datetime_filter[1] if to.nil?()
+          from = datetime_filter[0] if from.nil?
+          to = datetime_filter[1] if to.nil?
         else
-          from = datetime_filter if from.nil?()
-          to = datetime_filter if to.nil?()
+          from = datetime_filter if from.nil?
+          to = datetime_filter if to.nil?
         end
       end
 
-      from = to if from.nil?()
-      to = from if to.nil?()
+      from = to if from.nil?
+      to = from if to.nil?
 
-      from = Util.jst_time(from) unless from.nil?()
-      to = Util.jst_time(to) unless to.nil?()
+      from = Util.jst_time(from) unless from.nil?
+      to = Util.jst_time(to) unless to.nil?
 
       datetime_filter = [from,to]
 
-      return self if datetime_filter.flatten().compact().empty?()
+      return self if datetime_filter.flatten.compact.empty?
 
       @filters[:datetime] = {from: from,to: to}
 
@@ -155,7 +155,7 @@ module NHKore
 
     def filter_by_title(title_filter,uncase: true,unspace: true)
       title_filter = Util.unspace_web_str(title_filter) if unspace
-      title_filter = title_filter.downcase() if uncase
+      title_filter = title_filter.downcase if uncase
 
       @filters[:title] = {filter: title_filter,uncase: uncase,unspace: unspace}
 
@@ -164,7 +164,7 @@ module NHKore
 
     def filter_by_url(url_filter,uncase: true,unspace: true)
       url_filter = Util.unspace_web_str(url_filter) if unspace
-      url_filter = url_filter.downcase() if uncase
+      url_filter = url_filter.downcase if uncase
 
       @filters[:url] = {filter: url_filter,uncase: uncase,unspace: unspace}
 
@@ -178,15 +178,15 @@ module NHKore
     end
 
     # This does not output {caption}.
-    def put_csv!()
+    def put_csv!
       require 'csv'
 
-      words = sift()
+      words = sift
 
       @output = CSV.generate(headers: :first_row,write_headers: true) do |csv|
-        csv << build_header()
+        csv << build_header
 
-        words.each() do |word|
+        words.each do |word|
           csv << build_word_row(word)
         end
       end
@@ -194,12 +194,12 @@ module NHKore
       return @output
     end
 
-    def put_html!()
-      words = sift()
+    def put_html!
+      words = sift
 
-      @output = ''.dup()
+      @output = ''.dup
 
-      @output << <<~EOH
+      @output << <<~HTML
         <!DOCTYPE html>
         <html lang="ja">
         <head>
@@ -248,8 +248,7 @@ module NHKore
         <h1>NHKore</h1>
         <h2>#{@caption}</h2>
         <table>
-      EOH
-      #"
+      HTML
 
       # If have too few or too many '<col>', invalid HTML.
       @output << %Q(<col style="width:6em;">\n) unless @ignores[:freq]
@@ -260,47 +259,46 @@ module NHKore
 
       @output << '<tr>'
 
-      build_header().each() do |h|
+      build_header.each do |h|
         @output << "<th>#{h}</th>"
       end
 
       @output << "</tr>\n"
 
-      words.each() do |word|
+      words.each do |word|
         @output << '<tr>'
 
-        build_word_row(word).each() do |w|
-          @output << "<td>#{Util.escape_html(w.to_s())}</td>"
+        build_word_row(word).each do |w|
+          @output << "<td>#{Util.escape_html(w.to_s)}</td>"
         end
 
         @output << "</tr>\n"
       end
 
-      @output << <<~EOH
+      @output << <<~HTML
         </table>
         </body>
         </html>
-      EOH
-      #/
+      HTML
 
       return @output
     end
 
-    def put_json!()
+    def put_json!
       require 'json'
 
-      words = sift()
+      words = sift
 
-      @output = ''.dup()
+      @output = ''.dup
 
-      @output << <<~EOJ
+      @output << <<~JSON
         {
         "caption": #{JSON.generate(@caption)},
-        "header": #{JSON.generate(build_header())},
+        "header": #{JSON.generate(build_header)},
         "words": [
-      EOJ
+      JSON
 
-      if !words.empty?()
+      if !words.empty?
         0.upto(words.length - 2) do |i|
           @output << "  #{JSON.generate(build_word_row(words[i]))},\n"
         end
@@ -313,59 +311,59 @@ module NHKore
       return @output
     end
 
-    def put_yaml!()
+    def put_yaml!
       require 'psychgus'
 
-      words = sift()
+      words = sift
 
       yaml = {
         caption: @caption,
-        header: build_header(),
+        header: build_header,
         words: build_rows(words),
       }
 
-      header_styler = Class.new() do
+      header_styler = Class.new do
         include Psychgus::Styler
 
         def style_sequence(sniffer,node)
           parent = sniffer.parent
 
-          if !parent.nil?() && parent.node.respond_to?(:value) && parent.value == 'header'
+          if !parent.nil? && parent.node.respond_to?(:value) && parent.value == 'header'
             node.style = Psychgus::SEQUENCE_FLOW
           end
         end
       end
 
       # Put each Word on one line (flow/inline style).
-      @output = Util.dump_yaml(yaml,flow_level: 4,stylers: header_styler.new())
+      @output = Util.dump_yaml(yaml,flow_level: 4,stylers: header_styler.new)
 
       return @output
     end
 
-    def sift()
-      master_article = Article.new()
+    def sift
+      master_article = Article.new
 
-      @articles.each() do |article|
+      @articles.each do |article|
         next if filter?(article)
 
-        article.words.each_value() do |word|
+        article.words.each_value do |word|
           master_article.add_word(word,use_freq: true)
         end
       end
 
-      words = master_article.words.values()
+      words = master_article.words.values
 
-      words.sort!() do |word1,word2|
+      words.sort! do |word1,word2|
         # Order by freq DESC (most frequent words to top).
         i = (word2.freq <=> word1.freq)
 
         # Order by !defn.empty, word ASC, !kana.empty, kana ASC, defn.len DESC, defn ASC.
         i = compare_empty_str(word1.defn,word2.defn) if i == 0 # Favor words that have definitions
-        i = (word1.word.to_s() <=> word2.word.to_s()) if i == 0
+        i = (word1.word.to_s <=> word2.word.to_s) if i == 0
         i = compare_empty_str(word1.kana,word2.kana) if i == 0 # Favor words that have kana
-        i = (word1.kana.to_s() <=> word2.kana.to_s()) if i == 0
-        i = (word2.defn.to_s().length <=> word1.defn.to_s().length) if i == 0 # Favor longer definitions
-        i = (word1.defn.to_s() <=> word2.defn.to_s()) if i == 0
+        i = (word1.kana.to_s <=> word2.kana.to_s) if i == 0
+        i = (word2.defn.to_s.length <=> word1.defn.to_s.length) if i == 0 # Favor longer definitions
+        i = (word1.defn.to_s <=> word2.defn.to_s) if i == 0
 
         i
       end
@@ -386,8 +384,8 @@ module NHKore
       return 0 # Further comparison needed
     end
 
-    def to_s()
-      return @output.to_s()
+    def to_s
+      return @output.to_s
     end
   end
 end

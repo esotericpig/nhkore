@@ -53,7 +53,7 @@ module NHKore
       '%H:%M',
       '%d',
       '%Y',
-    ].freeze()
+    ].freeze
 
     def self.guess_year(year)
       if year < 1000
@@ -92,7 +92,7 @@ module NHKore
       value = Util.strip_web_str(Util.reduce_space(value))
       values = value.split('...',2)
 
-      return nil if values.empty?() # For '' or '...'
+      return nil if values.empty? # For '' or '...'
 
       # For '2020...' or '...2020'.
       if value.include?('...')
@@ -108,41 +108,39 @@ module NHKore
       end
 
       datetimes = [
-        DatetimeParser.new(), # "From" date time
-        DatetimeParser.new(), # "To" date time
+        DatetimeParser.new, # "From" date time
+        DatetimeParser.new, # "To" date time
       ]
 
-      values.each_with_index() do |v,i|
+      values.each_with_index do |v,i|
         dt = datetimes[i]
 
         # Minimum/Maximum date time for '2020...' or '...2020'.
         if v == :infinity
           # "From" date time.
           if i == 0
-            dt.min!()
+            dt.min!
           # "To" date time.
           else
-            dt.max!()
+            dt.max!
           end
         else
           v = Util.strip_web_str(v)
 
-          FMTS.each_with_index() do |fmt,j|
-            begin
-              # If don't do this, "%d" values will be parsed using "%d %H".
-              # It seems as though strptime() ignores space.
-              raise ArgumentError if fmt.include?(' ') && !v.include?(' ')
+          FMTS.each_with_index do |fmt,j|
+            # If don't do this, "%d" values will be parsed using "%d %H".
+            # It seems as though strptime() ignores space.
+            raise ArgumentError if fmt.include?(' ') && !v.include?(' ')
 
-              # If don't do this, "%y..." values will be parsed using "%d...".
-              raise ArgumentError if fmt.start_with?('%d') && v.split(' ')[0].length > 2
+            # If don't do this, "%y..." values will be parsed using "%d...".
+            raise ArgumentError if fmt.start_with?('%d') && v.split(' ')[0].length > 2
 
-              dt.parse!(v,fmt)
+            dt.parse!(v,fmt)
 
-              break # No problem; this format worked
-            rescue ArgumentError
-              # Out of formats.
-              raise if j >= (FMTS.length - 1)
-            end
+            break # No problem; this format worked
+          rescue ArgumentError
+            # Out of formats.
+            raise if j >= (FMTS.length - 1)
           end
         end
       end
@@ -153,7 +151,7 @@ module NHKore
       from.autofill!(:from,to)
       to.autofill!(:to,from)
 
-      return [from.jst_time(),to.jst_time()]
+      return [from.jst_time,to.jst_time]
     end
 
     attr_accessor :day
@@ -198,7 +196,7 @@ module NHKore
 
       # Must be from smallest to biggest.
 
-      if @has_sec || other.has_sec?()
+      if @has_sec || other.has_sec?
         @sec = other.sec unless @has_sec
         has_small = true
       else
@@ -209,7 +207,7 @@ module NHKore
         end
       end
 
-      if @has_min || other.has_min?()
+      if @has_min || other.has_min?
         @min = other.min unless @has_min
         has_small = true
       else
@@ -220,7 +218,7 @@ module NHKore
         end
       end
 
-      if @has_hour || other.has_hour?()
+      if @has_hour || other.has_hour?
         @hour = other.hour unless @has_hour
         has_small = true
       else
@@ -231,7 +229,7 @@ module NHKore
         end
       end
 
-      if @has_day || other.has_day?()
+      if @has_day || other.has_day?
         @day = other.day unless @has_day
         has_small = true
       else
@@ -242,7 +240,7 @@ module NHKore
         end
       end
 
-      if @has_month || other.has_month?()
+      if @has_month || other.has_month?
         @month = other.month unless @has_month
         has_small = true
       else
@@ -253,7 +251,7 @@ module NHKore
         end
       end
 
-      if @has_year || other.has_year?()
+      if @has_year || other.has_year?
         @year = other.year unless @has_year
         has_small = true # rubocop:disable Lint/UselessAssignment
       else
@@ -272,14 +270,14 @@ module NHKore
       return self
     end
 
-    def max!()
+    def max!
       @min_or_max = true
 
       # Ex: 2020-12-31 23:59:59
       return set!(Util::JST_YEAR,12,31,23,59,59)
     end
 
-    def min!()
+    def min!
       @min_or_max = true
 
       # Ex: 1924-01-01 00:00:00
@@ -326,15 +324,15 @@ module NHKore
       @has_year = value
     end
 
-    def jst_time()
-      return Util.jst_time(time())
+    def jst_time
+      return Util.jst_time(time)
     end
 
-    def time()
+    def time
       return Time.new(@year,@month,@day,@hour,@min,@sec)
     end
 
-    def to_s()
+    def to_s
       return "#{@year}-#{@month}-#{@day} #{@hour}:#{@min}:#{@sec}"
     end
   end

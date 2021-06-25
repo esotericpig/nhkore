@@ -51,17 +51,17 @@ module NHKore
     end
 
     def add_article(article)
-      add_words(article.words.values())
+      add_words(article.words.values)
     end
 
     def add_news(news)
-      news.articles.each_value() do |article|
+      news.articles.each_value do |article|
         add_article(article)
       end
     end
 
     def add_words(words)
-      words.each() do |word|
+      words.each do |word|
         # We only want ones that are both filled in because
         #   Word.scrape_ruby_tag() will raise an error if either is empty.
         next if Util.empty_web_str?(word.kana) || Util.empty_web_str?(word.kanji)
@@ -79,13 +79,13 @@ module NHKore
     def kana_from_kanji(kanji)
       word = @kanjis[kanji]
 
-      return word.nil?() ? nil : word.kana
+      return word.nil? ? nil : word.kana
     end
 
     def kanji_from_kana(kana)
       word = @kanas[kana]
 
-      return word.nil?() ? nil : word.kanji
+      return word.nil? ? nil : word.kanji
     end
   end
 end

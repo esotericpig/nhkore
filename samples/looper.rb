@@ -36,7 +36,7 @@ when '-c' # count
   puts "Use the first number with the '-a' option."
   exit
 when '-a' # articles
-  articles = ARGV[1].to_i()
+  articles = ARGV[1].to_i
   articles = 0 if articles < 0
 else
   puts 'Options:'
@@ -49,7 +49,7 @@ articles_inc = 25
 max_errors   = 5 # Exit, for example, if 404 errors repeatedly
 max_loop     = 5 # Possible total = articles_inc * max_loop
 
-thread = Thread.new() do
+thread = Thread.new do
   i = 0
 
   while i < max_loop
@@ -67,16 +67,16 @@ end
 
 # Ctrl+C
 trap('INT') do
-  if thread.alive?()
+  if thread.alive?
     # Try to exit gracefully.
     max_loop = -1
     thread.join(5)
 
     # Die!
-    thread.kill() if thread.alive?()
+    thread.kill if thread.alive?
   end
 
   exit
 end
 
-thread.join() # Run
+thread.join # Run

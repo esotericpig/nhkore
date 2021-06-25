@@ -24,4 +24,4 @@
 require 'nhkore'
 
 
-NHKore.run()
+NHKore.run

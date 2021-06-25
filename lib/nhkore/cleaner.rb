@@ -42,11 +42,11 @@ module NHKore
     end
 
     def self.clean_any(obj,cleaners)
-      return nil if obj.nil?()
+      return nil if obj.nil?
 
       cleaners = Array(cleaners)
 
-      return obj if cleaners.empty?()
+      return obj if cleaners.empty?
 
       if obj.is_a?(Word)
         obj = Word.new(
@@ -55,7 +55,7 @@ module NHKore
           word: obj
         )
       else # String
-        cleaners.each() do |cleaner|
+        cleaners.each do |cleaner|
           obj = cleaner.clean(obj)
         end
       end

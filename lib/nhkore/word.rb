@@ -42,17 +42,17 @@ module NHKore
     def initialize(defn: nil,eng: nil,freq: 1,kana: nil,kanji: nil,unknown: nil,word: nil,**kargs)
       super()
 
-      if !word.nil?()
-        defn = word.defn if defn.nil?()
-        eng = word.eng if eng.nil?()
-        freq = word.freq if freq.nil?()
-        kana = word.kana if kana.nil?()
-        kanji = word.kanji if kanji.nil?()
+      if !word.nil?
+        defn = word.defn if defn.nil?
+        eng = word.eng if eng.nil?
+        freq = word.freq if freq.nil?
+        kana = word.kana if kana.nil?
+        kanji = word.kanji if kanji.nil?
       end
 
       raise ArgumentError,"freq[#{freq}] cannot be < 1" if freq < 1
 
-      if !unknown.nil?()
+      if !unknown.nil?
         # kanji?() only tests if it contains kanji, so don't use kana?().
         if Util.kanji?(unknown)
           if !Util.empty_web_str?(kanji)
@@ -72,7 +72,7 @@ module NHKore
       kana = nil if Util.empty_web_str?(kana)
       kanji = nil if Util.empty_web_str?(kanji)
 
-      raise ArgumentError,'kanji and kana cannot both be empty' if kana.nil?() && kanji.nil?()
+      raise ArgumentError,'kanji and kana cannot both be empty' if kana.nil? && kanji.nil?
 
       @defn = defn
       @eng = eng
@@ -94,7 +94,7 @@ module NHKore
     end
 
     def self.load_data(key,hash)
-      key = key.to_s() # Change from a symbol
+      key = key.to_s # Change from a symbol
 
       word = Word.new(
         defn: hash[:defn],
@@ -107,7 +107,7 @@ module NHKore
         raise ArgumentError,"the key from the hash[#{key}] does not match the generated key[#{word.key}]"
       end
 
-      freq = hash[:freq].to_i() # nil.to_i() is 0
+      freq = hash[:freq].to_i # nil.to_i() is 0
       word.freq = freq if freq > 0
 
       return word
@@ -134,7 +134,7 @@ module NHKore
 
       kana = kana[0].text
 
-      if !missingno.nil?()
+      if !missingno.nil?
         # Check kana first, since this is the typical scenario.
         # - https://www3.nhk.or.jp/news/easy/k10012331311000/k10012331311000.html
         # - '窓' in '（８）窓を開けて外の空気を入れましょう'
@@ -174,22 +174,22 @@ module NHKore
       return word
     end
 
-    def kanji?()
+    def kanji?
       return !Util.empty_web_str?(@kanji)
     end
 
-    def word()
-      return kanji?() ? @kanji : @kana
+    def word
+      return kanji? ? @kanji : @kana
     end
 
-    def to_s()
-      s = ''.dup()
+    def to_s
+      s = ''.dup
 
       s << "'#{@key}': "
       s << "{ kanji=>'#{@kanji}'"
       s << ", kana=>'#{@kana}'"
       s << ", freq=>#{@freq}"
-      s << ", defn=>'#{@defn.to_s().gsub("\n",'\\n')}'"
+      s << ", defn=>'#{@defn.to_s.gsub("\n",'\\n')}'"
       s << ", eng=>'#{@eng}'"
       s << ' }'
 

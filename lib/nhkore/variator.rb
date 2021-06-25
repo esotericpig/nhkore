@@ -64,7 +64,7 @@ module NHKore
 
       super
 
-      @deinflector = JapaneseDeinflector.new()
+      @deinflector = JapaneseDeinflector.new
     end
 
     def end_variate(str)

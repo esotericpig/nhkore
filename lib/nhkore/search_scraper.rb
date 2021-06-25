@@ -39,10 +39,10 @@ module NHKore
     YASASHII_SITE = 'nhk.or.jp/news/easy/'
 
     # https://www3.nhk.or.jp/news/html/20200220/k10012294001000.html
-    FUTSUU_REGEX = /\A[^.]+\.#{Regexp.quote(FUTSUU_SITE)}.+\.html?/i.freeze()
+    FUTSUU_REGEX = /\A[^.]+\.#{Regexp.quote(FUTSUU_SITE)}.+\.html?/i.freeze
     # https://www3.nhk.or.jp/news/easy/k10012294001000/k10012294001000.html
     # - https://www3.nhk.or.jp/news/easy/article/disaster_heat.html
-    YASASHII_REGEX = /\A[^.]+\.#{Regexp.quote(YASASHII_SITE)}.+\.html?/i.freeze()
+    YASASHII_REGEX = /\A[^.]+\.#{Regexp.quote(YASASHII_SITE)}.+\.html?/i.freeze
 
     IGNORE_LINK_REGEX = %r{
       /about\.html?             # https://www3.nhk.or.jp/news/easy/about.html
@@ -53,7 +53,7 @@ module NHKore
       # https://cgi2.nhk.or.jp/news/easy/easy_enq/bin/form/enqform.html?id=k10011916321000&title=日本の会社が作った鉄道の車両「あずま」がイギリスで走る
       # https://www3.nhk.or.jp/news/easy/easy_enq/bin/form/enqform.html?id=k10012689671000&title=「鬼滅の刃」の映画が台湾でも始まって大勢の人が見に行く
       |/enqform\.html?
-    }x.freeze()
+    }x.freeze
 
     # Search Engines are strict, so trigger using the default HTTP header fields
     # with +header: {}+ and fetch/set the cookie using +eat_cookie: true+.
@@ -62,11 +62,11 @@ module NHKore
     end
 
     def ignore_link?(link,cleaned: true)
-      return true if link.nil?()
+      return true if link.nil?
 
-      link = Util.unspace_web_str(link).downcase() unless cleaned
+      link = Util.unspace_web_str(link).downcase unless cleaned
 
-      return true if link.empty?()
+      return true if link.empty?
 
       return true if IGNORE_LINK_REGEX.match?(link)
 
@@ -85,20 +85,20 @@ module NHKore
     def initialize(site,regex: nil,url: nil,**kargs)
       case site
       when :futsuu
-        regex = FUTSUU_REGEX if regex.nil?()
+        regex = FUTSUU_REGEX if regex.nil?
         site = FUTSUU_SITE
       when :yasashii
-        regex = YASASHII_REGEX if regex.nil?()
+        regex = YASASHII_REGEX if regex.nil?
         site = YASASHII_SITE
       else
         raise ArgumentError,"invalid site[#{site}]"
       end
 
-      raise ArgumentError,"empty regex[#{regex}]" if regex.nil?()
+      raise ArgumentError,"empty regex[#{regex}]" if regex.nil?
 
       @regex = regex
       @site = site
-      url = self.class.build_url(site,**kargs) if url.nil?()
+      url = self.class.build_url(site,**kargs) if url.nil?
 
       # Delete class-specific args (don't pass to Open-URI).
       kargs.delete(:count)
@@ -107,7 +107,7 @@ module NHKore
     end
 
     def self.build_url(site,count: DEFAULT_RESULT_COUNT,**kargs)
-      url = ''.dup()
+      url = ''.dup
 
       url << 'https://www.bing.com/search?'
       url << URI.encode_www_form(
@@ -129,19 +129,19 @@ module NHKore
     end
 
     def scrape_html(slinks,page,next_page=NextPage.new())
-      doc = html_doc()
+      doc = html_doc
       link_count = 0
 
       anchors = doc.css('a')
 
-      anchors.each() do |anchor|
-        href = anchor['href'].to_s()
-        href = Util.unspace_web_str(href).downcase()
+      anchors.each do |anchor|
+        href = anchor['href'].to_s
+        href = Util.unspace_web_str(href).downcase
 
         next if ignore_link?(href)
 
         if (md = href.match(/first=(\d+)/))
-          count = md[1].to_i()
+          count = md[1].to_i
 
           if count > page.count && (next_page.count < 0 || count < next_page.count)
             next_page.count = count
@@ -166,12 +166,12 @@ module NHKore
         Util.replace_uri_query!(uri,format: 'rss')
         self.open(uri)
 
-        doc = rss_doc()
+        doc = rss_doc
         rss_links = []
 
-        doc.items.each() do |item|
-          link = item.link.to_s()
-          link = Util.unspace_web_str(link).downcase()
+        doc.items.each do |item|
+          link = item.link.to_s
+          link = Util.unspace_web_str(link).downcase
 
           rss_links << link
 
@@ -186,12 +186,12 @@ module NHKore
         # For RSS, Bing will keep returning the same links over and over
         # if it's the last page or the "first=" query is the wrong count.
         # Therefore, we have to test the previous RSS links (+page.rss_links+).
-        if next_page.empty?() && doc.items.length >= 1 && page.rss_links != rss_links
+        if next_page.empty? && doc.items.length >= 1 && page.rss_links != rss_links
           next_page.count = (page.count < 0) ? 0 : page.count
           next_page.count += doc.items.length
           next_page.rss_links = rss_links
 
-          uri = URI(page.url.nil?() ? @url : page.url)
+          uri = URI(page.url.nil? ? @url : page.url)
 
           Util.replace_uri_query!(uri,first: next_page.count)
 
@@ -212,7 +212,7 @@ module NHKore
     attr_accessor :rss_links
     attr_accessor :url
 
-    def initialize()
+    def initialize
       super()
 
       @count = -1
@@ -220,8 +220,8 @@ module NHKore
       @url = nil
     end
 
-    def empty?()
-      return @url.nil?() || @count < 0
+    def empty?
+      return @url.nil? || @count < 0
     end
   end
 end

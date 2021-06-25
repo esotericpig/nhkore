@@ -36,23 +36,23 @@ module NHKore
     attr_accessor :text
     attr_reader :words
 
-    def initialize()
+    def initialize
       super()
 
       @hyoukis = []
-      @text = ''.dup()
+      @text = ''.dup
       @words = []
     end
 
     # If no data, don't raise errors; don't care if have a definition or not.
     def self.scrape(hash,missingno: nil,url: nil)
-      defn = Defn.new()
+      defn = Defn.new
 
       hyoukis = hash['hyouki']
 
       hyoukis&.each() do |hyouki|
-        next if hyouki.nil?()
-        next if (hyouki = Util.strip_web_str(hyouki)).empty?()
+        next if hyouki.nil?
+        next if (hyouki = Util.strip_web_str(hyouki)).empty?
 
         defn.hyoukis << hyouki
       end
@@ -60,14 +60,14 @@ module NHKore
       def_str = hash['def']
 
       if Util.empty_web_str?(def_str)
-        return defn.hyoukis.empty?() ? nil : defn
+        return defn.hyoukis.empty? ? nil : defn
       end
 
       doc = Nokogiri::HTML(def_str)
       doc = doc.css('body') # Auto-added by Nokogiri
 
-      doc.children.each() do |child|
-        name = Util.unspace_web_str(child.name).downcase() if child.respond_to?(:name)
+      doc.children.each do |child|
+        name = Util.unspace_web_str(child.name).downcase if child.respond_to?(:name)
 
         is_text = false
         word = nil
@@ -79,7 +79,7 @@ module NHKore
           is_text = true
         end
 
-        if word.nil?()
+        if word.nil?
           defn.text << Util.reduce_jpn_space(child.text) if is_text
         else
           defn.text << Util.reduce_jpn_space(word.word)
@@ -87,14 +87,14 @@ module NHKore
         end
       end
 
-      return nil if defn.hyoukis.empty?() && defn.words.empty?()
+      return nil if defn.hyoukis.empty? && defn.words.empty?
 
       defn.text = Util.strip_web_str(defn.text)
 
       return defn
     end
 
-    def to_s()
+    def to_s
       return @text
     end
   end

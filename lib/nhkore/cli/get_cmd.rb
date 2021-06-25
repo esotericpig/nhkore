@@ -35,27 +35,27 @@ module CLI
     GET_URL_FILENAME = 'nhkore-core.zip'
     GET_URL = "https://github.com/esotericpig/nhkore/releases/latest/download/#{GET_URL_FILENAME}"
 
-    def build_get_cmd()
+    def build_get_cmd
       app = self
 
-      @get_cmd = @app_cmd.define_command() do
+      @get_cmd = @app_cmd.define_command do
         name    'get'
         usage   'get [OPTIONS] [COMMAND]...'
         aliases :g
         summary "Download NHKore's pre-scraped files from the latest release" \
                 " (aliases: #{app.color_alias('g')})"
 
-        description <<-EOD
+        description(<<-DESC)
           Download NHKore's pre-scraped files from the latest release &
           save to folder: #{Util::CORE_DIR}
 
           Note: the latest NHK articles may not have been scraped yet.
-        EOD
+        DESC
 
         option :o,:out,'directory to save downloaded files to',argument: :required,default: Util::CORE_DIR,
             transform: lambda { |value|
-          app.check_empty_opt(:out,value)
-        }
+              app.check_empty_opt(:out,value)
+            }
         flag nil,:'show-url','show download URL and exit (for downloading manually)' do |value,cmd|
           puts GET_URL
           exit
@@ -63,12 +63,12 @@ module CLI
 
         run do |opts,args,cmd|
           app.refresh_cmd(opts,args,cmd)
-          app.run_get_cmd()
+          app.run_get_cmd
         end
       end
     end
 
-    def run_get_cmd()
+    def run_get_cmd
       require 'down/net_http'
       require 'tempfile'
       require 'zip'
@@ -82,7 +82,7 @@ module CLI
       dry_run = @cmd_opts[:dry_run]
       force = @cmd_opts[:force]
       max_retries = @scraper_kargs[:max_retries]
-      max_retries = 3 if max_retries.nil?()
+      max_retries = 3 if max_retries.nil?
       out_dir = @cmd_opts[:out]
 
       begin
@@ -95,7 +95,7 @@ module CLI
           retry
         end
 
-        stop_spin()
+        stop_spin
 
         return if dry_run
 
@@ -105,19 +105,19 @@ module CLI
           puts "> #{file.path}"
 
           len = down.size
-          len = DEFAULT_GET_LENGTH if len.nil?() || len < 1
+          len = DEFAULT_GET_LENGTH if len.nil? || len < 1
           bar = build_progress_bar('> Downloading',download: true,total: len)
 
-          bar.start()
+          bar.start
 
-          while !down.eof?()
+          while !down.eof?
             file.write(down.read(chunk_size))
             bar.advance(chunk_size)
           end
 
-          down.close()
-          file.close()
-          bar.finish()
+          down.close
+          file.close
+          bar.finish
 
           puts
           puts "Extracting #{GET_URL_FILENAME}..."
@@ -127,14 +127,14 @@ module CLI
           Zip.on_exists_proc = true
 
           Zip::File.open(file) do |zip_file|
-            zip_file.each() do |entry|
-              if !entry.name_safe?()
+            zip_file.each do |entry|
+              if !entry.name_safe?
                 raise ZipError,"unsafe entry name[#{entry.name}] in Zip file"
               end
 
               name = Util.strip_web_str(File.basename(entry.name))
 
-              next if name.empty?()
+              next if name.empty?
 
               out_file = File.join(out_dir,name)
 
@@ -160,7 +160,7 @@ module CLI
           puts "> #{out_dir}"
         end
       ensure
-        down.close() if !down.nil?() && !down.closed?()
+        down.close if !down.nil? && !down.closed?
       end
     end
   end

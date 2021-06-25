@@ -35,34 +35,34 @@ module NHKore
     attr_reader :defns
     attr_accessor :id
 
-    def initialize()
+    def initialize
       super()
 
       @defns = []
       @id = nil
     end
 
-    def build_defn()
+    def build_defn
       defns = []
       i = 0
 
-      @defns.each() do |defn|
+      @defns.each do |defn|
         defns << "#{i += 1}）#{defn}" # Japanese parenthesis
       end
 
       return defns.join("\n")
     end
 
-    def build_hyouki()
+    def build_hyouki
       # Since Ruby v1.9, Hash preserves order.
       # Ruby v2.7 doc for Set still says no guarantee of order, so don't use.
       hyoukis = {}
 
-      @defns.each() do |defn|
-        defn.hyoukis.each() do |hyouki|
+      @defns.each do |defn|
+        defn.hyoukis.each do |hyouki|
           hyouki = hyouki.chomp(HYOUKI_SEP)
 
-          next if hyouki.empty?()
+          next if hyouki.empty?
 
           hyoukis[hyouki] = true
         end
@@ -72,30 +72,30 @@ module NHKore
     end
 
     def self.scrape(id,array,missingno: nil,url: nil)
-      entry = Entry.new()
+      entry = Entry.new
 
-      entry.id = Util.unspace_web_str(id.to_s()).downcase()
+      entry.id = Util.unspace_web_str(id.to_s).downcase
 
-      return nil if entry.id.empty?()
+      return nil if entry.id.empty?
 
-      array.each() do |hash|
+      array.each do |hash|
         defn = Defn.scrape(hash,missingno: missingno,url: url)
-        entry.defns << defn unless defn.nil?()
+        entry.defns << defn unless defn.nil?
       end
 
-      return nil if entry.defns.empty?()
+      return nil if entry.defns.empty?
       return entry
     end
 
-    def to_s()
-      s = ''.dup()
+    def to_s
+      s = ''.dup
 
-      return s if @defns.empty?()
+      return s if @defns.empty?
 
-      hyouki = build_hyouki()
+      hyouki = build_hyouki
 
       s << "#{hyouki}\n" unless Util.empty_web_str?(hyouki)
-      s << build_defn()
+      s << build_defn
 
       return s
     end

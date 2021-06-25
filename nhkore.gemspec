@@ -1,31 +1,10 @@
 # encoding: UTF-8
 # frozen_string_literal: true
 
-#--
-# This file is part of NHKore.
-# Copyright (c) 2020 Jonathan Bradley Whited (@esotericpig)
-#
-# NHKore is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# NHKore is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with NHKore.  If not, see <https://www.gnu.org/licenses/>.
-#++
 
+require_relative 'lib/nhkore/version'
 
-lib = File.expand_path(File.join('..','lib'),__FILE__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-
-require 'nhkore/version'
-
-Gem::Specification.new() do |spec|
+Gem::Specification.new do |spec|
   spec.name        = 'nhkore'
   spec.version     = NHKore::VERSION
   spec.authors     = ['Jonathan Bradley Whited (@esotericpig)']
@@ -51,7 +30,7 @@ Gem::Specification.new() do |spec|
     'Nokogiri: https://www.nokogiri.org/tutorials/installing_nokogiri.html',
   ]
 
-  spec.required_ruby_version = '>= 2.4'
+  spec.required_ruby_version = '>= 2.5'
   spec.require_paths         = ['lib']
   spec.bindir                = 'bin'
   spec.executables           = [spec.name]
@@ -62,7 +41,7 @@ Gem::Specification.new() do |spec|
     Dir.glob(File.join('{samples,test,yard}','**','*.{erb,rb}')),
     %W[ Gemfile Gemfile.lock #{spec.name}.gemspec Rakefile .yardopts ],
     %w[ CHANGELOG.md LICENSE.txt README.md ],
-  ].flatten()
+  ].flatten
 
   spec.add_runtime_dependency 'attr_bool'            ,'~> 0.2'  # For attr_accessor?/attr_reader?
   spec.add_runtime_dependency 'bimyou_segmenter'     ,'~> 1.2'  # For splitting Japanese sentences into words
@@ -89,7 +68,7 @@ Gem::Specification.new() do |spec|
   spec.add_development_dependency 'yard'      ,'~> 0.9'  # For documentation
   spec.add_development_dependency 'yard_ghurt','~> 1.2'  # For extra YARDoc Rake tasks
 
-  spec.post_install_message = <<-EOM
+  spec.post_install_message = <<-MSG
 
   NHKore v#{NHKore::VERSION}
 
@@ -102,7 +81,7 @@ Gem::Specification.new() do |spec|
 
   Changelog: #{spec.metadata['changelog_uri']}
 
-  EOM
+  MSG
 
   spec.extra_rdoc_files = %w[ CHANGELOG.md LICENSE.txt README.md ]
 

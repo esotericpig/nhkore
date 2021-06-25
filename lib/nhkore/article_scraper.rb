@@ -61,13 +61,13 @@ module NHKore
     # @param missingno [Missingno] data to use as a fallback for Ruby words without kana/kanji,
     #                  instead of raising an error
     # @param strict [true,false]
-    def initialize(url,cleaners: [BestCleaner.new()],datetime: nil,dict: :scrape,missingno: nil,
-        polishers: [BestPolisher.new()],splitter: BestSplitter.new(),strict: true,
-        variators: [BestVariator.new()],year: nil,**kargs)
+    def initialize(url,cleaners: [BestCleaner.new],datetime: nil,dict: :scrape,missingno: nil,
+        polishers: [BestPolisher.new],splitter: BestSplitter.new,strict: true,
+        variators: [BestVariator.new],year: nil,**kargs)
       super(url,**kargs)
 
       @cleaners = Array(cleaners)
-      @datetime = datetime.nil?() ? nil : Util.jst_time(datetime)
+      @datetime = datetime.nil? ? nil : Util.jst_time(datetime)
       @dict = dict
       @kargs = kargs
       @missingno = missingno
@@ -79,17 +79,17 @@ module NHKore
     end
 
     def add_words(article,words,text)
-      words.each() do |word|
+      words.each do |word|
         # Words should have already been cleaned.
         # If we don't check this, Word.new() could raise an error in polish().
-        next if polish(word.word).empty?()
+        next if polish(word.word).empty?
 
         article.add_word(polish(word))
 
-        variate(word.word).each() do |v|
+        variate(word.word).each do |v|
           v = polish(clean(v))
 
-          next if v.empty?()
+          next if v.empty?
 
           # Do not pass in "word: word". We only want defn & eng.
           # If we pass in kanji/kana & unknown, it will raise an error.
@@ -101,17 +101,17 @@ module NHKore
         end
       end
 
-      split(text).each() do |t|
+      split(text).each do |t|
         t = polish(clean(t))
 
-        next if t.empty?()
+        next if t.empty?
 
         article.add_word(Word.new(unknown: t))
 
-        variate(t).each() do |v|
+        variate(t).each do |v|
           v = polish(clean(v))
 
-          next if v.empty?()
+          next if v.empty?
 
           article.add_word(Word.new(unknown: v))
         end
@@ -122,19 +122,19 @@ module NHKore
       return Cleaner.clean_any(obj,@cleaners)
     end
 
-    def fix_bad_html()
+    def fix_bad_html
       # Fixes:
       # - '<「<' without escaping '<' as '&lt;'
       #   - https://www3.nhk.or.jp/news/easy/k10012118911000/k10012118911000.html
       #   - '</p><br><「<ruby>台風<rt>たいふう</rt></ruby>'
 
-      read()
+      read
 
-      # To add a new one, simply add '|(...)' on a newline and test $#.
-      @str_or_io = @str_or_io.gsub(%r{
-        (<「<)
-      }x) do |match|
-        if !$1.nil?()
+      # To add a new one, simply add '|(...)' on a newline and test Regexp.last_match().
+      @str_or_io = @str_or_io.gsub(/
+        (?<cane><「<)
+      /x) do |match|
+        if !Regexp.last_match(:cane).nil?
           match = match.sub('<','&lt;')
         end
 
@@ -152,7 +152,7 @@ module NHKore
     def parse_dicwin_id(str)
       str = str.gsub(/\D+/,'')
 
-      return nil if str.empty?()
+      return nil if str.empty?
       return str
     end
 
@@ -160,12 +160,12 @@ module NHKore
       return Polisher.polish_any(obj,@polishers)
     end
 
-    def scrape()
-      scrape_dict()
-      fix_bad_html()
+    def scrape
+      scrape_dict
+      fix_bad_html
 
-      article = Article.new()
-      doc = html_doc()
+      article = Article.new
+      doc = html_doc
 
       article.futsuurl = scrape_futsuurl(doc)
 
@@ -177,9 +177,9 @@ module NHKore
       return article
     end
 
-    def scrape_and_add_words(tag,article,result: ScrapeWordsResult.new())
+    def scrape_and_add_words(tag,article,result: ScrapeWordsResult.new)
       result = scrape_words(tag,result: result)
-      result.polish!()
+      result.polish!
 
       add_words(article,result.words,result.text)
 
@@ -195,16 +195,16 @@ module NHKore
       tag = doc.css('div#main') if tag.length < 1 && !@strict
 
       if tag.length > 0
-        text = Util.unspace_web_str(tag.text.to_s())
+        text = Util.unspace_web_str(tag.text.to_s)
 
-        if !text.empty?()
+        if !text.empty?
           hexdigest = Digest::SHA256.hexdigest(text)
 
-          return hexdigest if article.nil?() # For scrape_sha256_only()
+          return hexdigest if article.nil? # For scrape_sha256_only()
 
           result = scrape_and_add_words(tag,article)
 
-          return hexdigest if result.words?()
+          return hexdigest if result.words?
         end
       end
 
@@ -256,7 +256,7 @@ module NHKore
       tag = doc.css('body')
 
       if tag.length > 0
-        tag_id = tag[0]['id'].to_s().split('_',2)
+        tag_id = tag[0]['id'].to_s.split('_',2)
 
         if tag_id.length > 0
           tag_id = tag_id[0].gsub(/[^[[:digit:]]]+/,'')
@@ -270,12 +270,12 @@ module NHKore
       end
 
       # As a last resort, use our user-defined fallback (if specified).
-      return @datetime unless @datetime.nil?()
+      return @datetime unless @datetime.nil?
 
       raise ScrapeError,"could not scrape date time at URL[#{@url}]"
     end
 
-    def scrape_dict()
+    def scrape_dict
       return if @dict != :scrape
 
       dict_url = DictScraper.parse_url(@url)
@@ -284,12 +284,12 @@ module NHKore
       begin
         scraper = DictScraper.new(dict_url,missingno: @missingno,parse_url: false,**@kargs)
       rescue OpenURI::HTTPError => e
-        if retries == 0 && e.to_s().include?('404')
-          read()
+        if retries == 0 && e.to_s.include?('404')
+          read
 
           scraper = ArticleScraper.new(@url,str_or_io: @str_or_io,**@kargs)
 
-          dict_url = scraper.scrape_dict_url_only()
+          dict_url = scraper.scrape_dict_url_only
           retries += 1
 
           retry
@@ -298,23 +298,23 @@ module NHKore
         end
       end
 
-      @dict = scraper.scrape()
+      @dict = scraper.scrape
     end
 
-    def scrape_dict_url_only()
-      doc = html_doc()
+    def scrape_dict_url_only
+      doc = html_doc
 
       # - https://www3.nhk.or.jp/news/easy/article/disaster_earthquake_02.html
       # - 'news20170331_k10010922481000'
       tag = doc.css('body')
 
       if tag.length > 0
-        tag_id = tag[0]['id'].to_s().split('_',2)
+        tag_id = tag[0]['id'].to_s.split('_',2)
 
         if tag_id.length == 2
           dict_url = Util.strip_web_str(tag_id[1])
 
-          if !dict_url.empty?()
+          if !dict_url.empty?
             return DictScraper.parse_url(@url,basename: dict_url)
           end
         end
@@ -323,19 +323,19 @@ module NHKore
       raise ScrapeError,"could not scrape dictionary URL at URL[#{@url}]"
     end
 
-    def scrape_dicwin_word(tag,id,result: ScrapeWordsResult.new())
+    def scrape_dicwin_word(tag,id,result: ScrapeWordsResult.new)
       dicwin_result = scrape_words(tag,dicwin: true)
 
-      return nil unless dicwin_result.words?()
+      return nil unless dicwin_result.words?
 
-      kana = ''.dup()
-      kanji = ''.dup()
+      kana = ''.dup
+      kanji = ''.dup
 
-      dicwin_result.words.each() do |word|
-        kana << word.kana unless word.kana.nil?()
+      dicwin_result.words.each do |word|
+        kana << word.kana unless word.kana.nil?
 
-        if kanji.empty?()
-          kanji << word.kanji unless word.kanji.nil?()
+        if kanji.empty?
+          kanji << word.kanji unless word.kanji.nil?
         else
           kanji << word.word # Add trailing kana (or kanji) to kanji
         end
@@ -345,14 +345,14 @@ module NHKore
       kana = clean(kana)
       kanji = clean(kanji)
 
-      raise ScrapeError,"empty dicWin word at URL[#{@url}] in tag[#{tag}]" if kana.empty?() && kanji.empty?()
+      raise ScrapeError,"empty dicWin word at URL[#{@url}] in tag[#{tag}]" if kana.empty? && kanji.empty?
 
-      if !@dict.nil?()
+      if !@dict.nil?
         entry = @dict[id]
 
-        raise ScrapeError,"no dicWin ID[#{id}] at URL[#{@url}] in dictionary[#{@dict}]" if entry.nil?()
+        raise ScrapeError,"no dicWin ID[#{id}] at URL[#{@url}] in dictionary[#{@dict}]" if entry.nil?
 
-        entry = entry.to_s()
+        entry = entry.to_s
       end
 
       word = Word.new(
@@ -374,7 +374,7 @@ module NHKore
       if tag.length > 0
         link = scrape_link(tag[0])
 
-        return link unless link.nil?()
+        return link unless link.nil?
       end
 
       # Second, try with the class.
@@ -383,7 +383,7 @@ module NHKore
       if tag.length > 0
         link = scrape_link(tag[0])
 
-        return link unless link.nil?()
+        return link unless link.nil?
       end
 
       # Some sites don't have a futsuurl and need a lenient mode.
@@ -398,16 +398,16 @@ module NHKore
 
       return nil if link.length < 1
 
-      link = Util.unspace_web_str(link[0]['href'].to_s())
+      link = Util.unspace_web_str(link[0]['href'].to_s)
 
-      return nil if link.empty?()
+      return nil if link.empty?
       return link
     end
 
-    def scrape_ruby_word(tag,result: ScrapeWordsResult.new())
+    def scrape_ruby_word(tag,result: ScrapeWordsResult.new)
       word = Word.scrape_ruby_tag(tag,missingno: @missingno,url: @url)
 
-      return nil if word.nil?()
+      return nil if word.nil?
 
       # No cleaning; raw text.
       # Do not add kana to the text.
@@ -416,29 +416,29 @@ module NHKore
       kanji = clean(word.kanji)
       kana = clean(word.kana)
 
-      if !@missingno.nil?()
+      if !@missingno.nil?
         # Check kana first, since this is the typical scenario.
         # - https://www3.nhk.or.jp/news/easy/k10012331311000/k10012331311000.html
         # - '窓' in '（８）窓を開けて外の空気を入れましょう'
-        if kana.empty?()
+        if kana.empty?
           kana = @missingno.kana_from_kanji(kanji)
-          kana = kana.nil?() ? '' : clean(kana)
+          kana = kana.nil? ? '' : clean(kana)
 
-          if !kana.empty?()
+          if !kana.empty?
             Util.warn("using missingno for kana[#{kana}] from kanji[#{kanji}]")
           end
-        elsif kanji.empty?()
+        elsif kanji.empty?
           kanji = @missingno.kanji_from_kana(kana)
-          kanji = kanji.nil?() ? '' : clean(kanji)
+          kanji = kanji.nil? ? '' : clean(kanji)
 
-          if !kanji.empty?()
+          if !kanji.empty?
             Util.warn("using missingno for kanji[#{kanji}] from kana[#{kana}]")
           end
         end
       end
 
-      raise ScrapeError,"empty kanji at URL[#{@url}] in tag[#{tag}]" if kanji.empty?()
-      raise ScrapeError,"empty kana at URL[#{@url}] in tag[#{tag}]" if kana.empty?()
+      raise ScrapeError,"empty kanji at URL[#{@url}] in tag[#{tag}]" if kanji.empty?
+      raise ScrapeError,"empty kana at URL[#{@url}] in tag[#{tag}]" if kana.empty?
 
       word = Word.new(
         kana: kana,
@@ -449,19 +449,19 @@ module NHKore
       return word
     end
 
-    def scrape_sha256_only()
-      doc = html_doc()
+    def scrape_sha256_only
+      doc = html_doc
 
       sha256 = scrape_content(doc,nil)
 
       return sha256
     end
 
-    def scrape_text_word(tag,result: ScrapeWordsResult.new())
+    def scrape_text_word(tag,result: ScrapeWordsResult.new)
       word = Word.scrape_text_node(tag,url: @url)
 
-      if word.nil?()
-        result.add_text(tag.text.to_s()) # Raw spaces for output
+      if word.nil?
+        result.add_text(tag.text.to_s) # Raw spaces for output
 
         return nil
       end
@@ -475,7 +475,7 @@ module NHKore
 
       text = clean(text)
 
-      return nil if text.empty?() # No error; empty text is fine here
+      return nil if text.empty? # No error; empty text is fine here
 
       word = Word.new(
         kana: clean(word.kana),
@@ -504,30 +504,30 @@ module NHKore
       end
 
       if tag.length > 0
-        Util.warn("using [#{tag_name}] for title at URL[#{@url}]") unless tag_name.nil?()
+        Util.warn("using [#{tag_name}] for title at URL[#{@url}]") unless tag_name.nil?
 
         result = scrape_and_add_words(tag,article)
         title = result.text
 
-        return title unless title.empty?()
+        return title unless title.empty?
       end
 
       raise ScrapeError,"could not scrape title at URL[#{@url}]"
     end
 
-    def scrape_words(tag,dicwin: false,result: ScrapeWordsResult.new())
-      children = tag.children.to_a().reverse() # A faster stack?
+    def scrape_words(tag,dicwin: false,result: ScrapeWordsResult.new)
+      children = tag.children.to_a.reverse # A faster stack?
 
-      while !children.empty?()
-        child = children.pop()
+      while !children.empty?
+        child = children.pop
         name = nil
         word = nil
 
-        name = Util.unspace_web_str(child.name.to_s()).downcase() if child.respond_to?(:name)
+        name = Util.unspace_web_str(child.name.to_s).downcase if child.respond_to?(:name)
 
         if name == 'ruby'
           word = scrape_ruby_word(child,result: result)
-        elsif child.text?()
+        elsif child.text?
           word = scrape_text_word(child,result: result)
         elsif name == 'rt'
           raise ScrapeError,"invalid rt tag[#{child}] without a ruby tag at URL[#{@url}]"
@@ -535,10 +535,10 @@ module NHKore
           dicwin_id = nil
 
           if name == 'a'
-            id = parse_dicwin_id(child['id'].to_s())
-            klass = Util.unspace_web_str(child['class'].to_s()).downcase()
+            id = parse_dicwin_id(child['id'].to_s)
+            klass = Util.unspace_web_str(child['class'].to_s).downcase
 
-            if klass == 'dicwin' && !id.nil?()
+            if klass == 'dicwin' && !id.nil?
               if dicwin
                 raise ScrapeError,"invalid dicWin class[#{child}] nested inside another dicWin class at" \
                   " URL[#{@url}]"
@@ -548,10 +548,10 @@ module NHKore
             end
           end
 
-          if dicwin_id.nil?()
-            grand_children = child.children.to_a()
+          if dicwin_id.nil?
+            grand_children = child.children.to_a
 
-            (grand_children.length() - 1).downto(0).each() do |i|
+            (grand_children.length - 1).downto(0).each do |i|
               children.push(grand_children[i])
             end
 
@@ -565,7 +565,7 @@ module NHKore
           end
         end
 
-        result.add_word(word) unless word.nil?()
+        result.add_word(word) unless word.nil?
       end
 
       return result
@@ -576,29 +576,29 @@ module NHKore
       tag = doc.css('body')
 
       if tag.length > 0
-        tag_id = tag[0]['id'].to_s().gsub(/[^[[:digit:]]]+/,'')
+        tag_id = tag[0]['id'].to_s.gsub(/[^[[:digit:]]]+/,'')
 
         if tag_id.length >= 4
-          year = tag_id[0..3].to_i()
+          year = tag_id[0..3].to_i
 
           return year if Util.sane_year?(year)
         end
       end
 
       # Second, try futsuurl.
-      if !futsuurl.nil?()
+      if !futsuurl.nil?
         m = futsuurl.match(/([[:digit:]]{4,})/)
 
-        if !m.nil?() && (m = m[0].to_s()).length >= 4
-          year = m[0..3].to_i()
+        if !m.nil? && (m = m[0].to_s).length >= 4
+          year = m[0..3].to_i
 
           return year if Util.sane_year?(year)
         end
       end
 
       # As a last resort, use our user-defined fallbacks (if specified).
-      return @year.to_i() unless @year.nil?()
-      return @datetime.year if !@datetime.nil?() && Util.sane_year?(@datetime.year)
+      return @year.to_i unless @year.nil?
+      return @datetime.year if !@datetime.nil? && Util.sane_year?(@datetime.year)
 
       raise ScrapeError,"could not scrape year at URL[#{@url}]"
     end
@@ -610,7 +610,7 @@ module NHKore
     def variate(str)
       variations = []
 
-      @variators.each() do |variator|
+      @variators.each do |variator|
         variations.push(*variator.variate(str))
       end
 
@@ -634,10 +634,10 @@ module NHKore
     attr_reader :text
     attr_reader :words
 
-    def initialize()
+    def initialize
       super()
 
-      @text = ''.dup()
+      @text = ''.dup
       @words = []
     end
 
@@ -653,14 +653,14 @@ module NHKore
       return self
     end
 
-    def polish!()
+    def polish!
       @text = Util.strip_web_str(@text)
 
       return self
     end
 
-    def words?()
-      return !@words.empty?()
+    def words?
+      return !@words.empty?
     end
   end
 end

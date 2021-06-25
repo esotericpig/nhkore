@@ -32,7 +32,7 @@ module NHKore
   class Dict
     attr_reader :entries
 
-    def initialize()
+    def initialize
       super()
 
       @entries = {}
@@ -47,12 +47,12 @@ module NHKore
     end
 
     def self.scrape(hash,missingno: nil,url: nil)
-      dict = Dict.new()
+      dict = Dict.new
 
-      hash.each() do |id,array|
+      hash.each do |id,array|
         entry = Entry.scrape(id,array,missingno: missingno,url: url)
 
-        next if entry.nil?()
+        next if entry.nil?
         raise ScrapeError,"duplicate ID[#{id}] at URL[#{url}] in hash[#{hash}]" if dict.key?(id)
 
         dict[id] = entry
@@ -65,12 +65,12 @@ module NHKore
       return @entries.key?(id)
     end
 
-    def to_s()
-      s = ''.dup()
+    def to_s
+      s = ''.dup
 
-      @entries.each() do |id,entry|
+      @entries.each do |id,entry|
         s << "#{id}:\n"
-        s << "  #{entry.to_s().gsub("\n","\n  ").rstrip()}\n"
+        s << "  #{entry.to_s.gsub("\n","\n  ").rstrip}\n"
       end
 
       return s

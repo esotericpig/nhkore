@@ -32,13 +32,13 @@ if $PROGRAM_NAME == __FILE__
   require 'set'
   require 'user_agent_randomizer'
 
-  agents = Set.new()
+  agents = Set.new
 
   while agents.length < 1111
     agents.add(UserAgentRandomizer::UserAgent.fetch(type: 'desktop_browser').string)
   end
 
-  agents.each() do |agent|
+  agents.each do |agent|
     puts "'#{agent}',"
   end
 end
@@ -56,14 +56,14 @@ module NHKore
   class UserAgents
     attr_accessor :data
 
-    def self.sample()
-      return UserAgents.new().data.sample()
+    def self.sample
+      return UserAgents.new.data.sample
     end
 
     # Decided to store the data in an instance variable (instead of a constant)
     # because we don't need all of the data in memory after getting just 1
     # sample, even though it's slower.
-    def initialize()
+    def initialize
       super()
 
       # rubocop:disable all

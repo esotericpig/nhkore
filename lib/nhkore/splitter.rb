@@ -77,7 +77,7 @@ module NHKore
 
       super
 
-      @tiny = TinySegmenter.new()
+      @tiny = TinySegmenter.new
     end
 
     def end_split(str)

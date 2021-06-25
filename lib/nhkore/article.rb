@@ -39,7 +39,7 @@ module NHKore
     attr_reader :url
     attr_reader :words
 
-    def initialize()
+    def initialize
       super()
 
       @datetime = nil
@@ -60,14 +60,14 @@ module NHKore
     def add_word(word,use_freq: false)
       curr_word = words[word.key]
 
-      if curr_word.nil?()
+      if curr_word.nil?
         words[word.key] = word
         curr_word = word
       else
         curr_word.freq += (use_freq ? word.freq : 1)
 
-        curr_word.defn = word.defn if word.defn.to_s().length > curr_word.defn.to_s().length
-        curr_word.eng = word.eng if word.eng.to_s().length > curr_word.eng.to_s().length
+        curr_word.defn = word.defn if word.defn.to_s.length > curr_word.defn.to_s.length
+        curr_word.eng = word.eng if word.eng.to_s.length > curr_word.eng.to_s.length
       end
 
       return curr_word
@@ -76,10 +76,10 @@ module NHKore
     def encode_with(coder)
       # Order matters.
 
-      coder[:datetime] = @datetime.nil?() ? @datetime : @datetime.iso8601()
+      coder[:datetime] = @datetime.nil? ? @datetime : @datetime.iso8601
       coder[:title] = @title
-      coder[:url] = @url.nil?() ? nil : @url.to_s()
-      coder[:futsuurl] = @futsuurl.nil?() ? nil : @futsuurl.to_s()
+      coder[:url] = @url.nil? ? nil : @url.to_s
+      coder[:futsuurl] = @futsuurl.nil? ? nil : @futsuurl.to_s
       coder[:sha256] = @sha256
       coder[:words] = @words
     end
@@ -87,7 +87,7 @@ module NHKore
     def self.load_data(key,hash)
       words = hash[:words]
 
-      article = Article.new()
+      article = Article.new
 
       article.datetime = hash[:datetime]
       article.futsuurl = hash[:futsuurl]
@@ -96,7 +96,7 @@ module NHKore
       article.url = hash[:url]
 
       words&.each() do |k,h|
-        k = k.to_s() # Change from a symbol
+        k = k.to_s # Change from a symbol
         article.words[k] = Word.load_data(k,h)
       end
 
@@ -113,16 +113,16 @@ module NHKore
 
     def futsuurl=(value)
       # Don't store URI, store String.
-      @futsuurl = value.nil?() ? nil : value.to_s()
+      @futsuurl = value.nil? ? nil : value.to_s
     end
 
     def url=(value)
       # Don't store URI, store String.
-      @url = value.nil?() ? nil : value.to_s()
+      @url = value.nil? ? nil : value.to_s
     end
 
     def to_s(mini: false)
-      s = ''.dup()
+      s = ''.dup
 
       s << "'#{@url}':"
       s << "\n  datetime: '#{@datetime}'"
@@ -133,7 +133,7 @@ module NHKore
 
       if !mini
         s << "\n  words:"
-        @words.each() do |key,word|
+        @words.each do |key,word|
           s << "\n    #{word}"
         end
       end

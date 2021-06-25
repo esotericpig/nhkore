@@ -39,20 +39,20 @@ module NHKore
     JST_OFFSET_HOUR = 9
     JST_OFFSET_MIN = 0
 
-    HIRAGANA_REGEX = /\p{Hiragana}/.freeze()
+    HIRAGANA_REGEX = /\p{Hiragana}/.freeze
     JPN_SPACE = "\u3000" # Must be double-quoted for escape chars
-    KANA_REGEX = /\p{Hiragana}|\p{Katakana}/.freeze()
-    KANJI_REGEX = /\p{Han}/.freeze() # Han probably stands for Hanzi?
-    KATAKANA_REGEX = /\p{Katakana}/.freeze()
-    NORMALIZE_STR_REGEX = /[^[[:alpha:]]]+/.freeze()
-    STRIP_WEB_STR_REGEX = /(\A[[:space:]]+)|([[:space:]]+\z)/.freeze()
-    WEB_SPACES_REGEX = /[[:space:]]+/.freeze()
+    KANA_REGEX = /\p{Hiragana}|\p{Katakana}/.freeze
+    KANJI_REGEX = /\p{Han}/.freeze # Han probably stands for Hanzi?
+    KATAKANA_REGEX = /\p{Katakana}/.freeze
+    NORMALIZE_STR_REGEX = /[^[[:alpha:]]]+/.freeze
+    STRIP_WEB_STR_REGEX = /(\A[[:space:]]+)|([[:space:]]+\z)/.freeze
+    WEB_SPACES_REGEX = /[[:space:]]+/.freeze
 
-    def self.jst_now()
-      return Time.now().getlocal(JST_OFFSET)
+    def self.jst_now
+      return Time.now.getlocal(JST_OFFSET)
     end
 
-    JST_YEAR = jst_now().year
+    JST_YEAR = jst_now.year
     MAX_SANE_YEAR = JST_YEAR + 1 # +1 Justin Case for time zone differences at the end of the year
 
     # NHK was founded in 1924/25.
@@ -69,7 +69,7 @@ module NHKore
       require 'public_suffix'
 
       domain = PublicSuffix.domain(host)
-      domain = unspace_web_str(domain).downcase() if !domain.nil?() && clean
+      domain = unspace_web_str(domain).downcase if !domain.nil? && clean
 
       return domain
     end
@@ -86,13 +86,13 @@ module NHKore
         stylers: [
           Psychgus::FlowStyler.new(flow_level), # Put extra details on one line (flow/inline style)
           Psychgus::NoSymStyler.new(cap: false), # Remove symbols, don't capitalize
-          Psychgus::NoTagStyler.new(), # Remove class names (tags)
+          Psychgus::NoTagStyler.new, # Remove class names (tags)
         ].concat(stylers),
       )
     end
 
     def self.empty_web_str?(str)
-      return str.nil?() || strip_web_str(str).empty?()
+      return str.nil? || strip_web_str(str).empty?
     end
 
     def self.escape_html(str)
@@ -156,22 +156,22 @@ module NHKore
     end
 
     def self.replace_uri_query!(uri,**new_query)
-      return uri if new_query.empty?()
+      return uri if new_query.empty?
 
       query = uri.query
-      query = query.nil?() ? [] : URI.decode_www_form(query)
+      query = query.nil? ? [] : URI.decode_www_form(query)
 
       # First, remove the old ones.
-      if !query.empty?()
-        new_query_keys = Set.new(new_query.keys.map() { |key|
-          unspace_web_str(key.to_s()).downcase()
-        })
+      if !query.empty?
+        new_query_keys = Set.new(new_query.keys.map do |key|
+          unspace_web_str(key.to_s).downcase
+        end)
 
-        query.filter!() do |q|
-          if q.nil?() || q.empty?()
+        query.filter! do |q|
+          if q.nil? || q.empty?
             false
           else
-            key = unspace_web_str(q[0].to_s()).downcase()
+            key = unspace_web_str(q[0].to_s).downcase
 
             !new_query_keys.include?(key)
           end
@@ -179,8 +179,8 @@ module NHKore
       end
 
       # Next, add the new ones.
-      new_query.each() do |key,value|
-        query << [key,value.nil?() ? '' : value]
+      new_query.each do |key,value|
+        query << [key,value.nil? ? '' : value]
       end
 
       uri.query = URI.encode_www_form(query)

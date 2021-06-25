@@ -25,10 +25,10 @@ require 'nhkore/test_helper'
 
 module NHKore
   class NHKoreTest < TestHelper
-    def setup()
+    def setup
     end
 
-    def test_something()
+    def test_something
     end
   end
 end

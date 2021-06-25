@@ -33,53 +33,53 @@ module CLI
   # @since  0.3.0
   ###
   module SearchCmd
-    def build_search_cmd()
+    def build_search_cmd
       app = self
 
-      @search_cmd = @app_cmd.define_command() do
+      @search_cmd = @app_cmd.define_command do
         name    'search'
         usage   'search [OPTIONS] [COMMAND]...'
         aliases :se,:sea
         summary "Search for links to NHK News Web (Easy) (aliases: #{app.color_alias('se sea')})"
 
-        description <<-EOD
+        description <<-DESC
           Search for links (using a Search Engine, etc.) to NHK News Web (Easy) &
           save to folder: #{SearchLinks::DEFAULT_DIR}
-        EOD
+        DESC
 
-        option :i,:in,<<-EOD,argument: :required,transform: lambda { |value|
+        option :i,:in,<<-DESC,argument: :required,transform: lambda { |value|
           file to read instead of URL (for offline testing and/or slow internet;
           see '--show-*' options)
-        EOD
+        DESC
           app.check_empty_opt(:in,value)
         }
-        option :o,:out,<<-EOD,argument: :required,transform: lambda { |value|
+        option :o,:out,<<-DESC,argument: :required,transform: lambda { |value|
           'directory/file' to save links to; if you only specify a directory or a file, it will attach the
           appropriate default directory/file name
           (defaults: #{SearchLinks::DEFAULT_YASASHII_FILE}, #{SearchLinks::DEFAULT_FUTSUU_FILE})
-        EOD
+        DESC
           app.check_empty_opt(:out,value)
         }
         option :r,:results,'number of results per page to request from search',argument: :required,
             default: SearchScraper::DEFAULT_RESULT_COUNT,transform: lambda { |value|
-          value = value.to_i()
-          value = 1 if value < 1
-          value
-        }
-        option nil,:'show-count',<<-EOD
+              value = value.to_i
+              value = 1 if value < 1
+              value
+            }
+        option nil,:'show-count',<<-DESC
           show the number of links scraped and exit;
           useful for manually writing/updating scripts (but not for use in a variable);
           implies '--dry-run' option
-        EOD
-        option nil,:'show-urls',<<-EOD
+        DESC
+        option nil,:'show-urls',<<-DESC
           show the URLs -- if any -- used when searching & scraping and exit;
           you can download these for offline testing and/or slow internet
           (see '--in' option)
-        EOD
+        DESC
 
         run do |opts,args,cmd|
-          opts.each() do |key,value|
-            key = key.to_s()
+          opts.each do |key,value|
+            key = key.to_s
 
             if key.include?('show')
               raise CLIError,"must specify a sub command for option[#{key}]"
@@ -90,59 +90,59 @@ module CLI
         end
       end
 
-      @search_easy_cmd = @search_cmd.define_command() do
+      @search_easy_cmd = @search_cmd.define_command do
         name    'easy'
         usage   'easy [OPTIONS] [COMMAND]...'
         aliases :e,:ez
         summary "Search for NHK News Web Easy (Yasashii) links (aliases: #{app.color_alias('e ez')})"
 
-        description <<-EOD
+        description <<-DESC
           Search for NHK News Web Easy (Yasashii) links &
           save to file: #{SearchLinks::DEFAULT_YASASHII_FILE}
-        EOD
+        DESC
 
         run do |opts,args,cmd|
           app.refresh_cmd(opts,args,cmd)
-          app.run_search_help()
+          app.run_search_help
         end
       end
 
-      @search_regular_cmd = @search_cmd.define_command() do
+      @search_regular_cmd = @search_cmd.define_command do
         name    'regular'
         usage   'regular [OPTIONS] [COMMAND]...'
         aliases :r,:reg
         summary "Search for NHK News Web Regular (Futsuu) links (aliases: #{app.color_alias('r reg')})"
 
-        description <<-EOD
+        description <<-DESC
           Search for NHK News Web Regular (Futsuu) links &
           save to file: #{SearchLinks::DEFAULT_FUTSUU_FILE}
-        EOD
+        DESC
 
         run do |opts,args,cmd|
           app.refresh_cmd(opts,args,cmd)
-          app.run_search_help()
+          app.run_search_help
         end
       end
 
-      @search_bing_cmd = Cri::Command.define() do
+      @search_bing_cmd = Cri::Command.define do
         name    'bing'
         usage   'bing [OPTIONS] [COMMAND]...'
         aliases :b
         summary "Search bing.com for links (aliases: #{app.color_alias('b')})"
 
-        description <<-EOD
+        description <<-DESC
           Search bing.com for links & save to folder: #{SearchLinks::DEFAULT_DIR}
-        EOD
+        DESC
 
         run do |opts,args,cmd|
           app.refresh_cmd(opts,args,cmd)
-          app.run_search_cmd(cmd.supercommand.name.to_sym(),:bing)
+          app.run_search_cmd(cmd.supercommand.name.to_sym,:bing)
         end
       end
 
       # dup()/clone() must be called for `cmd.supercommand` to work appropriately.
-      @search_easy_cmd.add_command @search_bing_cmd.dup()
-      @search_regular_cmd.add_command @search_bing_cmd.dup()
+      @search_easy_cmd.add_command @search_bing_cmd.dup
+      @search_regular_cmd.add_command @search_bing_cmd.dup
     end
 
     def run_search_cmd(nhk_type,search_type)
@@ -177,15 +177,15 @@ module CLI
       in_file = @cmd_opts[:in]
       out_file = @cmd_opts[:out]
       result_count = @cmd_opts[:results]
-      result_count = SearchScraper::DEFAULT_RESULT_COUNT if result_count.nil?()
+      result_count = SearchScraper::DEFAULT_RESULT_COUNT if result_count.nil?
       show_count = @cmd_opts[:show_count]
 
       start_spin("Scraping #{search_type}") unless show_count
 
-      is_file = !in_file.nil?()
+      is_file = !in_file.nil?
       links = nil
       new_links = [] # For --dry-run
-      next_page = NextPage.new()
+      next_page = NextPage.new
       page_count = 0
       page_num = 1
       url = in_file # nil will use default URL, else a file
@@ -194,7 +194,7 @@ module CLI
       if File.exist?(out_file)
         links = SearchLinks.load_file(out_file)
       else
-        links = SearchLinks.new()
+        links = SearchLinks.new
       end
 
       links_count = links.length
@@ -202,8 +202,8 @@ module CLI
       if show_count
         scraped_count = 0
 
-        links.links.each_value() do |link|
-          scraped_count += 1 if link.scraped?()
+        links.links.each_value do |link|
+          scraped_count += 1 if link.scraped?
         end
 
         puts "#{scraped_count} of #{links_count} links scraped."
@@ -216,7 +216,7 @@ module CLI
       case search_type
       # Anything that extends SearchScraper.
       when :bing
-        range.each() do
+        range.each do
           scraper = nil
 
           case search_type
@@ -235,25 +235,25 @@ module CLI
           update_spin_detail(" (page=#{page_num}, count=#{page_count}, links=#{links.length}," \
             " new_links=#{new_links.length})")
 
-          break if next_page.empty?()
+          break if next_page.empty?
 
           page_num += 1
           url = next_page.url
 
-          sleep_scraper()
+          sleep_scraper
         end
       else
         raise ArgumentError,"invalid search_type[#{search_type}]"
       end
 
-      stop_spin()
+      stop_spin
       puts
       puts 'Last URL scraped:'
       puts "> #{url}"
       puts
 
       if dry_run
-        new_links.each() do |link|
+        new_links.each do |link|
           puts link.to_s(mini: true)
         end
       else
@@ -264,9 +264,9 @@ module CLI
       end
     end
 
-    def run_search_help()
+    def run_search_help
       if @cmd_opts[:show_count] || @cmd_opts[:show_urls]
-        run_search_cmd(@cmd.name.to_sym(),nil)
+        run_search_cmd(@cmd.name.to_sym,nil)
       else
         puts @cmd.help
       end
@@ -276,7 +276,7 @@ module CLI
       return false unless @cmd_opts[:show_urls]
 
       count = @cmd_opts[:results]
-      count = SearchScraper::DEFAULT_RESULT_COUNT if count.nil?()
+      count = SearchScraper::DEFAULT_RESULT_COUNT if count.nil?
 
       case search_type
       when :bing

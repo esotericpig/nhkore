@@ -78,8 +78,8 @@ module NHKore
 
     DEFAULT_SLEEP_TIME = 0.1 # So that sites don't ban us (i.e., think we are human)
 
-    COLOR_OPTS = %i[c color].freeze()
-    NO_COLOR_OPTS = %i[C no-color].freeze()
+    COLOR_OPTS = %i[c color].freeze
+    NO_COLOR_OPTS = %i[C no-color].freeze
 
     SPINNER_MSG = '[:spinner] :title:detail...'
     CLASSIC_SPINNER = TTY::Spinner.new(SPINNER_MSG,format: :classic)
@@ -102,39 +102,39 @@ module NHKore
       @cmd = nil
       @cmd_args = nil
       @cmd_opts = nil
-      @high = HighLine.new()
-      @rainbow = Rainbow.new()
+      @high = HighLine.new
+      @rainbow = Rainbow.new
       @progress_bar = :default # [:default, :classic, :no]
       @scraper_kargs = {}
       @sleep_time = DEFAULT_SLEEP_TIME
       @spinner = DEFAULT_SPINNER
 
-      autodetect_color()
+      autodetect_color
 
-      build_app_cmd()
+      build_app_cmd
 
-      build_fx_cmd()
-      build_get_cmd()
-      build_news_cmd()
-      build_search_cmd()
-      build_sift_cmd()
-      build_version_cmd()
+      build_fx_cmd
+      build_get_cmd
+      build_news_cmd
+      build_search_cmd
+      build_sift_cmd
+      build_version_cmd
 
-      @app_cmd.add_command Cri::Command.new_basic_help()
+      @app_cmd.add_command Cri::Command.new_basic_help
     end
 
-    def autodetect_color()
+    def autodetect_color
       Cri::Platform.singleton_class.prepend(CriColorExt)
 
       color = nil # Must be nil, not true/false
 
-      if !@args.empty?()
+      if !@args.empty?
         # Kind of hacky, but necessary for Rainbow.
 
         color_opts = opts_to_set(COLOR_OPTS)
         no_color_opts = opts_to_set(NO_COLOR_OPTS)
 
-        @args.each() do |arg|
+        @args.each do |arg|
           if color_opts.include?(arg)
             color = true
             break
@@ -149,51 +149,51 @@ module NHKore
         end
       end
 
-      if color.nil?()
+      if color.nil?
         # - https://no-color.org/
-        color = ($stdout.tty?() && ENV['TERM'] != 'dumb' && !ENV.key?('NO_COLOR'))
+        color = ($stdout.tty? && ENV['TERM'] != 'dumb' && !ENV.key?('NO_COLOR'))
       end
 
       enable_color(color)
     end
 
-    def build_app_cmd()
+    def build_app_cmd
       app = self
 
-      @app_cmd = Cri::Command.define() do
+      @app_cmd = Cri::Command.define do
         name    NAME
         usage   "#{NAME} [OPTIONS] [COMMAND]..."
         summary 'NHK News Web (Easy) scraper for Japanese language learners.'
 
-        description <<-EOD
+        description <<-DESC
           Scrapes NHK News Web (Easy) to create a list of each word and its
           frequency (how many times it was used) for Japanese language learners.
 
           This is similar to a core word/vocabulary list.
-        EOD
+        DESC
 
-        flag :s,:'classic-fx',<<-EOD do |value,cmd|
+        flag :s,:'classic-fx',<<-DESC do |value,cmd|
           use classic spinner/progress special effects (in case of no Unicode support) when running long tasks
-        EOD
+        DESC
           app.progress_bar = :classic
           app.spinner = CLASSIC_SPINNER
         end
         flag COLOR_OPTS[0],COLOR_OPTS[1],"force color output (for commands like '| less -R')" do |value,cmd|
           app.enable_color(true)
         end
-        flag :n,:'dry-run',<<-EOD
+        flag :n,:'dry-run',<<-DESC
           do a dry run without making changes; do not write to files, create directories, etc.
-        EOD
+        DESC
         # Big F because dangerous.
         flag :F,:force,"force overwriting files, creating directories, etc. (don't prompt); dangerous!"
         flag :h,:help,'show this help' do |value,cmd|
           puts cmd.help
           exit
         end
-        option :m,:'max-retry',<<-EOD,argument: :required,default: 3 do |value,cmd|
+        option :m,:'max-retry',<<-DESC,argument: :required,default: 3 do |value,cmd|
           maximum number of times to retry URLs (-1 or integer >= 0)
-        EOD
-          value = value.to_i()
+        DESC
+          value = value.to_i
           value = nil if value < 0
 
           app.scraper_kargs[:max_retries] = value
@@ -205,47 +205,47 @@ module NHKore
           app.progress_bar = :no
           app.spinner = {} # Still outputs status & stores tokens
         end
-        option :o,:'open-timeout',<<-EOD,argument: :required do |value,cmd|
+        option :o,:'open-timeout',<<-DESC,argument: :required do |value,cmd|
           seconds for URL open timeouts (-1 or decimal >= 0)
-        EOD
-          value = value.to_f()
+        DESC
+          value = value.to_f
           value = nil if value < 0.0
 
           app.scraper_kargs[:open_timeout] = value
         end
-        option :r,:'read-timeout',<<-EOD,argument: :required do |value,cmd|
+        option :r,:'read-timeout',<<-DESC,argument: :required do |value,cmd|
           seconds for URL read timeouts (-1 or decimal >= 0)
-        EOD
-          value = value.to_f()
+        DESC
+          value = value.to_f
           value = nil if value < 0.0
 
           app.scraper_kargs[:read_timeout] = value
         end
-        option :z,:sleep,<<-EOD,argument: :required,default: DEFAULT_SLEEP_TIME do |value,cmd|
+        option :z,:sleep,<<-DESC,argument: :required,default: DEFAULT_SLEEP_TIME do |value,cmd|
           seconds to sleep per scrape (i.e., per page/article) so don't get banned (i.e., fake being human)
-        EOD
-          app.sleep_time = value.to_f()
+        DESC
+          app.sleep_time = value.to_f
           app.sleep_time = 0.0 if app.sleep_time < 0.0
         end
-        option :t,:timeout,<<-EOD,argument: :required do |value,cmd|
+        option :t,:timeout,<<-DESC,argument: :required do |value,cmd|
           seconds for all URL timeouts: [open, read] (-1 or decimal >= 0)
-        EOD
-          value = value.to_f()
+        DESC
+          value = value.to_f
           value = nil if value < 0.0
 
           app.scraper_kargs[:open_timeout] = value
           app.scraper_kargs[:read_timeout] = value
         end
-        option :u,:'user-agent',<<-EOD,argument: :required do |value,cmd|
+        option :u,:'user-agent',<<-DESC,argument: :required do |value,cmd|
           HTTP header field 'User-Agent' to use instead of a random one
-        EOD
+        DESC
           value = app.check_empty_opt(:'user-agent',value)
 
           app.scraper_kargs[:header] ||= {}
           app.scraper_kargs[:header]['user-agent'] = value
         end
         flag :v,:version,'show the version and exit' do |value,cmd|
-          app.show_version()
+          app.show_version
           exit
         end
 
@@ -258,12 +258,12 @@ module NHKore
     def build_dir(opt_key,default_dir: '.')
       # Protect against fat-fingering.
       default_dir = Util.strip_web_str(default_dir)
-      dir = Util.strip_web_str(@cmd_opts[opt_key].to_s())
+      dir = Util.strip_web_str(@cmd_opts[opt_key].to_s)
 
-      dir = default_dir if dir.empty?()
+      dir = default_dir if dir.empty?
 
       # '~' will expand to home, etc.
-      dir = File.expand_path(dir) unless dir.nil?()
+      dir = File.expand_path(dir) unless dir.nil?
 
       return (@cmd_opts[opt_key] = dir)
     end
@@ -272,11 +272,11 @@ module NHKore
       # Protect against fat-fingering.
       default_dir = Util.strip_web_str(default_dir)
       default_filename = Util.strip_web_str(default_filename)
-      file = Util.strip_web_str(@cmd_opts[opt_key].to_s())
+      file = Util.strip_web_str(@cmd_opts[opt_key].to_s)
 
-      if file.empty?()
+      if file.empty?
         # Do not check default_dir.empty?().
-        if default_filename.empty?()
+        if default_filename.empty?
           file = nil # nil is very important for BingScraper.init()!
         else
           file = File.join(default_dir,default_filename)
@@ -293,7 +293,7 @@ module NHKore
       end
 
       # '~' will expand to home, etc.
-      file = File.expand_path(file) unless file.nil?()
+      file = File.expand_path(file) unless file.nil?
 
       return (@cmd_opts[opt_key] = file)
     end
@@ -319,7 +319,7 @@ module NHKore
       when :default,:classic
         require 'tty-progressbar'
 
-        msg = "#{title} [:bar] :percent :eta".dup()
+        msg = "#{title} [:bar] :percent :eta".dup
         msg << ' :byte_rate/s' if download
 
         return TTY::ProgressBar.new(msg,total: total,width: width,**kargs) do |config|
@@ -338,25 +338,25 @@ module NHKore
       return NoProgressBar.new(title,total: total,**kargs)
     end
 
-    def build_version_cmd()
+    def build_version_cmd
       app = self
 
-      @version_cmd = @app_cmd.define_command() do
+      @version_cmd = @app_cmd.define_command do
         name    'version'
         usage   'version [OPTIONS] [COMMAND]...'
         aliases :v
         summary "Show the version and exit (aliases: #{app.color_alias('v')})"
 
         run do |opts,args,cmd|
-          app.show_version()
+          app.show_version
         end
       end
     end
 
     def check_empty_opt(key,value)
-      value = Util.strip_web_str(value) unless value.nil?()
+      value = Util.strip_web_str(value) unless value.nil?
 
-      if value.nil?() || value.empty?()
+      if value.nil? || value.empty?
         raise CLIError,"option[#{key}] cannot be empty[#{value}]"
       end
 
@@ -497,10 +497,10 @@ module NHKore
     end
 
     def opts_to_set(ary)
-      set = Set.new()
+      set = Set.new
 
-      set.add("-#{ary[0]}") unless ary[0].nil?()
-      set.add("--#{ary[1]}") unless ary[1].nil?()
+      set.add("-#{ary[0]}") unless ary[0].nil?
+      set.add("--#{ary[1]}") unless ary[1].nil?
 
       return set
     end
@@ -533,15 +533,15 @@ module NHKore
       return self
     end
 
-    def run()
+    def run
       @app_cmd.run(@args)
     end
 
-    def show_version()
+    def show_version
       puts "#{NAME} v#{VERSION}"
     end
 
-    def sleep_scraper()
+    def sleep_scraper
       sleep(@sleep_time)
     end
 
@@ -550,18 +550,18 @@ module NHKore
         @spinner[:detail] = detail
         @spinner[:title] = title
 
-        puts (NO_SPINNER_MSG % @spinner)
+        puts(NO_SPINNER_MSG % @spinner)
       else
         @spinner.update(title: title,detail: detail)
-        @spinner.auto_spin()
+        @spinner.auto_spin
       end
     end
 
-    def stop_spin()
+    def stop_spin
       if @spinner.is_a?(Hash)
         puts (NO_SPINNER_MSG % @spinner) + ' done!'
       else
-        @spinner.reset()
+        @spinner.reset
         @spinner.stop('done!')
       end
     end
@@ -570,7 +570,7 @@ module NHKore
       if @spinner.is_a?(Hash)
         @spinner[:detail] = detail
 
-        puts (NO_SPINNER_MSG % @spinner)
+        puts(NO_SPINNER_MSG % @spinner)
       else
         @spinner.tokens[:detail] = detail
       end
@@ -591,12 +591,12 @@ module NHKore
 
       @tokens = {title: title,total: total}
 
-      reset()
+      reset
 
       @tokens.merge!(tokens)
     end
 
-    def reset()
+    def reset
       @tokens[:advance] = 0
       @tokens[:percent] = 0
       @tokens[:progress] = 0
@@ -606,7 +606,7 @@ module NHKore
       total = @tokens[:total]
       progress = @tokens[:progress] + progress
       progress = total if progress > total
-      percent = (progress.to_f() / total.to_f() * 100.0).round()
+      percent = (progress.to_f / total.to_f * 100.0).round
 
       @tokens[:percent] = percent
       @tokens[:progress] = progress
@@ -628,18 +628,18 @@ module NHKore
 
       @tokens[:advance] = percent
 
-      puts to_s()
+      puts to_s
     end
 
-    def finish()
+    def finish
       advance(@tokens[:total])
     end
 
-    def start()
-      puts to_s()
+    def start
+      puts to_s
     end
 
-    def to_s()
+    def to_s
       return MSG % @tokens
     end
   end

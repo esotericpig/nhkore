@@ -56,11 +56,11 @@ module NHKore
     def encode_with(coder)
       # Order matters.
 
-      coder[:url] = @url.nil?() ? nil : @url.to_s()
+      coder[:url] = @url.nil? ? nil : @url.to_s
       coder[:scraped] = @scraped
-      coder[:datetime] = @datetime.nil?() ? nil : @datetime.iso8601()
+      coder[:datetime] = @datetime.nil? ? nil : @datetime.iso8601
       coder[:title] = @title
-      coder[:futsuurl] = @futsuurl.nil?() ? nil : @futsuurl.to_s()
+      coder[:futsuurl] = @futsuurl.nil? ? nil : @futsuurl.to_s
       coder[:sha256] = @sha256
     end
 
@@ -81,7 +81,7 @@ module NHKore
     def update_from_article(article)
       # Don't update the url, as it may be different (e.g., http vs https).
 
-      self.datetime = article.datetime if @datetime.nil?()
+      self.datetime = article.datetime if @datetime.nil?
       self.futsuurl = article.futsuurl if Util.empty_web_str?(@futsuurl)
       @scraped = true # If we have an article, it's been scraped
       @sha256 = article.sha256 if Util.empty_web_str?(@sha256)
@@ -98,16 +98,16 @@ module NHKore
 
     def futsuurl=(value)
       # Don't store URI, store String.
-      @futsuurl = value.nil?() ? nil : value.to_s()
+      @futsuurl = value.nil? ? nil : value.to_s
     end
 
     def url=(value)
       # Don't store URI, store String.
-      @url = value.nil?() ? nil : value.to_s()
+      @url = value.nil? ? nil : value.to_s
     end
 
     def to_s(mini: false)
-      s = ''.dup()
+      s = ''.dup
 
       s << "'#{@url}': "
 
@@ -146,14 +146,14 @@ module NHKore
 
     attr_reader :links
 
-    def initialize()
+    def initialize
       super()
 
       @links = {}
     end
 
     def add_link(link)
-      url = link.url.nil?() ? nil : link.url.to_s()
+      url = link.url.nil? ? nil : link.url.to_s
 
       return self if @links.key?(url)
 
@@ -177,10 +177,10 @@ module NHKore
 
       links = data[:links]
 
-      slinks = SearchLinks.new()
+      slinks = SearchLinks.new
 
       links&.each() do |key,hash|
-        key = key.to_s() unless key.nil?()
+        key = key.to_s unless key.nil?
         slinks.links[key] = SearchLink.load_data(key,hash)
       end
 
@@ -189,16 +189,16 @@ module NHKore
 
     def [](url)
       url = url.url if url.respond_to?(:url)
-      url = url.to_s() unless url.nil?()
+      url = url.to_s unless url.nil?
 
       return @links[url]
     end
 
-    def length()
+    def length
       return @links.length
     end
 
-    def to_s()
+    def to_s
       return Util.dump_yaml(self)
     end
   end
