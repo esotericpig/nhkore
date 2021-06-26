@@ -5,8 +5,14 @@ All notable changes to this project will be documented in this file.
 Format is based on [Keep a Changelog v1.0.0](https://keepachangelog.com/en/1.0.0),
 and this project adheres to [Semantic Versioning v2.0.0](https://semver.org/spec/v2.0.0.html).
 
-## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.8...HEAD)
+## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.9...HEAD)
 -
+
+
+## [v0.3.9] - 2021-06-26
+
+### Fixed
+- Reverted `App#refresh_cmd()` back to not copying over the `default_proc` (from v0.3.8). Because the old code didn't know about this, it created some unintended issues with command options. Nothing major, but for example, specifying `output.html` with the `sift` command would not produce HTML output (however, using the `-e html` option still worked). This is the only instance that I know of, but reverting the code back in case of more instances. In the future, I'll need to thoroughly test all CLI options after changing `App#refresh_cmd()` to copy over the `default_proc`, but for now, not worrying about it (as it's not necessary).
 
 
 ## [v0.3.8] - 2021-06-26
