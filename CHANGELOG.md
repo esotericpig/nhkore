@@ -1,12 +1,30 @@
 # Changelog | NHKore
 
-Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+All notable changes to this project will be documented in this file.
 
-## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.7...HEAD)
+Format is based on [Keep a Changelog v1.0.0](https://keepachangelog.com/en/1.0.0),
+and this project adheres to [Semantic Versioning v2.0.0](https://semver.org/spec/v2.0.0.html).
+
+## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.8...HEAD)
+-
+
+
+## [v0.3.8] - 2021-06-26
+
+### Fixed
+- Fixed `App#refresh_cmd()` to also copy Cri's `default_proc` to the new Hash for the command options.
+- Fixed to check for non-strings for JSON & URI.
+    - For JSON, convert `StringIO` to string in `DictScraper.scrape()`.
+    - For URL, convert URL using `URI()` because `URI.parse()` will crash with a non-string (URI object) in `Scraper.open_url()`.
+- Fixed to scrape multiple HTML Ruby tag words (instead of just 1).
+    - I thought multiple Ruby bases/texts (`<rb>`/`<rt>`) were invalid, but after running into the article below and checking the HTML with a validator, it's actually valid HTML:
+          - https://www3.nhk.or.jp/news/easy/k10012759201000/k10012759201000.html
+          - No previous articles/URLs ran into this problem (would have raised an error), so it should only be a problem with this specific, new article.
 
 ### Changed
 - Formatted/Linted all code using RuboCop.
 - Updated Gems.
+
 
 ## [v0.3.7] - 2020-11-07
 
@@ -24,6 +42,7 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
         - https://www3.nhk.or.jp/news/easy/k10012639271000/k10012639271000.html
             - `第３のビール` should have HTML ruby tags around *第*
 
+
 ## [v0.3.6] - 2020-08-18
 
 ### Added
@@ -39,6 +58,7 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Ignored `/cgi2.*enqform/` URLs from SearchScraper (Bing)
 - Added more detail to dictionary error in ArticleScraper
 
+
 ## [v0.3.5] - 2020-05-04
 
 ### Added
@@ -48,6 +68,7 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - Fixed URLs stored in YAML data to always be of type String (not URI)
     - This initially caused a problem in DictScraper.parse_url() from ArticleScraper, but fixed it for all data
+
 
 ## [v0.3.4] - 2020-04-25
 
@@ -70,11 +91,13 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
         - `-d '3-3'`
         - `-d '3'`
 
+
 ## [v0.3.3] - 2020-04-23
 
 ### Added
 - Added JSON support to Sifter & SiftCmd.
 - Added use of `attr_bool` Gem for `attr_accessor?` & `attr_reader?`.
+
 
 ## [v0.3.2] - 2020-04-22
 
@@ -99,6 +122,7 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - ArticleScraper
     - Renamed `mode` param to `strict`. `mode` was overshadowing File.open()'s in Scraper.
 
+
 ## [v0.3.1] - 2020-04-20
 
 ### Changed
@@ -115,6 +139,7 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     - Load time is still pretty slow (but a lot better!).
 - BingScraper
     - Fixed possible RSS infinite loop.
+
 
 ## [v0.3.0] - 2020-04-12
 
@@ -150,7 +175,9 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
         - ignore empty filenames in the Zip for safety.
         - ask to overwrite files instead of erroring.
 
+
 ## [v0.2.0] - 2020-04-01
+
 First working version.
 
 ### Added
@@ -186,7 +213,9 @@ First working version.
 - test/nhkore_tester.rb
     - Renamed to `test/nhkore/test_helper.rb`
 
+
 ## [v0.1.0] - 2020-02-24
+
 ### Added
 - .gitignore
 - CHANGELOG.md
