@@ -60,14 +60,18 @@ task :update_core do |task|
   next unless hl.agree(continue_msg)
   puts
 
-  next unless sh(*cmd,'news','-s','100','ez')
+  next unless sh(*cmd,'news','-s','500','ez')
   next unless hl.agree(continue_msg)
   puts
 
   next unless sh(*cmd,'sift','-e','csv' ,'ez')
+  puts
   next unless sh(*cmd,'sift','-e','html','ez')
+  puts
   next unless sh(*cmd,'sift','-e','json','ez')
+  puts
   next unless sh(*cmd,'sift','-e','yml' ,'ez')
+  puts
 end
 
 # @since 0.3.6
