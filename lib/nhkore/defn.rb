@@ -53,26 +53,33 @@ module NHKore
       end
 
       doc = Nokogiri::HTML(def_str)
-      doc = doc.css('body') # Auto-added by Nokogiri
+      doc = doc.css('body') # Auto-added by Nokogiri.
 
       doc.children.each do |child|
         name = Util.unspace_web_str(child.name).downcase if child.respond_to?(:name)
 
         is_text = false
-        word = nil
+        words = []
 
         if name == 'ruby'
-          word = Word.scrape_ruby_tag(child,missingno: missingno,url: url)
-        elsif child.respond_to?(:text) # Don't do child.text?(), just want content
-          word = Word.scrape_text_node(child,url: url)
+          # Returns an array.
+          words = Word.scrape_ruby_tag(child,missingno: missingno,url: url)
+        elsif child.respond_to?(:text) # Don't do child.text?(), just want content.
+          words << Word.scrape_text_node(child,url: url)
           is_text = true
         end
 
-        if word.nil?
+        # All word-scraping methods can return nil,
+        #   so remove all nils for empty?() check.
+        words = words&.compact
+
+        if words.nil? || words.empty?
           defn.text << Util.reduce_jpn_space(child.text) if is_text
         else
-          defn.text << Util.reduce_jpn_space(word.word)
-          defn.words << word unless Util.empty_web_str?(word.word)
+          words.each do |word|
+            defn.text << Util.reduce_jpn_space(word.word)
+            defn.words << word unless Util.empty_web_str?(word.word)
+          end
         end
       end
 

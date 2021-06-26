@@ -393,11 +393,22 @@ module NHKore
       return link
     end
 
-    def scrape_ruby_word(tag,result: ScrapeWordsResult.new)
-      word = Word.scrape_ruby_tag(tag,missingno: @missingno,url: @url)
+    # @since 0.3.8
+    # @see https://www3.nhk.or.jp/news/easy/k10012759201000/k10012759201000.html
+    def scrape_ruby_words(tag,result: ScrapeWordsResult.new)
+      words = Word.scrape_ruby_tag(tag,missingno: @missingno,url: @url)
+      final_words = []
 
-      return nil if word.nil?
+      return final_words if words.nil?
 
+      words.each do |word|
+        final_words << scrape_ruby_word(word,result: result)
+      end
+
+      return final_words
+    end
+
+    def scrape_ruby_word(word,result: ScrapeWordsResult.new)
       # No cleaning; raw text.
       # Do not add kana to the text.
       result.add_text(word.kanji)
@@ -405,6 +416,8 @@ module NHKore
       kanji = clean(word.kanji)
       kana = clean(word.kana)
 
+      # Even though Word.scrape_ruby_tag() also does this,
+      #   check it again after cleaning above.
       if !@missingno.nil?
         # Check kana first, since this is the typical scenario.
         # - https://www3.nhk.or.jp/news/easy/k10012331311000/k10012331311000.html
@@ -510,14 +523,15 @@ module NHKore
       while !children.empty?
         child = children.pop
         name = nil
-        word = nil
+        words = []
 
         name = Util.unspace_web_str(child.name.to_s).downcase if child.respond_to?(:name)
 
         if name == 'ruby'
-          word = scrape_ruby_word(child,result: result)
+          # Returns an array.
+          words = scrape_ruby_words(child,result: result)
         elsif child.text?
-          word = scrape_text_word(child,result: result)
+          words << scrape_text_word(child,result: result)
         elsif name == 'rt'
           raise ScrapeError,"invalid rt tag[#{child}] without a ruby tag at URL[#{@url}]"
         else
@@ -538,23 +552,26 @@ module NHKore
           end
 
           if dicwin_id.nil?
+            # I originally didn't use a stack-like Array and did a constant insert,
+            #   but I think this is slower (moving all elements down every time).
+            # However, if it's using C-like code for moving memory, then maybe it
+            #   is faster?
+            # Old code:
+            #   children.insert(i + 1,*child.children.to_a())
             grand_children = child.children.to_a
 
             (grand_children.length - 1).downto(0).each do |i|
               children.push(grand_children[i])
             end
-
-            # I originally didn't use a stack-like Array and did a constant insert,
-            #   but I think this is slower (moving all elements down every time).
-            # However, if it's using C-like code for moving memory, then maybe it
-            #   is faster?
-            #children.insert(i + 1,*child.children.to_a())
           else
-            word = scrape_dicwin_word(child,dicwin_id,result: result)
+            words << scrape_dicwin_word(child,dicwin_id,result: result)
           end
         end
 
-        result.add_word(word) unless word.nil?
+        words&.each do |word|
+          # All word-scraping methods can return nil.
+          result.add_word(word) unless word.nil?
+        end
       end
 
       return result

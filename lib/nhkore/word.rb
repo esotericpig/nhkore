@@ -103,55 +103,69 @@ module NHKore
     end
 
     # Do not clean and/or strip spaces, as the raw text is important for
-    #   Defn and ArticleScraper.
+    # Defn and ArticleScraper.
+    #
+    # This originally only scraped 1 word, but multiple words were added
+    # after seeing this link for 産業能率大学, which is valid HTML:
+    #   https://www3.nhk.or.jp/news/easy/k10012759201000/k10012759201000.html
+    #
+    # @return [Array<Word>] the scraped {Word}(s)
     def self.scrape_ruby_tag(tag,missingno: nil,url: nil)
       # First, try <rb> tags.
-      kanji = tag.css('rb')
+      kanjis = tag.css('rb')
       # Second, try text nodes.
-      kanji = tag.search('./text()') if kanji.length < 1
+      kanjis = tag.search('./text()') if kanjis.length < 1
       # Third, try non-<rt> tags, in case of being surrounded by <span>, <b>, etc.
-      kanji = tag.search("./*[not(name()='rt')]") if kanji.length < 1
+      kanjis = tag.search("./*[not(name()='rt')]") if kanjis.length < 1
 
-      raise ScrapeError,"no kanji at URL[#{url}] in tag[#{tag}]" if kanji.length < 1
-      raise ScrapeError,"too many kanji at URL[#{url}] in tag[#{tag}]" if kanji.length > 1
+      kanas = tag.css('rt')
 
-      kanji = kanji[0].text
-      kana = tag.css('rt')
+      raise ScrapeError,"no kanji at URL[#{url}] in tag[#{tag}]" if kanjis.length < 1
+      raise ScrapeError,"no kana at URL[#{url}] in tag[#{tag}]" if kanas.length < 1
 
-      raise ScrapeError,"no kana at URL[#{url}] in tag[#{tag}]" if kana.length < 1
-      raise ScrapeError,"too many kana at URL[#{url}] in tag[#{tag}]" if kana.length > 1
-
-      kana = kana[0].text
-
-      if !missingno.nil?
-        # Check kana first, since this is the typical scenario.
-        # - https://www3.nhk.or.jp/news/easy/k10012331311000/k10012331311000.html
-        # - '窓' in '（８）窓を開けて外の空気を入れましょう'
-        if Util.empty_web_str?(kana)
-          kana = missingno.kana_from_kanji(kanji)
-
-          if !Util.empty_web_str?(kana)
-            Util.warn("using missingno for kana[#{kana}] from kanji[#{kanji}]")
-          end
-        elsif Util.empty_web_str?(kanji)
-          kanji = missingno.kanji_from_kana(kana)
-
-          if !Util.empty_web_str?(kanji)
-            Util.warn("using missingno for kanji[#{kanji}] from kana[#{kana}]")
-          end
-        end
+      if kanjis.length != kanas.length
+        raise ScrapeError,"number of kanji & kana mismatch at URL[#{url}] in tag[#{tag}]"
       end
 
-      raise ScrapeError,"empty kanji at URL[#{url}] in tag[#{tag}]" if Util.empty_web_str?(kanji)
-      raise ScrapeError,"empty kana at URL[#{url}] in tag[#{tag}]" if Util.empty_web_str?(kana)
+      words = []
 
-      word = Word.new(kana: kana,kanji: kanji)
+      (0...kanjis.length).each do |i|
+        kanji = kanjis[i].text
+        kana = kanas[i].text
 
-      return word
+        # Uncomment for debugging; really need a logger.
+        #puts "Word[#{i}]: #{kanji} => #{kana}"
+
+        if !missingno.nil?
+          # Check kana first, since this is the typical scenario.
+          # - https://www3.nhk.or.jp/news/easy/k10012331311000/k10012331311000.html
+          # - '窓' in '（８）窓を開けて外の空気を入れましょう'
+          if Util.empty_web_str?(kana)
+            kana = missingno.kana_from_kanji(kanji)
+
+            if !Util.empty_web_str?(kana)
+              Util.warn("using missingno for kana[#{kana}] from kanji[#{kanji}]")
+            end
+          elsif Util.empty_web_str?(kanji)
+            kanji = missingno.kanji_from_kana(kana)
+
+            if !Util.empty_web_str?(kanji)
+              Util.warn("using missingno for kanji[#{kanji}] from kana[#{kana}]")
+            end
+          end
+        end
+
+        raise ScrapeError,"empty kanji at URL[#{url}] in tag[#{tag}]" if Util.empty_web_str?(kanji)
+        raise ScrapeError,"empty kana at URL[#{url}] in tag[#{tag}]" if Util.empty_web_str?(kana)
+
+        words << Word.new(kanji: kanji,kana: kana)
+      end
+
+      return words
     end
 
     # Do not clean and/or strip spaces, as the raw text is important for
-    #   Defn and ArticleScraper.
+    # Defn and ArticleScraper.
     def self.scrape_text_node(tag,url: nil)
       text = tag.text
 
