@@ -506,14 +506,20 @@ module NHKore
         new_opts[key] = value
       end
 
-      # Cri has a default proc for default values
-      #   that doesn't store the keys.
-      new_opts.default_proc = proc do |hash,key|
-        # :max_retry => %s(max-retry)
-        key = key.to_s.gsub('_','-').to_sym
-
-        opts.default_proc.call(hash,key)
-      end
+      # For now don't set the default proc, as the original code
+      #   did not have this in mind.
+      # Specifically, SiftCmd.build_sift_filename() is affected by
+      #   this due to relying on @cmd_opts[:ext] to be nil.
+      #   It's easy to change this one instance, but I'm not sure
+      #   at the moment where else might be affected
+      ## Cri has a default proc for default values
+      ##   that doesn't store the keys.
+      #new_opts.default_proc = proc do |hash,key|
+      #  # :max_retry => %s(max-retry)
+      #  key = key.to_s.gsub('_','-').to_sym
+      #
+      #  opts.default_proc.call(hash,key)
+      #end
 
       @cmd = cmd
       @cmd_args = args
