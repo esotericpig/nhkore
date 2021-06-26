@@ -48,7 +48,10 @@ module NHKore
     def scrape
       require 'json'
 
-      json = JSON.parse(@str_or_io)
+      str = read # Make sure it has all been read.
+      str = str.string if str.respond_to?(:string) # For StringIO.
+
+      json = JSON.parse(str)
 
       return Dict.new if json.nil?
 

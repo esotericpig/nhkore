@@ -144,8 +144,9 @@ module NHKore
       top_domain = Util.domain(top_uri.host)
 
       begin
-        # Use URI.parse().open() instead of URI.open()/(Kernel.)open() for safety (code-injection attack).
-        @str_or_io = URI.parse(url).open(redirect: false,**@kargs)
+        # Use URI().open() instead of URI.open()/(Kernel.)open() for safety (code-injection attack).
+        # Use URI() instead of URI.parse() because url can be a URI (not just a string).
+        @str_or_io = URI(url).open(redirect: false,**@kargs)
         @url = url
       rescue OpenURI::HTTPRedirect => redirect
         redirect_uri = redirect.uri
