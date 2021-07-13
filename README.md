@@ -858,17 +858,23 @@ This will update *core/* for you:
 
 ### Releasing [^](#contents)
 
-1. Update *CHANGELOG.md*, *version.rb*, & *Gemfile.lock*
-    - *Raketary*: `$ raketary bump -v`
-    - Run: `$ bundle update`
-2. Run: `$ bundle exec rake update_core`
-3. Run: `$ bundle exec rake clobber pkg_core`
-4. Create a new release & tag
-    - Add `pkg/nhkore-core.zip`
-5. Run: `$ git pull`
-6. Upload GitHub package
-    - *Raketary*: `$ raketary github_pkg`
-7. Run: `$ bundle exec rake release`
+1. Update *CHANGELOG.md*, *version.rb*, & *Gemfile.lock*:
+    - With *Raketary*:
+        - `$ raketary bump -v`
+        - `$ raketary bump -p`
+    - `$ bundle update`
+    - `$ bundle outdated`
+2. Update *core* package:
+    - `$ bundle exec rake update_core`
+    - `$ bundle exec rake clobber pkg_core`
+3. Create a new tag & release:
+    - Note: make sure to add *pkg/nhkore-core.zip*
+    - `$ gh release create --title v0 pkg/*.gem pkg/*.zip`
+    - `$ git pull`
+4. Release to *GitHub Packages*:
+    - With *Raketary*: `$ raketary github_pkg`
+5. Release to *RubyGems*:
+    - `$ bundle exec rake release`
 
 Releasing new HTML file for website:
 
