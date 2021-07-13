@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    nhkore (0.3.9)
+    nhkore (0.3.10)
       attr_bool (~> 0.2)
       bimyou_segmenter (~> 1.2)
       cri (~> 2.15)
@@ -21,7 +21,7 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    addressable (2.7.0)
+    addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
     attr_bool (0.2.2)
     bimyou_segmenter (1.2.0)
@@ -45,12 +45,12 @@ GEM
     public_suffix (4.0.6)
     racc (1.5.2)
     rainbow (3.0.0)
-    rake (13.0.3)
+    rake (13.0.6)
     raketeer (0.2.13)
       rake
-    rdoc (6.3.1)
+    rdoc (6.3.2)
     redcarpet (3.5.1)
-    rubyzip (2.3.0)
+    rubyzip (2.3.2)
     strings-ansi (0.2.0)
     tiny_segmenter (0.0.6)
     tty-cursor (0.7.1)
