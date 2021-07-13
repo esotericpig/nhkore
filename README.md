@@ -869,7 +869,7 @@ This will update *core/* for you:
     - `$ bundle exec rake clobber pkg_core`
 3. Create a new tag & release:
     - Note: make sure to add *pkg/nhkore-core.zip*
-    - `$ gh release create --title v0 pkg/*.gem pkg/*.zip`
+    - `$ gh release create v0 pkg/*.gem pkg/*.zip`
     - `$ git pull`
 4. Release to *GitHub Packages*:
     - With *Raketary*: `$ raketary github_pkg`
