@@ -5,8 +5,14 @@ All notable changes to this project will be documented in this file.
 Format is based on [Keep a Changelog v1.0.0](https://keepachangelog.com/en/1.0.0),
 and this project adheres to [Semantic Versioning v2.0.0](https://semver.org/spec/v2.0.0.html).
 
-## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.10...HEAD)
+## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.11...HEAD)
 -
+
+
+## [v0.3.11] - 2021-10-25
+
+### Fixed
+- Updated `nokogiri` gem for *Dependabot* security vulnerability.
 
 
 ## [v0.3.10] - 2021-07-13
