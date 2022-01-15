@@ -68,20 +68,21 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'yard'      ,'~> 0.9'  # For documentation
   spec.add_development_dependency 'yard_ghurt','~> 1.2'  # For extra YARDoc Rake tasks
 
-  spec.post_install_message = <<-MSG
-
-  NHKore v#{NHKore::VERSION}
-
-  You can now use [#{spec.executables.join(', ')}] on the command line.
-
-  Homepage:  #{spec.homepage}
-
-  Code:      #{spec.metadata['source_code_uri']}
-  Bugs:      #{spec.metadata['bug_tracker_uri']}
-
-  Changelog: #{spec.metadata['changelog_uri']}
-
+  spec.post_install_message = <<~MSG
+    +===========================================================================+
+    | NHKore v#{NHKore::VERSION}
+    |
+    | You can now use [#{spec.executables.join(', ')}] on the command line.
+    |
+    | Homepage:  #{spec.homepage}
+    |
+    | Code:      #{spec.metadata['source_code_uri']}
+    | Bugs:      #{spec.metadata['bug_tracker_uri']}
+    |
+    | Changelog: #{spec.metadata['changelog_uri']}
+    +===========================================================================+
   MSG
+  #puts spec.post_install_message.split("\n").map(&:length).max
 
   spec.extra_rdoc_files = %w[ CHANGELOG.md LICENSE.txt README.md ]
 
