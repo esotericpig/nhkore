@@ -46,7 +46,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'attr_bool'            ,'~> 0.2'  # For attr_accessor?/attr_reader?
   spec.add_runtime_dependency 'bimyou_segmenter'     ,'~> 1.2'  # For splitting Japanese sentences into words
   spec.add_runtime_dependency 'cri'                  ,'~> 2.15' # For CLI commands/options
-  spec.add_runtime_dependency 'down'                 ,'~> 5.2'  # For downloading files (GetCmd)
+  spec.add_runtime_dependency 'down'                 ,'~> 5.3'  # For downloading files (GetCmd)
   spec.add_runtime_dependency 'highline'             ,'~> 2.0'  # For CLI input/output
   spec.add_runtime_dependency 'http-cookie'          ,'~> 1.0'  # For parsing/setting cookies (BingScraper/Scraper)
   spec.add_runtime_dependency 'japanese_deinflector' ,'~> 0.0'  # For unconjugating Japanese words (plain/dictionary form)
@@ -69,18 +69,16 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'yard_ghurt','~> 1.2'  # For extra YARDoc Rake tasks
 
   spec.post_install_message = <<~MSG
-    +===========================================================================+
+    +=============================================================================+
     | NHKore v#{NHKore::VERSION}
     |
     | You can now use [#{spec.executables.join(', ')}] on the command line.
     |
     | Homepage:  #{spec.homepage}
-    |
     | Code:      #{spec.metadata['source_code_uri']}
     | Bugs:      #{spec.metadata['bug_tracker_uri']}
-    |
     | Changelog: #{spec.metadata['changelog_uri']}
-    +===========================================================================+
+    +=============================================================================+
   MSG
   #puts spec.post_install_message.split("\n").map(&:length).max
 

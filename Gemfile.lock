@@ -5,7 +5,7 @@ PATH
       attr_bool (~> 0.2)
       bimyou_segmenter (~> 1.2)
       cri (~> 2.15)
-      down (~> 5.2)
+      down (~> 5.3)
       highline (~> 2.0)
       http-cookie (~> 1.0)
       japanese_deinflector (~> 0.0)
@@ -28,16 +28,16 @@ GEM
     cri (2.15.11)
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
-    down (5.2.4)
+    down (5.3.0)
       addressable (~> 2.8)
     highline (2.0.3)
     http-cookie (1.0.4)
       domain_name (~> 0.5)
     japanese_deinflector (0.0.2)
-    mini_portile2 (2.7.1)
+    mini_portile2 (2.8.0)
     minitest (5.15.0)
-    nokogiri (1.13.1)
-      mini_portile2 (~> 2.7.0)
+    nokogiri (1.13.3)
+      mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
     psych (4.0.3)
       stringio
@@ -91,4 +91,4 @@ DEPENDENCIES
   yard_ghurt (~> 1.2)
 
 BUNDLED WITH
-   2.3.5
+   2.3.8
