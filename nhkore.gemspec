@@ -54,6 +54,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'psychgus'             ,'~> 1.3'  # For styling Psych YAML
   spec.add_runtime_dependency 'public_suffix'        ,'~> 4.0'  # For parsing URL domain names
   spec.add_runtime_dependency 'rainbow'              ,'~> 3.1'  # For CLI color output
+  spec.add_runtime_dependency 'rss'                  ,'~> 0.2'  # For scraping (BingScraper/Scraper)
   spec.add_runtime_dependency 'rubyzip'              ,'~> 2.3'  # For extracting Zip files (GetCmd)
   spec.add_runtime_dependency 'tiny_segmenter'       ,'~> 0.0'  # For splitting Japanese sentences into words
   spec.add_runtime_dependency 'tty-progressbar'      ,'~> 0.18' # For CLI progress bars

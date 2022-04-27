@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning v2.0.0](https://semver.org/spec
 
 ### Fixed
 - Updated gems (`nokogiri`).
+- Added `rss` gem (no longer included with Ruby core).
 
 
 ## [v0.3.12] - 2022-02-27
