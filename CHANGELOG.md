@@ -5,8 +5,14 @@ All notable changes to this project will be documented in this file.
 Format is based on [Keep a Changelog v1.0.0](https://keepachangelog.com/en/1.0.0),
 and this project adheres to [Semantic Versioning v2.0.0](https://semver.org/spec/v2.0.0.html).
 
-## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.12...HEAD)
+## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.13...HEAD)
 -
+
+
+## [v0.3.13] - 2022-04-27
+
+### Fixed
+- Updated gems (`nokogiri`).
 
 
 ## [v0.3.12] - 2022-02-27
