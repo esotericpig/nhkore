@@ -26,48 +26,57 @@ Gem::Specification.new do |spec|
     #'mailing_list_uri'  => '',
   }
 
+  spec.required_ruby_version = '>= 2.5'
   spec.requirements = [
     'Nokogiri: https://www.nokogiri.org/tutorials/installing_nokogiri.html',
   ]
 
-  spec.required_ruby_version = '>= 2.5'
-  spec.require_paths         = ['lib']
-  spec.bindir                = 'bin'
-  spec.executables           = [spec.name]
+  spec.require_paths = ['lib']
+  spec.bindir        = 'bin'
+  spec.executables   = [spec.name]
+
+  spec.extra_rdoc_files = %w[ CHANGELOG.md LICENSE.txt README.md ]
+  spec.rdoc_options = [
+    '--hyperlink-all','--show-hash',
+    '--title',"NHKore v#{NHKore::VERSION} Doc",
+    '--main','README.md',
+  ]
 
   spec.files = [
     Dir.glob(File.join("{#{spec.require_paths.join(',')}}",'**','*.{erb,rb}')),
     Dir.glob(File.join(spec.bindir,'*')),
     Dir.glob(File.join('{samples,test,yard}','**','*.{erb,rb}')),
     %W[ Gemfile Gemfile.lock #{spec.name}.gemspec Rakefile .yardopts ],
-    %w[ CHANGELOG.md LICENSE.txt README.md ],
+    spec.extra_rdoc_files,
   ].flatten
 
-  spec.add_runtime_dependency 'attr_bool'            ,'~> 0.2'  # For attr_accessor?/attr_reader?
-  spec.add_runtime_dependency 'bimyou_segmenter'     ,'~> 1.2'  # For splitting Japanese sentences into words
-  spec.add_runtime_dependency 'cri'                  ,'~> 2.15' # For CLI commands/options
-  spec.add_runtime_dependency 'down'                 ,'~> 5.3'  # For downloading files (GetCmd)
-  spec.add_runtime_dependency 'highline'             ,'~> 2.0'  # For CLI input/output
-  spec.add_runtime_dependency 'http-cookie'          ,'~> 1.0'  # For parsing/setting cookies (BingScraper/Scraper)
-  spec.add_runtime_dependency 'japanese_deinflector' ,'~> 0.0'  # For unconjugating Japanese words (plain/dictionary form)
-  spec.add_runtime_dependency 'nokogiri'             ,'~> 1.13' # For scraping/hacking
-  spec.add_runtime_dependency 'psychgus'             ,'~> 1.3'  # For styling Psych YAML
-  spec.add_runtime_dependency 'public_suffix'        ,'~> 4.0'  # For parsing URL domain names
-  spec.add_runtime_dependency 'rainbow'              ,'~> 3.1'  # For CLI color output
-  spec.add_runtime_dependency 'rss'                  ,'~> 0.2'  # For scraping (BingScraper/Scraper)
-  spec.add_runtime_dependency 'rubyzip'              ,'~> 2.3'  # For extracting Zip files (GetCmd)
-  spec.add_runtime_dependency 'tiny_segmenter'       ,'~> 0.0'  # For splitting Japanese sentences into words
-  spec.add_runtime_dependency 'tty-progressbar'      ,'~> 0.18' # For CLI progress bars
-  spec.add_runtime_dependency 'tty-spinner'          ,'~> 0.9'  # For CLI spinning progress
+  run_dep = spec.method(:add_runtime_dependency)
+  run_dep[ 'attr_bool'           ,'~> 0.2'  ] # attr_accessor?/attr_reader?.
+  run_dep[ 'bimyou_segmenter'    ,'~> 1.2'  ] # Splitting Japanese sentences into words.
+  run_dep[ 'cri'                 ,'~> 2.15' ] # CLI commands/options.
+  run_dep[ 'down'                ,'~> 5.3'  ] # Downloading files (GetCmd).
+  run_dep[ 'highline'            ,'~> 2.0'  ] # CLI input/output.
+  run_dep[ 'http-cookie'         ,'~> 1.0'  ] # Parsing/Setting cookies [(Bing)Scraper].
+  run_dep[ 'japanese_deinflector','~> 0.0'  ] # Unconjugating Japanese words (dictionary form).
+  run_dep[ 'nokogiri'            ,'~> 1.13' ] # Scraping/Hacking.
+  run_dep[ 'psychgus'            ,'~> 1.3'  ] # Styling Psych YAML.
+  run_dep[ 'public_suffix'       ,'~> 4.0'  ] # Parsing URL domain names.
+  run_dep[ 'rainbow'             ,'~> 3.1'  ] # CLI color output.
+  run_dep[ 'rss'                 ,'~> 0.2'  ] # Scraping [(Bing)Scraper].
+  run_dep[ 'rubyzip'             ,'~> 2.3'  ] # Extracting Zip files (GetCmd).
+  run_dep[ 'tiny_segmenter'      ,'~> 0.0'  ] # Splitting Japanese sentences into words.
+  run_dep[ 'tty-progressbar'     ,'~> 0.18' ] # CLI progress bars.
+  run_dep[ 'tty-spinner'         ,'~> 0.9'  ] # CLI spinning progress.
 
-  spec.add_development_dependency 'bundler'   ,'~> 2.3'
-  spec.add_development_dependency 'minitest'  ,'~> 5.15'
-  spec.add_development_dependency 'rake'      ,'~> 13.0'
-  spec.add_development_dependency 'raketeer'  ,'~> 0.2'  # For extra Rake tasks
-  spec.add_development_dependency 'rdoc'      ,'~> 6.4'  # For YARDoc RDoc (*.rb)
-  spec.add_development_dependency 'redcarpet' ,'~> 3.5'  # For YARDoc Markdown (*.md)
-  spec.add_development_dependency 'yard'      ,'~> 0.9'  # For documentation
-  spec.add_development_dependency 'yard_ghurt','~> 1.2'  # For extra YARDoc Rake tasks
+  dev_dep = spec.method(:add_development_dependency)
+  dev_dep[ 'bundler'   ,'~> 2.3'  ]
+  dev_dep[ 'minitest'  ,'~> 5.16' ]
+  dev_dep[ 'rake'      ,'~> 13.0' ]
+  dev_dep[ 'raketeer'  ,'~> 0.2'  ] # Extra Rake tasks.
+  dev_dep[ 'rdoc'      ,'~> 6.4'  ] # YARDoc RDoc (*.rb).
+  dev_dep[ 'redcarpet' ,'~> 3.5'  ] # YARDoc Markdown (*.md).
+  dev_dep[ 'yard'      ,'~> 0.9'  ] # Doc.
+  dev_dep[ 'yard_ghurt','~> 1.2'  ] # Extra YARDoc Rake tasks.
 
   spec.post_install_message = <<~MSG
     +=============================================================================+
@@ -81,13 +90,7 @@ Gem::Specification.new do |spec|
     | Changelog: #{spec.metadata['changelog_uri']}
     +=============================================================================+
   MSG
+
+  # Uncomment to see max line length:
   #puts spec.post_install_message.split("\n").map(&:length).max
-
-  spec.extra_rdoc_files = %w[ CHANGELOG.md LICENSE.txt README.md ]
-
-  spec.rdoc_options = [
-    '--hyperlink-all','--show-hash',
-    '--title',"NHKore v#{NHKore::VERSION} Doc",
-    '--main','README.md',
-  ]
 end

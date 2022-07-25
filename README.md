@@ -885,7 +885,7 @@ Releasing new HTML file for website:
 [GNU LGPL v3+](LICENSE.txt)
 
 > NHKore (<https://github.com/esotericpig/nhkore>)  
-> Copyright (c) 2020-2021 Jonathan Bradley Whited  
+> Copyright (c) 2020-2022 Jonathan Bradley Whited  
 > 
 > NHKore is free software: you can redistribute it and/or modify  
 > it under the terms of the GNU Lesser General Public License as published by  
