@@ -3,7 +3,7 @@
 
 #--
 # This file is part of NHKore.
-# Copyright (c) 2020-2021 Jonathan Bradley Whited
+# Copyright (c) 2020-2022 Jonathan Bradley Whited
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
@@ -537,7 +537,11 @@ module NHKore
     end
 
     def sleep_scraper
-      sleep(@sleep_time)
+      # Do a range to better emulate being a human.
+      r = rand(@sleep_time..(@sleep_time + 0.1111))
+      s = r.round(3) # Within 1000ms (0.000 - 0.999).
+
+      sleep(s)
     end
 
     def start_spin(title,detail: '')

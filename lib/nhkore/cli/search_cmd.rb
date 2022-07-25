@@ -3,7 +3,7 @@
 
 #--
 # This file is part of NHKore.
-# Copyright (c) 2020-2021 Jonathan Bradley Whited
+# Copyright (c) 2020-2022 Jonathan Bradley Whited
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
@@ -42,6 +42,12 @@ module CLI
         DESC
           app.check_empty_opt(:in,value)
         }
+        option :l,:loop,'number of times to repeat the search to ensure results',argument: :required,
+          transform: lambda { |value|
+            value = value.to_i
+            value = 1 if value < 1
+            value
+          }
         option :o,:out,<<-DESC,argument: :required,transform: lambda { |value|
           'directory/file' to save links to; if you only specify a directory or a file, it will attach the
           appropriate default directory/file name
@@ -164,6 +170,8 @@ module CLI
 
       dry_run = @cmd_opts[:dry_run]
       in_file = @cmd_opts[:in]
+      loop_times = @cmd_opts[:loop]
+      loop_times = 1 if loop_times.nil? || loop_times < 1
       out_file = @cmd_opts[:out]
       result_count = @cmd_opts[:results]
       result_count = SearchScraper::DEFAULT_RESULT_COUNT if result_count.nil?
@@ -174,9 +182,6 @@ module CLI
       is_file = !in_file.nil?
       links = nil
       new_links = [] # For --dry-run
-      next_page = NextPage.new
-      page_count = 0
-      page_num = 1
       url = in_file # nil will use default URL, else a file
 
       # Load previous links for 'scraped?' vars.
@@ -196,43 +201,52 @@ module CLI
         end
 
         puts "#{scraped_count} of #{links_count} links scraped."
-
         return
       end
 
-      range = (0..10_000) # Do a range to prevent an infinite loop; ichiman!
+      1.upto(loop_times) do |loop_i|
+        page_range = (0..10_000) # Do a range to prevent an infinite loop; ichiman!
 
-      case search_type
-      # Anything that extends SearchScraper.
-      when :bing
-        range.each do
-          scraper = nil
+        next_page = NextPage.new
+        page_count = 0
+        page_num = 1
 
-          case search_type
-          when :bing
-            scraper = BingScraper.new(nhk_type,count: result_count,is_file: is_file,url: url,**@scraper_kargs)
-          else
-            raise NHKore::Error,"internal code broken; add missing search_type[#{search_type}]"
+        case search_type
+        # Anything that extends SearchScraper.
+        when :bing
+          page_range.each do
+            scraper = nil
+
+            case search_type
+            when :bing
+              scraper = BingScraper.new(
+                nhk_type,count: result_count,is_file: is_file,url: url,**@scraper_kargs
+              )
+            else
+              raise NHKore::Error,"internal code broken; add missing search_type[#{search_type}]"
+            end
+
+            next_page = scraper.scrape(links,next_page)
+
+            new_links.concat(links.links.values[links_count..])
+            links_count = links.length
+            page_count = next_page.count if next_page.count > 0
+
+            update_spin_detail(
+              format(' (%d/%d, page=%d, count=%d, links=%d, new_links=%d)',
+                     loop_i,loop_times,page_num,page_count,links.length,new_links.length)
+            )
+
+            break if next_page.empty?
+
+            page_num += 1
+            url = next_page.url
+
+            sleep_scraper
           end
-
-          next_page = scraper.scrape(links,next_page)
-
-          new_links.concat(links.links.values[links_count..-1])
-          links_count = links.length
-          page_count = next_page.count if next_page.count > 0
-
-          update_spin_detail(" (page=#{page_num}, count=#{page_count}, links=#{links.length}," \
-            " new_links=#{new_links.length})")
-
-          break if next_page.empty?
-
-          page_num += 1
-          url = next_page.url
-
-          sleep_scraper
+        else
+          raise ArgumentError,"invalid search_type[#{search_type}]"
         end
-      else
-        raise ArgumentError,"invalid search_type[#{search_type}]"
       end
 
       stop_spin
