@@ -871,9 +871,7 @@ This will update *core/* for you:
     - Note: make sure to add *pkg/nhkore-core.zip*
     - `$ gh release create v0 pkg/*.gem pkg/*.zip`
     - `$ git pull`
-4. Release to *GitHub Packages*:
-    - With *Raketary*: `$ raketary github_pkg`
-5. Release to *RubyGems*:
+4. Release to *RubyGems*:
     - `$ bundle exec rake release`
 
 Releasing new HTML file for website:
