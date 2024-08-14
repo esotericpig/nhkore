@@ -13,6 +13,7 @@ require 'attr_bool'
 require 'nokogiri'
 require 'open-uri'
 
+require 'nhkore/error'
 require 'nhkore/user_agents'
 require 'nhkore/util'
 
@@ -177,7 +178,13 @@ module NHKore
         retry
       # Must come after HTTPRedirect since a subclass of HTTPError.
       rescue OpenURI::HTTPError => e
-        raise e.exception("HTTP error[#{e}] at URL[#{url}]")
+        msg = "HTTP error[#{e}] at URL[#{url}]"
+
+        if e.to_s.include?('404 Not Found')
+          raise Http404Error,msg
+        else
+          raise e.exception(msg)
+        end
       rescue SocketError => e
         if (max_retries -= 1) < 0
           raise e.exception("Socket error[#{e}] at URL[#{url}]")

@@ -56,6 +56,9 @@ task :update_core do |task|
   cmd = ['ruby','-w','./lib/nhkore.rb','-t','300','-m','10']
   hl = HighLine.new
 
+  next unless sh(*cmd,'se','--show-count','ez')
+  puts
+
   next unless sh(*cmd,'se','-l','10','ez','bing')
   next unless hl.agree(continue_msg)
   puts

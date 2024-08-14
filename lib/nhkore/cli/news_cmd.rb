@@ -255,16 +255,20 @@ module CLI
           next if !redo_scrapes && scraped_news_article?(news,link)
 
           url = link.url
+          result = scrape_news_article(url,link: link,new_articles: new_articles,news: news)
 
-          if (new_url = scrape_news_article(url,link: link,new_articles: new_articles,news: news))
+          if result == :scraped
+            scrape_count += 1
+          elsif result == :unscraped
+            next
+          else
             # --show-dict
-            url = new_url
-            scrape_count = max_scrapes - 1 # Break on next iteration for update_spin_detail()
+            url = result
+            scrape_count = max_scrapes # Break on next iteration for update_spin_detail().
           end
 
           # Break on next iteration for update_spin_detail().
-          next if (scrape_count += 1) >= max_scrapes
-
+          next if scrape_count >= max_scrapes
           sleep_scraper
         end
       else
@@ -275,9 +279,8 @@ module CLI
           links.add_link(link)
         end
 
-        scrape_news_article(url,link: link,new_articles: new_articles,news: news)
-
-        scrape_count += 1
+        result = scrape_news_article(url,link: link,new_articles: new_articles,news: news)
+        scrape_count += 1 if result != :unscraped
       end
 
       stop_spin
@@ -338,9 +341,17 @@ module CLI
         return scraper.url
       end
 
-      scraper = ArticleScraper.new(url,**@news_article_scraper_kargs)
-      article = scraper.scrape
+      scraper = nil
 
+      begin
+        scraper = ArticleScraper.new(url,**@news_article_scraper_kargs)
+      rescue Http404Error
+        # - https://www3.nhk.or.jp/news/easy/k10014157491000/k10014157491000.html
+        Util.warn("Ignoring URL with 404 error: #{url}.")
+        return :unscraped
+      end
+
+      article = scraper.scrape
       # run_news_cmd() handles overwriting with --redo or not
       #   using scraped_news_article?().
       news.add_article(article,overwrite: true)
@@ -350,7 +361,7 @@ module CLI
 
       new_articles << article
 
-      return false # No --show-dict
+      return :scraped # No --show-dict
     end
 
     def scraped_news_article?(news,link)
@@ -366,10 +377,15 @@ module CLI
         end
 
         if article.nil?
-          scraper = ArticleScraper.new(link.url,**@news_article_scraper_kargs)
+          scraper = nil
+
+          begin
+            scraper = ArticleScraper.new(link.url,**@news_article_scraper_kargs)
+          rescue Http404Error
+            return false
+          end
 
           sha256 = scraper.scrape_sha256_only
-
           article = news.article_with_sha256(sha256) if news.sha256?(sha256)
         end
       end

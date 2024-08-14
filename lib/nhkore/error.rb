@@ -19,6 +19,8 @@ module NHKore
   # @since 0.2.0
   class CLIError < Error; end
 
+  class Http404Error < Error; end
+
   # @since 0.2.0
   class ParseError < Error; end
 

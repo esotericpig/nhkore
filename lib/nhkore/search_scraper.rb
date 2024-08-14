@@ -9,6 +9,7 @@
 #++
 
 
+require 'net/http'
 require 'uri'
 
 require 'nhkore/error'
@@ -34,10 +35,11 @@ module NHKore
     YASASHII_REGEX = /\A[^.]+\.#{Regexp.quote(YASASHII_SITE)}.+\.html?/i.freeze
 
     IGNORE_LINK_REGEX = %r{
-      /about\.html?             # https://www3.nhk.or.jp/news/easy/about.html
-      |/movieplayer\.html?      # https://www3.nhk.or.jp/news/easy/movieplayer.html?id=k10038422811_1207251719_1207251728.mp4&teacuprbbs=4feb73432045dbb97c283d64d459f7cf
-      |/audio\.html?            # https://www3.nhk.or.jp/news/easy/player/audio.html?id=k10011555691000
-      |/news/easy/index\.html?  # http://www3.nhk.or.jp/news/easy/index.html
+      /about\.html?               # https://www3.nhk.or.jp/news/easy/about.html
+      |/movieplayer\.html?        # https://www3.nhk.or.jp/news/easy/movieplayer.html?id=k10038422811_1207251719_1207251728.mp4&teacuprbbs=4feb73432045dbb97c283d64d459f7cf
+      |/audio\.html?              # https://www3.nhk.or.jp/news/easy/player/audio.html?id=k10011555691000
+      |/news/easy/index\.html?    # https://www3.nhk.or.jp/news/easy/index.html
+      |/disaster_earthquake.html  # https://www3.nhk.or.jp/news/easy/article/disaster_earthquake.html
 
       # https://cgi2.nhk.or.jp/news/easy/easy_enq/bin/form/enqform.html?id=k10011916321000&title=日本の会社が作った鉄道の車両「あずま」がイギリスで走る
       # https://www3.nhk.or.jp/news/easy/easy_enq/bin/form/enqform.html?id=k10012689671000&title=「鬼滅の刃」の映画が台湾でも始まって大勢の人が見に行く
@@ -47,7 +49,7 @@ module NHKore
     # Search Engines are strict, so trigger using the default HTTP header fields
     # with +header: {}+ and fetch/set the cookie using +eat_cookie: true+.
     def initialize(url,eat_cookie: true,header: {},**kargs)
-      super(url,eat_cookie: eat_cookie,header: header,**kargs)
+      super
     end
 
     def ignore_link?(link,cleaned: true)
@@ -56,10 +58,32 @@ module NHKore
       link = Util.unspace_web_str(link).downcase unless cleaned
 
       return true if link.empty?
-
       return true if IGNORE_LINK_REGEX.match?(link)
-
       return false
+    end
+
+    # Example: https://www3.nhk.or.jp/news/easy/k10014150691000/k10014150691000.html
+    def fetch_valid_link?(link)
+      uri = begin
+        URI(link)
+      rescue StandardError
+        return false # Bad URL.
+      end
+
+      begin
+        ssl = uri.scheme.to_s.strip.downcase.include?('https')
+
+        Net::HTTP.start(uri.host,uri.port,use_ssl: ssl) do |http|
+          resp = http.head(uri.request_uri)
+          code = resp.code
+
+          return code != '404'
+        end
+      rescue StandardError
+        # Ignore; try actually scraping the article anyway.
+      end
+
+      return true
     end
   end
 
@@ -136,9 +160,8 @@ module NHKore
             next_page.count = count
             next_page.url = join_url(href)
           end
-        elsif href =~ regex
+        elsif href =~ regex && fetch_valid_link?(href)
           slinks.add_link(SearchLink.new(href))
-
           link_count += 1
         end
       end
@@ -165,10 +188,9 @@ module NHKore
           rss_links << link
 
           next if ignore_link?(link)
-          next if link !~ regex
+          next if link !~ regex || !fetch_valid_link?(link)
 
           slinks.add_link(SearchLink.new(link))
-
           link_count += 1
         end
 
@@ -202,7 +224,7 @@ module NHKore
     attr_accessor :url
 
     def initialize
-      super()
+      super
 
       @count = -1
       @rss_links = nil

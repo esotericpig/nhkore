@@ -336,6 +336,11 @@ module NHKore
         next if filter?(article)
 
         article.words.each_value do |word|
+          # TODO: Try to remove garbage data better.
+          next if word.word.length < 2
+          next if word.freq <= 1
+          next if word.word =~ /\p{Latin}|[[:digit:]]/
+
           master_article.add_word(word,use_freq: true)
         end
       end

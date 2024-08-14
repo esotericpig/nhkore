@@ -139,7 +139,13 @@ module NHKore
     end
 
     def parse_dicwin_id(str)
-      str = str.gsub(/\D+/,'')
+      str = str.to_s.strip.downcase
+
+      if str.start_with?('id-') # 'id-0000'
+        str = str.gsub(/\D+/,'')
+      else # 'RSHOK-K-003806'
+        # Same.
+      end
 
       return nil if str.empty?
       return str
@@ -235,8 +241,6 @@ module NHKore
           # Ignore; try again below.
           Util.warn("could not parse date time[#{tag_text}] from tag[#{tag_name}] at URL[#{@url}]: #{e}")
         end
-
-        return datetime
       end
 
       # Third, try body's id.
@@ -489,15 +493,21 @@ module NHKore
     end
 
     def scrape_title(doc,article)
+      # Not grabbing `<head><title>` because it doesn't have `<ruby>` tags.
+
       tag = doc.css('h1.article-main__title')
       tag_name = nil
+
+      if tag.length < 1
+        # - https://www3.nhk.or.jp/news/easy/em2024081312029/em2024081312029.html
+        tag = doc.css('h1.article-title') # No warning.
+      end
 
       if tag.length < 1
         # - https://www3.nhk.or.jp/news/easy/article/disaster_earthquake_illust.html
         tag_name = 'h1.article-eq__title'
         tag = doc.css(tag_name)
       end
-
       if tag.length < 1 && !@strict
         # This shouldn't be used except for select sites.
         # - https://www3.nhk.or.jp/news/easy/tsunamikeihou/index.html

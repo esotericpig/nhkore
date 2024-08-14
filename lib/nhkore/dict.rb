@@ -39,6 +39,7 @@ module NHKore
       dict = Dict.new
 
       hash.each do |id,array|
+        id = id.to_s.strip.downcase # 'RSHOK-K-003806', '0000'
         entry = Entry.scrape(id,array,missingno: missingno,url: url)
 
         next if entry.nil?
