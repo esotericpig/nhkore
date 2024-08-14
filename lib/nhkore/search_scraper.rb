@@ -19,10 +19,6 @@ require 'nhkore/util'
 
 
 module NHKore
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   class SearchScraper < Scraper
     DEFAULT_RESULT_COUNT = 100
     FUTSUU_SITE = 'nhk.or.jp/news/html/'
@@ -87,10 +83,6 @@ module NHKore
     end
   end
 
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   class BingScraper < SearchScraper
     attr_reader :regex
     attr_reader :site
@@ -214,10 +206,6 @@ module NHKore
     end
   end
 
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   class NextPage
     attr_accessor :count
     attr_accessor :rss_links

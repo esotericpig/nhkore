@@ -17,10 +17,6 @@ require 'nhkore/util'
 
 module NHKore
 module CLI
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.3.0
-  ###
   module SearchCmd
     def build_search_cmd
       app = self

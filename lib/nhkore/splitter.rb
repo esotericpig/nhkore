@@ -13,10 +13,6 @@ require 'nhkore/util'
 
 
 module NHKore
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   class Splitter
     def begin_split(str)
       return str
@@ -30,19 +26,12 @@ module NHKore
     end
   end
 
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   class BasicSplitter < Splitter
     def end_split(str)
       return str.split(Util::NORMALIZE_STR_REGEX)
     end
   end
 
-  ###
-  # @since  0.2.0
-  ###
   class BimyouSplitter < Splitter
     def initialize(*)
       require 'bimyou_segmenter'
@@ -55,9 +44,6 @@ module NHKore
     end
   end
 
-  ###
-  # @since  0.2.0
-  ###
   class TinySplitter < Splitter
     attr_accessor :tiny
 
@@ -74,10 +60,6 @@ module NHKore
     end
   end
 
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   class BestSplitter < BimyouSplitter
   end
 end

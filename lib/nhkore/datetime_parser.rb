@@ -17,10 +17,6 @@ require 'nhkore/util'
 
 
 module NHKore
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.3.4
-  ###
   class DatetimeParser
     extend AttrBool::Ext
 

@@ -26,12 +26,7 @@ require 'nhkore/cli/search_cmd'
 require 'nhkore/cli/sift_cmd'
 
 
-###
-# @author Jonathan Bradley Whited
-# @since  0.1.0
-###
 module NHKore
-  # @since 0.2.0
   def self.run(args=ARGV)
     app = App.new(args)
 

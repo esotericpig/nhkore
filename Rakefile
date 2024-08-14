@@ -77,7 +77,6 @@ task :update_core do |task|
   puts
 end
 
-# @since 0.3.6
 desc 'Update showcase file for release'
 task :update_showcase do |task|
   require 'highline'

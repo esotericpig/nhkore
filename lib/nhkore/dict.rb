@@ -14,10 +14,6 @@ require 'nhkore/error'
 
 
 module NHKore
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   class Dict
     attr_reader :entries
 

@@ -16,10 +16,6 @@ require 'nhkore/util'
 
 
 module NHKore
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   class News
     include Fileable
 
@@ -127,10 +123,6 @@ module NHKore
     end
   end
 
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   class FutsuuNews < News
     DEFAULT_FILENAME = 'nhk_news_web_regular.yml'
     DEFAULT_FILE = build_file(DEFAULT_FILENAME)
@@ -148,10 +140,6 @@ module NHKore
     end
   end
 
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   class YasashiiNews < News
     DEFAULT_FILENAME = 'nhk_news_web_easy.yml'
     DEFAULT_FILE = build_file(DEFAULT_FILENAME)

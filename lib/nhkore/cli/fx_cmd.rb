@@ -11,10 +11,6 @@
 
 module NHKore
 module CLI
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   module FXCmd
     def build_fx_cmd
       app = self

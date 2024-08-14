@@ -27,18 +27,11 @@ require 'nhkore/cli/sift_cmd'
 
 
 module NHKore
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   module CLI
   end
 
   ###
   # For disabling/enabling color output.
-  #
-  # @author Jonathan Bradley Whited
-  # @since  0.2.1
   ###
   module CriColorExt
     @color = true
@@ -52,10 +45,6 @@ module NHKore
     end
   end
 
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   class App
     include CLI::FXCmd
     include CLI::GetCmd
@@ -576,10 +565,6 @@ module NHKore
     end
   end
 
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   class NoProgressBar
     MSG = '%{title}... %{percent}%%'
     PUT_INTERVAL = 100.0 / 6.25

@@ -16,10 +16,6 @@ require 'uri'
 
 
 module NHKore
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   module Util
     CORE_DIR = 'core'
     WEB_DIR = 'web'

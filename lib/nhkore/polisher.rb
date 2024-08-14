@@ -13,10 +13,6 @@ require 'nhkore/word'
 
 
 module NHKore
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   class Polisher
     def begin_polish(str)
       return str
@@ -52,10 +48,6 @@ module NHKore
     end
   end
 
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   class BasicPolisher < Polisher
     def end_polish(str)
       # Keep Japanese dots in names:
@@ -72,10 +64,6 @@ module NHKore
     end
   end
 
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   class BestPolisher < BasicPolisher
   end
 end

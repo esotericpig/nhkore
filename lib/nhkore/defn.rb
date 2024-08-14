@@ -16,10 +16,6 @@ require 'nhkore/word'
 
 
 module NHKore
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   class Defn
     attr_reader :hyoukis
     attr_accessor :text

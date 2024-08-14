@@ -14,10 +14,6 @@ require 'nhkore/util'
 
 
 module NHKore
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   class Entry
     HYOUKI_SEP = '・'
 

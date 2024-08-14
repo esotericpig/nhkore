@@ -14,10 +14,6 @@ require 'nhkore/util'
 
 module NHKore
 module CLI
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   module GetCmd
     DEFAULT_GET_CHUNK_SIZE = 4 * 1024
     DEFAULT_GET_URL_LENGTH = 11_000_000 # Just a generous estimation used as a fallback; may be outdated.

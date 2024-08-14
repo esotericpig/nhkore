@@ -16,10 +16,6 @@ require 'nhkore/util'
 
 
 module NHKore
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.1.0
-  ###
   class Word
     attr_accessor :defn
     attr_accessor :eng

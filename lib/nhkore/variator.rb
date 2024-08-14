@@ -10,10 +10,6 @@
 
 
 module NHKore
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   class Variator
     def begin_variate(str)
       return str
@@ -27,10 +23,6 @@ module NHKore
     end
   end
 
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   class BasicVariator < Variator
     def end_variate(str)
       return [] # No variations; don't return nil
@@ -41,8 +33,6 @@ module NHKore
   # Guesses a word's dictionary/plain form (辞書形).
   #
   # It doesn't work very well,but better than nothing...
-  #
-  # @since  0.2.0
   ###
   class DictFormVariator < Variator
     attr_accessor :deinflector
@@ -66,10 +56,6 @@ module NHKore
     end
   end
 
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   class BestVariator < DictFormVariator
   end
 end

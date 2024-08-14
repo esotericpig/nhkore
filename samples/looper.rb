@@ -13,9 +13,6 @@
 ###
 # If you run this script, be aware that it uses the +-F+ force option
 # (which overwrites files without prompting).
-#
-# @author Jonathan Bradley Whited
-# @since  0.3.2
 ###
 
 case ARGV[0]

@@ -16,10 +16,6 @@ require 'nhkore/word'
 
 
 module NHKore
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   class Article
     attr_reader :datetime
     attr_reader :futsuurl

@@ -26,10 +26,6 @@ require 'nhkore/word'
 
 
 module NHKore
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   class ArticleScraper < Scraper
     extend AttrBool::Ext
 
@@ -397,7 +393,6 @@ module NHKore
       return link
     end
 
-    # @since 0.3.8
     # @see https://www3.nhk.or.jp/news/easy/k10012759201000/k10012759201000.html
     def scrape_ruby_words(tag,result: ScrapeWordsResult.new)
       words = Word.scrape_ruby_tag(tag,missingno: @missingno,url: @url)
@@ -642,10 +637,6 @@ module NHKore
     end
   end
 
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   class ScrapeWordsResult
     attr_reader :text
     attr_reader :words

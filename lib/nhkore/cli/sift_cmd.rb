@@ -20,10 +20,6 @@ require 'nhkore/util'
 
 module NHKore
 module CLI
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   module SiftCmd
     DEFAULT_SIFT_EXT = :csv
     DEFAULT_SIFT_FUTSUU_FILE = "#{Sifter::DEFAULT_FUTSUU_FILE}{search.criteria}{file.ext}"

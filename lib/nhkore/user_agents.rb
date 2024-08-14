@@ -38,9 +38,6 @@ module NHKore
   #
   # The gem is really old and had a lot of warnings, so decided to make this class.
   # Maybe I'll fork the gem and maintain a new version in the future...
-  #
-  # @author Jonathan Bradley Whited
-  # @since  0.2.1
   ###
   class UserAgents
     attr_accessor :data

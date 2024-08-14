@@ -38,9 +38,6 @@ module NHKore
   ###
   # Include this file to only require the files needed to use this
   # Gem as a library (i.e., don't include CLI-related files).
-  #
-  # @author Jonathan Bradley Whited
-  # @since  0.3.2
   ###
   module Lib
   end

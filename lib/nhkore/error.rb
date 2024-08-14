@@ -10,23 +10,11 @@
 
 
 module NHKore
-  ###
-  # @author Jonathan Bradley Whited
-  # @since  0.2.0
-  ###
   class Error < ::StandardError; end
 
-  # @since 0.2.0
   class CLIError < Error; end
-
   class Http404Error < Error; end
-
-  # @since 0.2.0
   class ParseError < Error; end
-
-  # @since 0.2.0
   class ScrapeError < Error; end
-
-  # @since 0.2.0
   class ZipError < Error; end
 end
