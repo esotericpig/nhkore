@@ -867,11 +867,12 @@ This will update *core/* for you:
 2. Update *core* package:
     - `$ bundle exec rake update_core`
     - `$ bundle exec rake clobber pkg_core`
-3. Create a new tag & release:
+3. Commit & Push.
+4. Create a new tag & release:
     - Note: make sure to add *pkg/nhkore-core.zip*
     - `$ gh release create v0 pkg/*.gem pkg/*.zip`
-    - `$ git pull`
-4. Release to *RubyGems*:
+    - `$ git pull && git fetch`
+5. Release to *RubyGems*:
     - `$ bundle exec rake release`
 
 Releasing new HTML file for website:
