@@ -18,7 +18,7 @@ module NHKore
     attr_reader :entries
 
     def initialize
-      super()
+      super
 
       @entries = {}
     end

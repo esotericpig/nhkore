@@ -177,7 +177,7 @@ module NHKore
       return self if @min_or_max
 
       has_small = false
-      jst_now = Util.jst_now()
+      jst_now = Util.jst_now
 
       # Must be from smallest to biggest.
 

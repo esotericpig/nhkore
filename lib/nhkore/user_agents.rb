@@ -50,7 +50,7 @@ module NHKore
     # because we don't need all of the data in memory after getting just 1
     # sample, even though it's slower.
     def initialize
-      super()
+      super
 
       # rubocop:disable all
       @data = [

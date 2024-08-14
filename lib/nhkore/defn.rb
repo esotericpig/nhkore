@@ -22,7 +22,7 @@ module NHKore
     attr_reader :words
 
     def initialize
-      super()
+      super
 
       @hyoukis = []
       @text = ''.dup

@@ -41,11 +41,11 @@ module NHKore
     def encode_with(coder)
       # Order matters.
 
-      coder[:url] = @url.nil? ? nil : @url.to_s
+      coder[:url] = @url&.to_s
       coder[:scraped] = @scraped
-      coder[:datetime] = @datetime.nil? ? nil : @datetime.iso8601
+      coder[:datetime] = @datetime&.iso8601
       coder[:title] = @title
-      coder[:futsuurl] = @futsuurl.nil? ? nil : @futsuurl.to_s
+      coder[:futsuurl] = @futsuurl&.to_s
       coder[:sha256] = @sha256
     end
 
@@ -82,13 +82,13 @@ module NHKore
     end
 
     def futsuurl=(value)
-      # Don't store URI, store String.
-      @futsuurl = value.nil? ? nil : value.to_s
+      # Don't store URI, store String or nil.
+      @futsuurl = value&.to_s
     end
 
     def url=(value)
-      # Don't store URI, store String.
-      @url = value.nil? ? nil : value.to_s
+      # Don't store URI, store String or nil.
+      @url = value&.to_s
     end
 
     def to_s(mini: false)
@@ -128,13 +128,13 @@ module NHKore
     attr_reader :links
 
     def initialize
-      super()
+      super
 
       @links = {}
     end
 
     def add_link(link)
-      url = link.url.nil? ? nil : link.url.to_s
+      url = link.url&.to_s
 
       return self if @links.key?(url)
 

@@ -256,7 +256,7 @@ module CLI
       puts
 
       if dry_run
-        puts sifter.to_s
+        puts sifter
       else
         start_spin('Saving sifted data to file')
 

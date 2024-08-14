@@ -64,13 +64,13 @@ module NHKore
     def kana_from_kanji(kanji)
       word = @kanjis[kanji]
 
-      return word.nil? ? nil : word.kana
+      return word&.kana
     end
 
     def kanji_from_kana(kana)
       word = @kanas[kana]
 
-      return word.nil? ? nil : word.kanji
+      return word&.kanji
     end
   end
 end

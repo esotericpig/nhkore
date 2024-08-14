@@ -57,10 +57,8 @@ module NHKore
     end
 
     def build_rows(words)
-      rows = []
-
-      words.each do |word|
-        rows << build_word_row(word)
+      rows = words.map do |word|
+        build_word_row(word)
       end
 
       return rows

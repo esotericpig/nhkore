@@ -642,7 +642,7 @@ module NHKore
     attr_reader :words
 
     def initialize
-      super()
+      super
 
       @text = ''.dup
       @words = []

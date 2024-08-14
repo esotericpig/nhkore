@@ -612,7 +612,7 @@ module NHKore
 
       @tokens[:advance] = percent
 
-      puts to_s
+      puts self
     end
 
     def finish
@@ -620,7 +620,7 @@ module NHKore
     end
 
     def start
-      puts to_s
+      puts self
     end
 
     def to_s

@@ -21,18 +21,16 @@ module NHKore
     attr_accessor :id
 
     def initialize
-      super()
+      super
 
       @defns = []
       @id = nil
     end
 
     def build_defn
-      defns = []
       i = 0
-
-      @defns.each do |defn|
-        defns << "#{i += 1}）#{defn}" # Japanese parenthesis
+      defns = @defns.map do |defn|
+        "#{i += 1}）#{defn}" # Japanese parenthesis
       end
 
       return defns.join("\n")

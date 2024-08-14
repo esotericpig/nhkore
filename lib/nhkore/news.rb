@@ -26,7 +26,7 @@ module NHKore
     attr_reader :sha256s
 
     def initialize
-      super()
+      super
 
       @articles = {}
       @sha256s = {}
@@ -136,7 +136,7 @@ module NHKore
     end
 
     def save_file(file=DEFAULT_FILE,**kargs)
-      super(file,**kargs)
+      super
     end
   end
 
@@ -153,7 +153,7 @@ module NHKore
     end
 
     def save_file(file=DEFAULT_FILE,**kargs)
-      super(file,**kargs)
+      super
     end
   end
 end

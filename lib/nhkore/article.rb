@@ -25,7 +25,7 @@ module NHKore
     attr_reader :words
 
     def initialize
-      super()
+      super
 
       @datetime = nil
       @futsuurl = nil
@@ -97,13 +97,13 @@ module NHKore
     end
 
     def futsuurl=(value)
-      # Don't store URI, store String.
-      @futsuurl = value.nil? ? nil : value.to_s
+      # Don't store URI, store String or nil.
+      @futsuurl = value&.to_s
     end
 
     def url=(value)
-      # Don't store URI, store String.
-      @url = value.nil? ? nil : value.to_s
+      # Don't store URI, store String or nil.
+      @url = value&.to_s
     end
 
     def to_s(mini: false)
