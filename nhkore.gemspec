@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
     #'mailing_list_uri'  => '',
   }
 
-  spec.required_ruby_version = '>= 2.5'
+  spec.required_ruby_version = '>= 3.1'
   spec.requirements = [
     'Nokogiri: https://www.nokogiri.org/tutorials/installing_nokogiri.html',
   ]
