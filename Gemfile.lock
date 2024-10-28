@@ -56,14 +56,12 @@ GEM
     redcarpet (3.6.0)
     reline (0.5.9)
       io-console (~> 0.5)
-    rexml (3.3.6)
-      strscan
+    rexml (3.3.9)
     rss (0.3.1)
       rexml
     rubyzip (2.3.2)
     stringio (3.1.1)
     strings-ansi (0.2.0)
-    strscan (3.1.0)
     tiny_segmenter (0.0.6)
     tty-cursor (0.7.1)
     tty-progressbar (0.18.2)
