@@ -8,12 +8,10 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 require 'time'
 
 require 'nhkore/util'
 require 'nhkore/word'
-
 
 module NHKore
   class Article
@@ -69,7 +67,7 @@ module NHKore
       coder[:words] = @words
     end
 
-    def self.load_data(key,hash)
+    def self.load_data(_key,hash)
       words = hash[:words]
 
       article = Article.new
@@ -80,7 +78,7 @@ module NHKore
       article.title = hash[:title]
       article.url = hash[:url]
 
-      words&.each() do |k,h|
+      words&.each do |k,h|
         k = k.to_s # Change from a symbol
         article.words[k] = Word.load_data(k,h)
       end
@@ -89,11 +87,11 @@ module NHKore
     end
 
     def datetime=(value)
-      if value.is_a?(Time)
-        @datetime = value
-      else
-        @datetime = Util.empty_web_str?(value) ? nil : Time.iso8601(value)
-      end
+      @datetime = if value.is_a?(Time)
+                    value
+                  else
+                    Util.empty_web_str?(value) ? nil : Time.iso8601(value)
+                  end
     end
 
     def futsuurl=(value)
@@ -118,7 +116,7 @@ module NHKore
 
       if !mini
         s << "\n  words:"
-        @words.each do |key,word|
+        @words.each do |_key,word|
           s << "\n    #{word}"
         end
       end

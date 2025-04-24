@@ -8,7 +8,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 require 'attr_bool'
 require 'digest'
 
@@ -23,7 +22,6 @@ require 'nhkore/splitter'
 require 'nhkore/util'
 require 'nhkore/variator'
 require 'nhkore/word'
-
 
 module NHKore
   class ArticleScraper < Scraper
@@ -47,8 +45,8 @@ module NHKore
     #                  instead of raising an error
     # @param strict [true,false]
     def initialize(url,cleaners: [BestCleaner.new],datetime: nil,dict: :scrape,missingno: nil,
-        polishers: [BestPolisher.new],splitter: BestSplitter.new,strict: true,
-        variators: [BestVariator.new],year: nil,**kargs)
+                   polishers: [BestPolisher.new],splitter: BestSplitter.new,strict: true,
+                   variators: [BestVariator.new],year: nil,**kargs)
       super(url,**kargs)
 
       @cleaners = Array(cleaners)
@@ -179,13 +177,13 @@ module NHKore
 
     def scrape_content(doc,article)
       tag = doc.css('div#js-article-body')
-      tag = doc.css('div.article-main__body') if tag.length < 1
-      tag = doc.css('div.article-body') if tag.length < 1
+      tag = doc.css('div.article-main__body') if tag.empty?
+      tag = doc.css('div.article-body') if tag.empty?
 
       # - https://www3.nhk.or.jp/news/easy/tsunamikeihou/index.html
-      tag = doc.css('div#main') if tag.length < 1 && !@strict
+      tag = doc.css('div#main') if tag.empty? && !@strict
 
-      if tag.length > 0
+      if !tag.empty?
         text = Util.unspace_web_str(tag.text.to_s)
 
         if !text.empty?
@@ -202,14 +200,14 @@ module NHKore
       raise ScrapeError,"could not scrape content at URL[#{@url}]"
     end
 
-    def scrape_datetime(doc,futsuurl=nil)
+    def scrape_datetime(doc,futsuurl = nil)
       year = scrape_year(doc,futsuurl)
 
       # First, try with the id.
       tag_name = 'p#js-article-date'
       tag = doc.css(tag_name)
 
-      if tag.length > 0
+      if !tag.empty?
         tag_text = tag[0].text
 
         begin
@@ -226,7 +224,7 @@ module NHKore
       tag_name = 'p.article-main__date'
       tag = doc.css(tag_name)
 
-      if tag.length > 0
+      if !tag.empty?
         tag_text = tag[0].text
 
         begin
@@ -244,10 +242,10 @@ module NHKore
       # - 'news20170331_k10010922481000'
       tag = doc.css('body')
 
-      if tag.length > 0
+      if !tag.empty?
         tag_id = tag[0]['id'].to_s.split('_',2)
 
-        if tag_id.length > 0
+        if !tag_id.empty?
           tag_id = tag_id[0].gsub(/[^[[:digit:]]]+/,'')
 
           if tag_id.length == 8
@@ -297,7 +295,7 @@ module NHKore
       # - 'news20170331_k10010922481000'
       tag = doc.css('body')
 
-      if tag.length > 0
+      if !tag.empty?
         tag_id = tag[0]['id'].to_s.split('_',2)
 
         if tag_id.length == 2
@@ -360,7 +358,7 @@ module NHKore
       # First, try with the id.
       tag = doc.css('div#js-regular-news-wrapper')
 
-      if tag.length > 0
+      if !tag.empty?
         link = scrape_link(tag[0])
 
         return link unless link.nil?
@@ -369,7 +367,7 @@ module NHKore
       # Second, try with the class.
       tag = doc.css('div.link-to-normal')
 
-      if tag.length > 0
+      if !tag.empty?
         link = scrape_link(tag[0])
 
         return link unless link.nil?
@@ -385,7 +383,7 @@ module NHKore
     def scrape_link(tag)
       link = tag.css('a')
 
-      return nil if link.length < 1
+      return nil if link.empty?
 
       link = Util.unspace_web_str(link[0]['href'].to_s)
 
@@ -493,24 +491,24 @@ module NHKore
       tag = doc.css('h1.article-main__title')
       tag_name = nil
 
-      if tag.length < 1
+      if tag.empty?
         # - https://www3.nhk.or.jp/news/easy/em2024081312029/em2024081312029.html
         tag = doc.css('h1.article-title') # No warning.
       end
 
-      if tag.length < 1
+      if tag.empty?
         # - https://www3.nhk.or.jp/news/easy/article/disaster_earthquake_illust.html
         tag_name = 'h1.article-eq__title'
         tag = doc.css(tag_name)
       end
-      if tag.length < 1 && !@strict
+      if tag.empty? && !@strict
         # This shouldn't be used except for select sites.
         # - https://www3.nhk.or.jp/news/easy/tsunamikeihou/index.html
         tag_name = 'div#main h2'
         tag = doc.css(tag_name)
       end
 
-      if tag.length > 0
+      if !tag.empty?
         Util.warn("using [#{tag_name}] for title at URL[#{@url}]") unless tag_name.nil?
 
         result = scrape_and_add_words(tag,article)
@@ -548,8 +546,8 @@ module NHKore
 
             if klass == 'dicwin' && !id.nil?
               if dicwin
-                raise ScrapeError,"invalid dicWin class[#{child}] nested inside another dicWin class at" \
-                  " URL[#{@url}]"
+                raise ScrapeError,"invalid dicWin class[#{child}] nested inside another dicWin class at " \
+                                  "URL[#{@url}]"
               end
 
               dicwin_id = id
@@ -582,11 +580,11 @@ module NHKore
       return result
     end
 
-    def scrape_year(doc,futsuurl=nil)
+    def scrape_year(doc,futsuurl = nil)
       # First, try body's id.
       tag = doc.css('body')
 
-      if tag.length > 0
+      if !tag.empty?
         tag_id = tag[0]['id'].to_s.gsub(/[^[[:digit:]]]+/,'')
 
         if tag_id.length >= 4

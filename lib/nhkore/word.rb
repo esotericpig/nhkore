@@ -8,12 +8,10 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 require 'nokogiri'
 
 require 'nhkore/error'
 require 'nhkore/util'
-
 
 module NHKore
   class Word
@@ -24,7 +22,7 @@ module NHKore
     attr_reader :kanji
     attr_reader :key
 
-    def initialize(defn: nil,eng: nil,freq: 1,kana: nil,kanji: nil,unknown: nil,word: nil,**kargs)
+    def initialize(defn: nil,eng: nil,freq: 1,kana: nil,kanji: nil,unknown: nil,word: nil,**_kargs)
       super()
 
       if !word.nil?
@@ -110,14 +108,14 @@ module NHKore
       # First, try <rb> tags.
       kanjis = tag.css('rb')
       # Second, try text nodes.
-      kanjis = tag.search('./text()') if kanjis.length < 1
+      kanjis = tag.search('./text()') if kanjis.empty?
       # Third, try non-<rt> tags, in case of being surrounded by <span>, <b>, etc.
-      kanjis = tag.search("./*[not(name()='rt')]") if kanjis.length < 1
+      kanjis = tag.search("./*[not(name()='rt')]") if kanjis.empty?
 
       kanas = tag.css('rt')
 
-      raise ScrapeError,"no kanji at URL[#{url}] in tag[#{tag}]" if kanjis.length < 1
-      raise ScrapeError,"no kana at URL[#{url}] in tag[#{tag}]" if kanas.length < 1
+      raise ScrapeError,"no kanji at URL[#{url}] in tag[#{tag}]" if kanjis.empty?
+      raise ScrapeError,"no kana at URL[#{url}] in tag[#{tag}]" if kanas.empty?
 
       if kanjis.length != kanas.length
         raise ScrapeError,"number of kanji & kana mismatch at URL[#{url}] in tag[#{tag}]"
@@ -130,7 +128,7 @@ module NHKore
         kana = kanas[i].text
 
         # Uncomment for debugging; really need a logger.
-        #puts "Word[#{i}]: #{kanji} => #{kana}"
+        # puts "Word[#{i}]: #{kanji} => #{kana}"
 
         if !missingno.nil?
           # Check kana first, since this is the typical scenario.
@@ -162,7 +160,7 @@ module NHKore
 
     # Do not clean and/or strip spaces, as the raw text is important for
     # Defn and ArticleScraper.
-    def self.scrape_text_node(tag,url: nil)
+    def self.scrape_text_node(tag,url: nil) # rubocop:disable Lint/UnusedMethodArgument
       text = tag.text
 
       # No error; empty text is fine (not strictly kanji/kana only).

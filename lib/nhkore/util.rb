@@ -8,12 +8,10 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 require 'cgi'
 require 'set'
 require 'time'
 require 'uri'
-
 
 module NHKore
   module Util
@@ -64,7 +62,8 @@ module NHKore
 
       stylers = Array(stylers)
 
-      return Psychgus.dump(obj,
+      return Psychgus.dump(
+        obj,
         deref_aliases: true, # Dereference aliases for load_yaml()
         header: true, # %YAML [version]
         line_width: 10_000, # Try not to wrap; ichiman!
@@ -117,10 +116,11 @@ module NHKore
     def self.load_yaml(data,file: nil,**kargs)
       require 'psychgus'
 
-      return Psych.safe_load(data,
+      return Psych.safe_load(
+        data,
         aliases: false,
         filename: file,
-        #freeze: true, # Not in this current version of Psych
+        # freeze: true, # Not in this current version of Psych
         permitted_classes: [Symbol],
         symbolize_names: true,
         **kargs,
@@ -180,8 +180,8 @@ module NHKore
     # String's normal strip() method doesn't work with special Unicode/HTML white space.
     def self.strip_web_str(str)
       # After testing with Benchmark, this is slower than one regex.
-      #str = str.gsub(/\A[[:space:]]+/,'')
-      #str = str.gsub(/[[:space:]]+\z/,'')
+      # str = str.gsub(/\A[[:space:]]+/,'')
+      # str = str.gsub(/[[:space:]]+\z/,'')
 
       str = str.gsub(STRIP_WEB_STR_REGEX,'')
 

@@ -8,7 +8,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 module NHKore
   VERSION = '0.3.17'
 end

@@ -8,12 +8,10 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 require 'nhkore/error'
 require 'nhkore/search_link'
 require 'nhkore/search_scraper'
 require 'nhkore/util'
-
 
 module NHKore
 module CLI
@@ -68,8 +66,8 @@ module CLI
           (see '--in' option)
         DESC
 
-        run do |opts,args,cmd|
-          opts.each do |key,value|
+        run do |opts,_args,cmd|
+          opts.each do |key,_value|
             key = key.to_s
 
             if key.include?('show')
@@ -176,16 +174,15 @@ module CLI
       start_spin("Scraping #{search_type}") unless show_count
 
       is_file = !in_file.nil?
-      links = nil
       new_links = [] # For --dry-run
       url = in_file # nil will use default URL, else a file
 
-      # Load previous links for 'scraped?' vars.
-      if File.exist?(out_file)
-        links = SearchLinks.load_file(out_file)
-      else
-        links = SearchLinks.new
-      end
+      links = if File.exist?(out_file)
+                # Load previous links for 'scraped?' vars.
+                SearchLinks.load_file(out_file)
+              else
+                SearchLinks.new
+              end
 
       links_count = links.length
 

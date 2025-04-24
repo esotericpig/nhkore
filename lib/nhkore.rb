@@ -8,7 +8,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 TESTING = ($PROGRAM_NAME == __FILE__)
 
 if TESTING
@@ -25,9 +24,8 @@ require 'nhkore/cli/news_cmd'
 require 'nhkore/cli/search_cmd'
 require 'nhkore/cli/sift_cmd'
 
-
 module NHKore
-  def self.run(args=ARGV)
+  def self.run(args = ARGV)
     app = App.new(args)
 
     begin

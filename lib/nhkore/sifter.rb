@@ -8,11 +8,9 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 require 'nhkore/article'
 require 'nhkore/fileable'
 require 'nhkore/util'
-
 
 module NHKore
   class Sifter
@@ -87,7 +85,7 @@ module NHKore
         datetime = article.datetime
 
         return true if datetime.nil? ||
-          datetime < datetime_filter[:from] || datetime > datetime_filter[:to]
+                       datetime < datetime_filter[:from] || datetime > datetime_filter[:to]
       end
 
       if !title_filter.nil?
@@ -109,7 +107,7 @@ module NHKore
       return false
     end
 
-    def filter_by_datetime(datetime_filter=nil,from: nil,to: nil)
+    def filter_by_datetime(datetime_filter = nil,from: nil,to: nil)
       if !datetime_filter.nil?
         if datetime_filter.respond_to?(:[])
           # If out-of-bounds, just nil.
@@ -234,10 +232,10 @@ module NHKore
       HTML
 
       # If have too few or too many '<col>', invalid HTML.
-      @output << %Q(<col style="width:6em;">\n) unless @ignores[:freq]
-      @output << %Q(<col style="width:17em;">\n) unless @ignores[:word]
-      @output << %Q(<col style="width:17em;">\n) unless @ignores[:kana]
-      @output << %Q(<col style="width:5em;">\n) unless @ignores[:eng]
+      @output << %(<col style="width:6em;">\n) unless @ignores[:freq]
+      @output << %(<col style="width:17em;">\n) unless @ignores[:word]
+      @output << %(<col style="width:17em;">\n) unless @ignores[:kana]
+      @output << %(<col style="width:5em;">\n) unless @ignores[:eng]
       @output << "<col>\n" unless @ignores[:defn] # No width for defn, fills rest of page
 
       @output << '<tr>'

@@ -9,7 +9,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 ###
 # If you run this script, be aware that it uses the +-F+ force option
 # (which overwrites files without prompting).

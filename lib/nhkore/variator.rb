@@ -8,7 +8,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 module NHKore
   class Variator
     def begin_variate(str)
@@ -24,7 +23,7 @@ module NHKore
   end
 
   class BasicVariator < Variator
-    def end_variate(str)
+    def end_variate(_str)
       return [] # No variations; don't return nil
     end
   end
@@ -49,7 +48,7 @@ module NHKore
     def end_variate(str)
       guess = @deinflector.deinflect(str)
 
-      return [] if guess.length < 1
+      return [] if guess.empty?
       return [] if (guess = guess[0])[:weight] < 0.5
 
       return [guess[:word]]

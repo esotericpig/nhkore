@@ -8,13 +8,11 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 require 'attr_bool'
 require 'date'
 require 'time'
 
 require 'nhkore/util'
-
 
 module NHKore
   class DatetimeParser
@@ -55,10 +53,10 @@ module NHKore
             # Assume this millennium.
             # So if the current year is 2200, and year is 150,
             # then it will be 2000 + 150 = 2150.
-          else
+          elsif millennium >= 1000
             # Assume previous millennium (2000 -> 1000),
             # so year 999 will become 1999.
-            millennium -= 1000 if millennium >= 1000
+            millennium -= 1000
           end
 
           year = millennium + year
@@ -155,7 +153,7 @@ module NHKore
 
     attr_reader? :min_or_max
 
-    def initialize(year=nil,month=nil,day=nil,hour=nil,min=nil,sec=nil)
+    def initialize(year = nil,month = nil,day = nil,hour = nil,min = nil,sec = nil)
       super()
 
       set!(year,month,day,hour,min,sec)
@@ -185,66 +183,66 @@ module NHKore
         @sec = other.sec unless @has_sec
         has_small = true
       else
-        if has_small
-          @sec = jst_now.sec
-        else
-          @sec = is_from ? 0 : 59
-        end
+        @sec = if has_small
+                 jst_now.sec
+               else
+                 is_from ? 0 : 59
+               end
       end
 
       if @has_min || other.has_min?
         @min = other.min unless @has_min
         has_small = true
       else
-        if has_small
-          @min = jst_now.min
-        else
-          @min = is_from ? 0 : 59
-        end
+        @min = if has_small
+                 jst_now.min
+               else
+                 is_from ? 0 : 59
+               end
       end
 
       if @has_hour || other.has_hour?
         @hour = other.hour unless @has_hour
         has_small = true
       else
-        if has_small
-          @hour = jst_now.hour
-        else
-          @hour = is_from ? 0 : 23
-        end
+        @hour = if has_small
+                  jst_now.hour
+                else
+                  is_from ? 0 : 23
+                end
       end
 
       if @has_day || other.has_day?
         @day = other.day unless @has_day
         has_small = true
       else
-        if has_small
-          @day = jst_now.day
-        else
-          @day = is_from ? 1 : :last_day
-        end
+        @day = if has_small
+                 jst_now.day
+               else
+                 is_from ? 1 : :last_day
+               end
       end
 
       if @has_month || other.has_month?
         @month = other.month unless @has_month
         has_small = true
       else
-        if has_small
-          @month = jst_now.month
-        else
-          @month = is_from ? 1 : 12
-        end
+        @month = if has_small
+                   jst_now.month
+                 else
+                   is_from ? 1 : 12
+                 end
       end
 
       if @has_year || other.has_year?
         @year = other.year unless @has_year
         has_small = true # rubocop:disable Lint/UselessAssignment
       else
-        if has_small
-          @year = jst_now.year
-        else
-          @year = is_from ? Util::MIN_SANE_YEAR : jst_now.year
-        end
+        @year = if has_small
+                  jst_now.year
+                else
+                  is_from ? Util::MIN_SANE_YEAR : jst_now.year
+                end
       end
 
       # Must be after setting @year & @month.
@@ -289,7 +287,7 @@ module NHKore
       return self
     end
 
-    def set!(year=nil,month=nil,day=nil,hour=nil,min=nil,sec=nil)
+    def set!(year = nil,month = nil,day = nil,hour = nil,min = nil,sec = nil)
       @year = year
       @month = month
       @day = day

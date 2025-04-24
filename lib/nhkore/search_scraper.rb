@@ -8,7 +8,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 require 'net/http'
 require 'uri'
 
@@ -16,7 +15,6 @@ require 'nhkore/error'
 require 'nhkore/scraper'
 require 'nhkore/search_link'
 require 'nhkore/util'
-
 
 module NHKore
   class SearchScraper < Scraper
@@ -60,8 +58,10 @@ module NHKore
 
     # Example: https://www3.nhk.or.jp/news/easy/k10014150691000/k10014150691000.html
     def fetch_valid_link?(link)
-      uri = begin
-        URI(link)
+      uri = nil
+
+      begin
+        uri = URI(link)
       rescue StandardError
         return false # Bad URL.
       end
@@ -111,7 +111,7 @@ module NHKore
       super(url,**kargs)
     end
 
-    def self.build_url(site,count: DEFAULT_RESULT_COUNT,**kargs)
+    def self.build_url(site,count: DEFAULT_RESULT_COUNT,**_kargs)
       url = ''.dup
 
       url << 'https://www.bing.com/search?'
@@ -123,7 +123,7 @@ module NHKore
       return url
     end
 
-    def scrape(slinks,page=NextPage.new())
+    def scrape(slinks,page = NextPage.new())
       next_page,link_count = scrape_html(slinks,page)
 
       if link_count <= 0
@@ -133,7 +133,7 @@ module NHKore
       return next_page
     end
 
-    def scrape_html(slinks,page,next_page=NextPage.new())
+    def scrape_html(slinks,page,next_page = NextPage.new())
       doc = html_doc
       link_count = 0
 
@@ -161,7 +161,7 @@ module NHKore
       return [next_page,link_count]
     end
 
-    def scrape_rss(slinks,page,next_page=NextPage.new())
+    def scrape_rss(slinks,page,next_page = NextPage.new())
       link_count = 0
 
       if !@is_file

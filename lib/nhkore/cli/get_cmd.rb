@@ -8,9 +8,7 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 require 'nhkore/util'
-
 
 module NHKore
 module CLI
@@ -18,7 +16,7 @@ module CLI
     DEFAULT_GET_CHUNK_SIZE = 4 * 1024
     DEFAULT_GET_URL_LENGTH = 11_000_000 # Just a generous estimation used as a fallback; may be outdated.
     GET_URL_FILENAME = 'nhkore-core.zip'
-    GET_URL = "https://github.com/esotericpig/nhkore/releases/latest/download/#{GET_URL_FILENAME}"
+    GET_URL = "https://github.com/esotericpig/nhkore/releases/latest/download/#{GET_URL_FILENAME}".freeze
 
     def build_get_cmd
       app = self
@@ -27,8 +25,8 @@ module CLI
         name    'get'
         usage   'get [OPTIONS] [COMMAND]...'
         aliases :g
-        summary "Download NHKore's pre-scraped files from the latest release" \
-                " (aliases: #{app.color_alias('g')})"
+        summary "Download NHKore's pre-scraped files from the latest release " \
+                "(aliases: #{app.color_alias('g')})"
 
         description(<<-DESC)
           Download NHKore's pre-scraped files from the latest release &
@@ -41,7 +39,7 @@ module CLI
             transform: lambda { |value|
               app.check_empty_opt(:out,value)
             }
-        flag nil,:'show-url','show download URL and exit (for downloading manually)' do |value,cmd|
+        flag nil,:'show-url','show download URL and exit (for downloading manually)' do |_value,_cmd|
           puts GET_URL
           exit
         end

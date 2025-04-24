@@ -8,12 +8,10 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 require 'nhkore/dict'
 require 'nhkore/error'
 require 'nhkore/scraper'
 require 'nhkore/util'
-
 
 module NHKore
   class DictScraper < Scraper

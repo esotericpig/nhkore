@@ -8,7 +8,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 if $PROGRAM_NAME == __FILE__
   require 'bundler/inline'
 

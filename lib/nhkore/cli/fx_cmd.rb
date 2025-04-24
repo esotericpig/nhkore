@@ -8,7 +8,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 module NHKore
 module CLI
   module FXCmd
@@ -40,13 +39,11 @@ module CLI
     end
 
     def test_fx_progress_bar
-      bars = nil
-
-      if @cmd_opts[:all]
-        bars = {default: :default,classic: :classic,no: :no}
-      else
-        bars = {user: @progress_bar}
-      end
+      bars = if @cmd_opts[:all]
+               {default: :default,classic: :classic,no: :no}
+             else
+               {user: @progress_bar}
+             end
 
       bars.each do |name,bar|
         name = name.to_s.capitalize
@@ -65,19 +62,17 @@ module CLI
 
     def test_fx_spinner
       app_spinner = @spinner
-      spinners = nil
-
-      if @cmd_opts[:all]
-        spinners = {
-          default: App::DEFAULT_SPINNER,
-          classic: App::CLASSIC_SPINNER,
-          no: {},
-        }
-      else
-        spinners = {
-          user: app_spinner
-        }
-      end
+      spinners = if @cmd_opts[:all]
+                   {
+                     default: App::DEFAULT_SPINNER,
+                     classic: App::CLASSIC_SPINNER,
+                     no: {},
+                   }
+                 else
+                   {
+                     user: app_spinner
+                   }
+                 end
 
       spinners.each do |name,spinner|
         @spinner = spinner

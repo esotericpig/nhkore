@@ -8,7 +8,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 require 'attr_bool'
 require 'nokogiri'
 require 'open-uri'
@@ -16,7 +15,6 @@ require 'open-uri'
 require 'nhkore/error'
 require 'nhkore/user_agents'
 require 'nhkore/util'
-
 
 module NHKore
   class Scraper
@@ -48,7 +46,7 @@ module NHKore
     #                   (time-consuming) operation since it opens the URL again, but necessary for some URLs.
     # @param redirect_rule [nil,:lenient,:strict]
     def initialize(url,eat_cookie: false,header: nil,is_file: false,max_redirects: 3,max_retries: 3,
-        redirect_rule: :strict,str_or_io: nil,**kargs)
+                   redirect_rule: :strict,str_or_io: nil,**kargs)
       super()
 
       if !header.nil? && !is_file
@@ -106,7 +104,7 @@ module NHKore
       return URI.join(@url,relative_url)
     end
 
-    def open(url,str_or_io=nil,is_file: @is_file)
+    def open(url,str_or_io = nil,is_file: @is_file)
       @is_file = is_file
       @str_or_io = str_or_io
       @url = url
@@ -155,16 +153,20 @@ module NHKore
         case @redirect_rule
         when :lenient,:strict
           if redirect_uri.scheme != top_uri.scheme
-            raise redirect.exception("redirect scheme[#{redirect_uri.scheme}] does not match original " \
-              "scheme[#{top_uri.scheme}] at redirect URL[#{redirect_uri}]: #{redirect}")
+            raise redirect.exception(
+              "redirect scheme[#{redirect_uri.scheme}] does not match original " \
+              "scheme[#{top_uri.scheme}] at redirect URL[#{redirect_uri}]: #{redirect}"
+            )
           end
 
           if @redirect_rule == :strict
             redirect_domain = Util.domain(redirect_uri.host)
 
             if redirect_domain != top_domain
-              raise redirect.exception("redirect domain[#{redirect_domain}] does not match original " \
-                "domain[#{top_domain}] at redirect URL[#{redirect_uri}]: #{redirect}")
+              raise redirect.exception(
+                "redirect domain[#{redirect_domain}] does not match original " \
+                "domain[#{top_domain}] at redirect URL[#{redirect_uri}]: #{redirect}"
+              )
             end
           end
         end

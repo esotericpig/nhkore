@@ -8,12 +8,10 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 require 'nhkore/article'
 require 'nhkore/error'
 require 'nhkore/fileable'
 require 'nhkore/util'
-
 
 module NHKore
   class News
@@ -60,14 +58,14 @@ module NHKore
       coder[:articles] = @articles
     end
 
-    def self.load_data(data,article_class: Article,file: nil,news_class: News,overwrite: false,**kargs)
+    def self.load_data(data,article_class: Article,file: nil,news_class: News,overwrite: false,**_kargs)
       data = Util.load_yaml(data,file: file)
 
       articles = data[:articles]
 
       news = news_class.new
 
-      articles&.each() do |key,hash|
+      articles&.each do |key,hash|
         key = key.to_s # Change from a symbol
         news.add_article(article_class.load_data(key,hash),key: key,overwrite: overwrite)
       end
@@ -99,7 +97,6 @@ module NHKore
       @articles.each_value do |a|
         if a.sha256 == sha256
           article = a
-
           break
         end
       end
@@ -131,11 +128,11 @@ module NHKore
       return News.load_data(data,article_class: Article,news_class: FutsuuNews,**kargs)
     end
 
-    def self.load_file(file=DEFAULT_FILE,**kargs)
+    def self.load_file(file = DEFAULT_FILE,**kargs)
       return News.load_file(file,article_class: Article,news_class: FutsuuNews,**kargs)
     end
 
-    def save_file(file=DEFAULT_FILE,**kargs)
+    def save_file(file = DEFAULT_FILE,**kargs)
       super
     end
   end
@@ -148,11 +145,11 @@ module NHKore
       return News.load_data(data,article_class: Article,news_class: YasashiiNews,**kargs)
     end
 
-    def self.load_file(file=DEFAULT_FILE,**kargs)
+    def self.load_file(file = DEFAULT_FILE,**kargs)
       return News.load_file(file,article_class: Article,news_class: YasashiiNews,**kargs)
     end
 
-    def save_file(file=DEFAULT_FILE,**kargs)
+    def save_file(file = DEFAULT_FILE,**kargs)
       super
     end
   end

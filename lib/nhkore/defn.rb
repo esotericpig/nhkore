@@ -8,12 +8,10 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 require 'nokogiri'
 
 require 'nhkore/util'
 require 'nhkore/word'
-
 
 module NHKore
   class Defn
@@ -35,7 +33,7 @@ module NHKore
 
       hyoukis = hash['hyouki']
 
-      hyoukis&.each() do |hyouki|
+      hyoukis&.each do |hyouki|
         next if hyouki.nil?
         next if (hyouki = Util.strip_web_str(hyouki)).empty?
 

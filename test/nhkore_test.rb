@@ -8,16 +8,12 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 require 'nhkore/test_helper'
 
+describe(NHKore) do
+  subject { NHKore }
 
-module NHKore
-  class NHKoreTest < TestHelper
-    def setup
-    end
-
-    def test_something
-    end
+  it 'has version' do
+    expect(subject::VERSION).wont_be_nil
   end
 end

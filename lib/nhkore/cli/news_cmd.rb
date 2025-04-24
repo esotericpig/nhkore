@@ -8,7 +8,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 require 'time'
 
 require 'nhkore/datetime_parser'
@@ -17,7 +16,6 @@ require 'nhkore/missingno'
 require 'nhkore/news'
 require 'nhkore/search_link'
 require 'nhkore/util'
-
 
 module NHKore
 module CLI
@@ -112,7 +110,7 @@ module CLI
           app.check_empty_opt(:url,value)
         }
 
-        run do |opts,args,cmd|
+        run do |_opts,_args,cmd|
           puts cmd.help
         end
       end
@@ -197,10 +195,8 @@ module CLI
       url = in_file.nil? ? Util.strip_web_str(@cmd_opts[:url].to_s) : in_file
       url = nil if url.empty?
 
-      if url.nil?
-        # Then we must have a links file that exists.
-        return unless check_in_file(:links,empty_ok: false)
-      end
+      # Then we must have a links file that exists.
+      return if url.nil? && !check_in_file(:links,empty_ok: false)
 
       start_spin("Scraping NHK News Web #{news_name} articles")
 
@@ -208,16 +204,14 @@ module CLI
       link_count = -1
       links = File.exist?(links_file) ? SearchLinks.load_file(links_file) : SearchLinks.new
       new_articles = [] # For --dry-run
-      news = nil
       scrape_count = 0
 
-      if File.exist?(out_file)
-        news = (type == :yasashii) ?
-          YasashiiNews.load_file(out_file,overwrite: no_sha256) :
-          FutsuuNews.load_file(out_file,overwrite: no_sha256)
-      else
-        news = (type == :yasashii) ? YasashiiNews.new : FutsuuNews.new
-      end
+      news = if File.exist?(out_file)
+               (type == :yasashii) ? YasashiiNews.load_file(out_file,overwrite: no_sha256)
+                                   : FutsuuNews.load_file(out_file,overwrite: no_sha256)
+             else
+               (type == :yasashii) ? YasashiiNews.new : FutsuuNews.new
+             end
 
       @news_article_scraper_kargs = @scraper_kargs.merge({
         datetime: datetime,
@@ -302,9 +296,9 @@ module CLI
         if show_dict
           puts @cmd_opts[:show_dict] # Updated in scrape_news_article()
         elsif dry_run
-          if new_articles.length < 1
-            raise CLIError,"scrape_count[#{scrape_count}] != new_articles[#{new_articles.length}];" \
-              ' internal code is broken'
+          if new_articles.empty?
+            raise CLIError,"scrape_count[#{scrape_count}] != new_articles[#{new_articles.length}]; " \
+                           'internal code is broken'
           elsif new_articles.length == 1
             puts new_articles.first
           else

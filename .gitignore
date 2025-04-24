@@ -1,11 +1,12 @@
-.env
-
-*.gem
-*.rbc
-
+/.idea/
 /.yardoc/
 /core/
 /doc/
 /pkg/
 /stock/
 /web/
+
+*.gem
+*.rbc
+
+.env

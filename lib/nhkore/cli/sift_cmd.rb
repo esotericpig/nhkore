@@ -8,7 +8,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 require 'date'
 require 'time'
 
@@ -17,13 +16,12 @@ require 'nhkore/news'
 require 'nhkore/sifter'
 require 'nhkore/util'
 
-
 module NHKore
 module CLI
   module SiftCmd
     DEFAULT_SIFT_EXT = :csv
-    DEFAULT_SIFT_FUTSUU_FILE = "#{Sifter::DEFAULT_FUTSUU_FILE}{search.criteria}{file.ext}"
-    DEFAULT_SIFT_YASASHII_FILE = "#{Sifter::DEFAULT_YASASHII_FILE}{search.criteria}{file.ext}"
+    DEFAULT_SIFT_FUTSUU_FILE = "#{Sifter::DEFAULT_FUTSUU_FILE}{search.criteria}{file.ext}".freeze
+    DEFAULT_SIFT_YASASHII_FILE = "#{Sifter::DEFAULT_YASASHII_FILE}{search.criteria}{file.ext}".freeze
     SIFT_EXTS = %i[csv htm html json yaml yml].freeze
 
     attr_accessor :sift_datetime_text
@@ -39,8 +37,8 @@ module CLI
         name    'sift'
         usage   'sift [OPTIONS] [COMMAND]...'
         aliases :s
-        summary 'Sift NHK News Web (Easy) articles data for the frequency of words' \
-                " (aliases: #{app.color_alias('s')})"
+        summary 'Sift NHK News Web (Easy) articles data for the frequency of words ' \
+                "(aliases: #{app.color_alias('s')})"
 
         description(<<-DESC)
           Sift NHK News Web (Easy) articles data for the frequency of words &
@@ -93,11 +91,11 @@ module CLI
           to not fail on "duplicate" articles; see '#{App::NAME} news'
         DESC
         option :t,:title,'title to filter on, where search text only needs to be somewhere in the title',
-          argument: :required
+               argument: :required
         option :u,:url,'URL to filter on, where search text only needs to be somewhere in the URL',
-          argument: :required
+               argument: :required
 
-        run do |opts,args,cmd|
+        run do |_opts,_args,cmd|
           puts cmd.help
         end
       end
@@ -232,11 +230,11 @@ module CLI
       sifter.caption = "NHK News Web #{news_name}".dup
 
       if !@sift_search_criteria.nil?
-        if %i[htm html].any?(file_ext)
-          sifter.caption << " &mdash; #{Util.escape_html(@sift_search_criteria.to_s)}"
-        else
-          sifter.caption << " -- #{@sift_search_criteria}"
-        end
+        sifter.caption << if %i[htm html].any?(file_ext)
+                            " &mdash; #{Util.escape_html(@sift_search_criteria.to_s)}"
+                          else
+                            " -- #{@sift_search_criteria}"
+                          end
       end
 
       case file_ext

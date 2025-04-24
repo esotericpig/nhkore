@@ -8,7 +8,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 require 'cri'
 require 'highline'
 require 'rainbow'
@@ -25,7 +24,6 @@ require 'nhkore/cli/news_cmd'
 require 'nhkore/cli/search_cmd'
 require 'nhkore/cli/sift_cmd'
 
-
 module NHKore
   module CLI
   end
@@ -40,7 +38,7 @@ module NHKore
       @color = color
     end
 
-    def color?(io)
+    def color?(_io)
       return @color
     end
   end
@@ -73,7 +71,7 @@ module NHKore
     attr_accessor :sleep_time
     attr_accessor :spinner
 
-    def initialize(args=ARGV)
+    def initialize(args = ARGV)
       super()
 
       @args = args
@@ -150,13 +148,13 @@ module NHKore
           This is similar to a core word/vocabulary list.
         DESC
 
-        flag :s,:'classic-fx',<<-DESC do |value,cmd|
+        flag :s,:'classic-fx',<<-DESC do |_value,_cmd|
           use classic spinner/progress special effects (in case of no Unicode support) when running long tasks
         DESC
           app.progress_bar = :classic
           app.spinner = CLASSIC_SPINNER
         end
-        flag COLOR_OPTS[0],COLOR_OPTS[1],"force color output (for commands like '| less -R')" do |value,cmd|
+        flag COLOR_OPTS[0],COLOR_OPTS[1],"force color output (for commands like '| less -R')" do |_value,_cmd|
           app.enable_color(true)
         end
         flag :n,:'dry-run',<<-DESC
@@ -164,11 +162,11 @@ module NHKore
         DESC
         # Big F because dangerous.
         flag :F,:force,"force overwriting files, creating directories, etc. (don't prompt); dangerous!"
-        flag :h,:help,'show this help' do |value,cmd|
+        flag :h,:help,'show this help' do |_value,cmd|
           puts cmd.help
           exit
         end
-        option :m,:'max-retry',<<-DESC,argument: :required,default: 3 do |value,cmd|
+        option :m,:'max-retry',<<-DESC,argument: :required,default: 3 do |value,_cmd|
           maximum number of times to retry URLs (-1 or integer >= 0)
         DESC
           value = value.to_i
@@ -176,14 +174,14 @@ module NHKore
 
           app.scraper_kargs[:max_retries] = value
         end
-        flag NO_COLOR_OPTS[0],NO_COLOR_OPTS[1],'disable color output' do |value,cmd|
+        flag NO_COLOR_OPTS[0],NO_COLOR_OPTS[1],'disable color output' do |_value,_cmd|
           app.enable_color(false)
         end
-        flag :X,:'no-fx','disable spinner/progress special effects when running long tasks' do |value,cmd|
+        flag :X,:'no-fx','disable spinner/progress special effects when running long tasks' do |_value,_cmd|
           app.progress_bar = :no
           app.spinner = {} # Still outputs status & stores tokens
         end
-        option :o,:'open-timeout',<<-DESC,argument: :required do |value,cmd|
+        option :o,:'open-timeout',<<-DESC,argument: :required do |value,_cmd|
           seconds for URL open timeouts (-1 or decimal >= 0)
         DESC
           value = value.to_f
@@ -191,7 +189,7 @@ module NHKore
 
           app.scraper_kargs[:open_timeout] = value
         end
-        option :r,:'read-timeout',<<-DESC,argument: :required do |value,cmd|
+        option :r,:'read-timeout',<<-DESC,argument: :required do |value,_cmd|
           seconds for URL read timeouts (-1 or decimal >= 0)
         DESC
           value = value.to_f
@@ -199,13 +197,13 @@ module NHKore
 
           app.scraper_kargs[:read_timeout] = value
         end
-        option :z,:sleep,<<-DESC,argument: :required,default: DEFAULT_SLEEP_TIME do |value,cmd|
+        option :z,:sleep,<<-DESC,argument: :required,default: DEFAULT_SLEEP_TIME do |value,_cmd|
           seconds to sleep per scrape (i.e., per page/article) so don't get banned (i.e., fake being human)
         DESC
           app.sleep_time = value.to_f
           app.sleep_time = 0.0 if app.sleep_time < 0.0
         end
-        option :t,:timeout,<<-DESC,argument: :required do |value,cmd|
+        option :t,:timeout,<<-DESC,argument: :required do |value,_cmd|
           seconds for all URL timeouts: [open, read] (-1 or decimal >= 0)
         DESC
           value = value.to_f
@@ -214,7 +212,7 @@ module NHKore
           app.scraper_kargs[:open_timeout] = value
           app.scraper_kargs[:read_timeout] = value
         end
-        option :u,:'user-agent',<<-DESC,argument: :required do |value,cmd|
+        option :u,:'user-agent',<<-DESC,argument: :required do |value,_cmd|
           HTTP header field 'User-Agent' to use instead of a random one
         DESC
           value = app.check_empty_opt(:'user-agent',value)
@@ -222,12 +220,12 @@ module NHKore
           app.scraper_kargs[:header] ||= {}
           app.scraper_kargs[:header]['user-agent'] = value
         end
-        flag :v,:version,'show the version and exit' do |value,cmd|
+        flag :v,:version,'show the version and exit' do |_value,_cmd|
           app.show_version
           exit
         end
 
-        run do |opts,args,cmd|
+        run do |_opts,_args,cmd|
           puts cmd.help
         end
       end
@@ -253,21 +251,20 @@ module NHKore
       file = Util.strip_web_str(@cmd_opts[opt_key].to_s)
 
       if file.empty?
-        # Do not check default_dir.empty?().
-        if default_filename.empty?
-          file = nil # nil is very important for BingScraper.init()!
-        else
-          file = File.join(default_dir,default_filename)
-        end
+        # Do not check `default_dir.empty?()`.
+        file = if default_filename.empty?
+                 nil # NOTE: nil is very important for BingScraper.init()!
+               else
+                 File.join(default_dir,default_filename)
+               end
+      # Directory?
+      elsif File.directory?(file) || Util.dir_str?(file)
+        file = File.join(file,default_filename)
+      # File name only? (no directory)
+      elsif Util.filename_str?(file)
+        file = File.join(default_dir,file)
       else
-        # Directory?
-        if File.directory?(file) || Util.dir_str?(file)
-          file = File.join(file,default_filename)
-        # File name only? (no directory)
-        elsif Util.filename_str?(file)
-          file = File.join(default_dir,file)
-        end
-        # Else, passed in both: 'directory/file'
+        # Passed in both: 'directory/file'
       end
 
       # '~' will expand to home, etc.
@@ -307,7 +304,7 @@ module NHKore
             config.head       = 'o'
           end
 
-          #config.frequency = 5 # For a big download, set this
+          # config.frequency = 5 # For a big download, set this
           config.interval = 1 if download
         end
       end
@@ -325,7 +322,7 @@ module NHKore
         aliases :v
         summary "Show the version and exit (aliases: #{app.color_alias('v')})"
 
-        run do |opts,args,cmd|
+        run do |_opts,_args,_cmd|
           app.show_version
         end
       end
@@ -501,14 +498,15 @@ module NHKore
       #   this due to relying on @cmd_opts[:ext] to be nil.
       #   It's easy to change this one instance, but I'm not sure
       #   at the moment where else might be affected
-      ## Cri has a default proc for default values
-      ##   that doesn't store the keys.
-      #new_opts.default_proc = proc do |hash,key|
-      #  # :max_retry => %s(max-retry)
-      #  key = key.to_s.gsub('_','-').to_sym
       #
-      #  opts.default_proc.call(hash,key)
-      #end
+      # # Cri has a default proc for default values
+      # #   that doesn't store the keys.
+      # new_opts.default_proc = proc do |hash,key|
+      #   # :max_retry => %s(max-retry)
+      #   key = key.to_s.gsub('_','-').to_sym
+      #
+      #   opts.default_proc.call(hash,key)
+      # end
 
       @cmd = cmd
       @cmd_args = args
@@ -547,7 +545,7 @@ module NHKore
 
     def stop_spin
       if @spinner.is_a?(Hash)
-        puts (NO_SPINNER_MSG % @spinner) + ' done!'
+        puts "#{NO_SPINNER_MSG % @spinner} done!"
       else
         @spinner.reset
         @spinner.stop('done!')
@@ -586,7 +584,7 @@ module NHKore
       @tokens[:progress] = 0
     end
 
-    def advance(progress=1)
+    def advance(progress = 1)
       total = @tokens[:total]
       progress = @tokens[:progress] + progress
       progress = total if progress > total

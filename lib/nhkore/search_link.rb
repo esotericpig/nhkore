@@ -8,13 +8,11 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 require 'attr_bool'
 require 'time'
 
 require 'nhkore/fileable'
 require 'nhkore/util'
-
 
 module NHKore
   class SearchLink
@@ -49,7 +47,7 @@ module NHKore
       coder[:sha256] = @sha256
     end
 
-    def self.load_data(key,hash)
+    def self.load_data(_key,hash)
       slink = SearchLink.new(
         hash[:url],
         scraped: hash[:scraped],
@@ -74,11 +72,11 @@ module NHKore
     end
 
     def datetime=(value)
-      if value.is_a?(Time)
-        @datetime = value
-      else
-        @datetime = Util.empty_web_str?(value) ? nil : Time.iso8601(value)
-      end
+      @datetime = if value.is_a?(Time)
+                    value
+                  else
+                    Util.empty_web_str?(value) ? nil : Time.iso8601(value)
+                  end
     end
 
     def futsuurl=(value)
@@ -143,8 +141,8 @@ module NHKore
       return self
     end
 
-    def each(&block)
-      return @links.each(&block)
+    def each(&)
+      return @links.each(&)
     end
 
     def encode_with(coder)
@@ -153,14 +151,14 @@ module NHKore
       coder[:links] = @links
     end
 
-    def self.load_data(data,file: nil,**kargs)
+    def self.load_data(data,file: nil,**_kargs)
       data = Util.load_yaml(data,file: file)
 
       links = data[:links]
 
       slinks = SearchLinks.new
 
-      links&.each() do |key,hash|
+      links&.each do |key,hash|
         key = key.to_s unless key.nil?
         slinks.links[key] = SearchLink.load_data(key,hash)
       end

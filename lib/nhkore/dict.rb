@@ -8,10 +8,8 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 require 'nhkore/entry'
 require 'nhkore/error'
-
 
 module NHKore
   class Dict

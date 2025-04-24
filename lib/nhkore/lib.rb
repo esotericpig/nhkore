@@ -8,7 +8,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-
 require 'nhkore/article'
 require 'nhkore/article_scraper'
 require 'nhkore/cleaner'
@@ -32,7 +31,6 @@ require 'nhkore/util'
 require 'nhkore/variator'
 require 'nhkore/version'
 require 'nhkore/word'
-
 
 module NHKore
   ###
