@@ -111,17 +111,19 @@ module NHKore
       super(url,**kargs)
     end
 
+    # rubocop:disable Lint/UnusedMethodArgument
     def self.build_url(site,count: DEFAULT_RESULT_COUNT,**_kargs)
       url = ''.dup
 
       url << 'https://www.bing.com/search?'
       url << URI.encode_www_form(
         q: "site:#{site}",
-        count: count
+        # count: count # FIXME: `count` is no longer allowed on Bing.
       )
 
       return url
     end
+    # rubocop:enable Lint/UnusedMethodArgument
 
     def scrape(slinks,page = NextPage.new())
       next_page,link_count = scrape_html(slinks,page)

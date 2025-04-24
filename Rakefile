@@ -57,7 +57,7 @@ task :update_core do |_task|
   next unless hl.agree(continue_msg)
   puts
 
-  next unless sh(*cmd,'news','-s','1000','ez')
+  next unless sh(*cmd,'news','-s','1000','ez','--lenient')
   next unless hl.agree(continue_msg)
   puts
 

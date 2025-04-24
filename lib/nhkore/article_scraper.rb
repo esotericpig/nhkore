@@ -270,8 +270,8 @@ module NHKore
 
       begin
         scraper = DictScraper.new(dict_url,missingno: @missingno,parse_url: false,**@kargs)
-      rescue OpenURI::HTTPError => e
-        if retries == 0 && e.to_s.include?('404')
+      rescue Http404Error => e
+        if retries == 0
           read
 
           scraper = ArticleScraper.new(@url,str_or_io: @str_or_io,**@kargs)
@@ -281,7 +281,10 @@ module NHKore
 
           retry
         else
-          raise e.exception("could not scrape dictionary URL[#{dict_url}] at URL[#{@url}]: #{e}")
+          # raise e.exception("failed to scrape dictionary URL[#{dict_url}] at URL[#{@url}]: #{e}")
+          Util.warn("failed to scrape dictionary URL[#{dict_url}] at URL[#{@url}]: #{e}")
+          @dict = nil
+          return
         end
       end
 
