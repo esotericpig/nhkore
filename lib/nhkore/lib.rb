@@ -3,10 +3,15 @@
 
 #--
 # This file is part of NHKore.
-# Copyright (c) 2020-2021 Jonathan Bradley Whited
+# Copyright (c) 2020 Bradley Whited
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
+
+###
+# Include this file to only require the files needed to use this
+# Gem as a library (i.e., don't include CLI-related files).
+###
 
 require 'nhkore/article'
 require 'nhkore/article_scraper'
@@ -31,12 +36,3 @@ require 'nhkore/util'
 require 'nhkore/variator'
 require 'nhkore/version'
 require 'nhkore/word'
-
-module NHKore
-  ###
-  # Include this file to only require the files needed to use this
-  # Gem as a library (i.e., don't include CLI-related files).
-  ###
-  module Lib
-  end
-end

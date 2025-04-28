@@ -3,7 +3,7 @@
 
 #--
 # This file is part of NHKore.
-# Copyright (c) 2020-2022 Jonathan Bradley Whited
+# Copyright (c) 2020 Bradley Whited
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
@@ -27,7 +27,7 @@ module CLI
 
         description <<-DESC
           Search for links (using a Search Engine, etc.) to NHK News Web (Easy) &
-          save to folder: #{SearchLinks::DEFAULT_DIR}
+          save to folder: '#{SearchLinks::DEFAULT_DIR}'
         DESC
 
         option :i,:in,<<-DESC,argument: :required,transform: lambda { |value|
@@ -38,7 +38,7 @@ module CLI
         }
         option :l,:loop,'number of times to repeat the search to ensure results',argument: :required,
           transform: lambda { |value|
-            value = value.to_i
+            value = value.to_s.strip.to_i
             value = 1 if value < 1
             value
           }

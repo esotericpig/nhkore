@@ -3,7 +3,7 @@
 
 #--
 # This file is part of NHKore.
-# Copyright (c) 2020-2022 Jonathan Bradley Whited
+# Copyright (c) 2020 Bradley Whited
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
@@ -25,9 +25,6 @@ require 'nhkore/cli/search_cmd'
 require 'nhkore/cli/sift_cmd'
 
 module NHKore
-  module CLI
-  end
-
   ###
   # For disabling/enabling color output.
   ###

@@ -9,6 +9,7 @@ group :development,:test do
   gem 'bundler'  ,'~> 2.6'
   gem 'rake'     ,'~> 13.2'
   gem 'raketeer' ,'~> 0.2'  # Extra Rake tasks.
+  # Doc.
   gem 'rdoc'     ,'~> 6.13' # YARDoc RDoc (*.rb).
   gem 'redcarpet','~> 3.6'  # YARDoc Markdown (*.md).
   gem 'yard'     ,'~> 0.9'  # YARDoc doc.
