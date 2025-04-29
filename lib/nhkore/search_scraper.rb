@@ -111,6 +111,7 @@ module NHKore
       super(url,**kargs)
     end
 
+    # FIXME: Bing no longer allows `count`.
     # rubocop:disable Lint/UnusedMethodArgument
     def self.build_url(site,count: DEFAULT_RESULT_COUNT,**_kargs)
       url = ''.dup
@@ -118,7 +119,14 @@ module NHKore
       url << 'https://www.bing.com/search?'
       url << URI.encode_www_form(
         q: "site:#{site}",
-        # count: count # FIXME: `count` is no longer allowed on Bing.
+        qs: 'n',
+        sp: '-1',
+        lq: '0',
+        pq: "site:#{site}",
+        sc: '1-25',
+        sk: '',
+        first: '1',
+        FORM: 'PERE',
       )
 
       return url
@@ -126,11 +134,12 @@ module NHKore
     # rubocop:enable Lint/UnusedMethodArgument
 
     def scrape(slinks,page = NextPage.new())
-      next_page,link_count = scrape_html(slinks,page)
+      next_page,_link_count = scrape_html(slinks,page)
 
-      if link_count <= 0
-        scrape_rss(slinks,page,next_page)
-      end
+      # FIXME: Bing no longer allows RSS pages after the first page.
+      # if link_count <= 0
+      #   scrape_rss(slinks,page,next_page)
+      # end
 
       return next_page
     end
@@ -147,7 +156,7 @@ module NHKore
 
         next if ignore_link?(href)
 
-        if (md = href.match(/first=(\d+)/))
+        if (md = href.match(/first=(\d+)/i)) && href =~ /FORM=PERE/i
           count = md[1].to_i
 
           if count > page.count && (next_page.count < 0 || count < next_page.count)

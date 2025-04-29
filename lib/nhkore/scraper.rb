@@ -11,9 +11,9 @@
 require 'attr_bool'
 require 'nokogiri'
 require 'open-uri'
+require 'ronin/web/user_agents'
 
 require 'nhkore/error'
-require 'nhkore/user_agents'
 require 'nhkore/util'
 
 module NHKore
@@ -21,10 +21,18 @@ module NHKore
     extend AttrBool::Ext
 
     DEFAULT_HEADER = {
-      'user-agent' => UserAgents.sample,
-      'accept' => 'text/html,application/xhtml+xml,application/xml,application/rss+xml,text/xml;image/webp' \
-                  ',image/apng,*/*;application/signed-exchange',
+      # See for better ones:
+      # - https://www.useragentstring.com/pages/Chrome/
+      'user-agent' => Ronin::Web::UserAgents.random,
+
+      'accept' => 'text/html,application/xhtml+xml,application/xml,application/rss+xml,text/xml;' \
+                  'q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+      'accept-language' => 'en;q=0.9,ja-JP;q=0.8,ja',
+      'cache-control' => 'max-age=0',
       'dnt' => '1',
+      'ect' => '4g',
+      'priority' => 'u=0, i',
+      'upgrade-insecure-requests' => '1',
     }.freeze
 
     attr_accessor? :eat_cookie

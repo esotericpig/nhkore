@@ -732,7 +732,7 @@ if !File.exist?(file)
 end
 ```
 
-### Util, UserAgents, & DatetimeParser
+### Util & DatetimeParser
 
 These provide a variety of useful methods/constants.
 
@@ -740,7 +740,6 @@ Here are some of the most useful ones:
 
 ```Ruby
 require 'nhkore/datetime_parser'
-require 'nhkore/user_agents'
 require 'nhkore/util'
 
 include NHKore
@@ -748,10 +747,6 @@ include NHKore
 puts '======='
 puts '[ Net ]'
 puts '======='
-# Get a random User Agent for HTTP header field 'User-Agent'.
-# - This is used by default in Scraper/SearchScraper.
-puts "User-Agent:  #{UserAgents.sample()}"
-
 uri = URI('https://www.bing.com/search?q=nhk')
 Util.replace_uri_query!(uri,q: 'banana')
 
