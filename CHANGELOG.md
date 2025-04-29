@@ -5,21 +5,31 @@ All notable changes to this project will be documented in this file.
 Format is based on [Keep a Changelog v1.0.0](https://keepachangelog.com/en/1.0.0),
 and this project adheres to [Semantic Versioning v2.0.0](https://semver.org/spec/v2.0.0.html).
 
-## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.18...HEAD)
+## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.19...HEAD)
 -
 
 
+## [v0.3.19] - 2025-04-28
+
+### Fixed
+- Fixed to include `fileutils` for `news` cmd when directory doesn't exist.
+
+### Changed
+- Removed `UserAgents`. Replaced with Gem `ronin-web-user_agents`.
+- Made some changes to `BingScraper`. Ultimately, it just doesn't work anymore, as Bing has become too strict. In the future, need to use a different search engine or a different way. Leaving for now as a zombie, and unnecessary for most NHKore functionality anyway.
+
+
 ## [v0.3.18] - 2025-04-24
+
+### Fixed
+- Bing no longer allows `count`, so removed it. No workaround/fix for now....
+- New NHK Easy pages no longer have a dictionary, so changed it to only warn instead of an exception.
 
 ### Changed
 - Changed Nokogiri gem version to `~> 1`, instead of `~> 1.xx`, as I got tired of the security alerts. Now, it will always be up-to-date and secure.
 - Updated gems.
 - Removed `yard_ghurt` gem.
 - Applied new RuboCop suggestions.
-
-### Fixed
-- Bing no longer allows `count`, so removed it. No workaround/fix for now....
-- New NHK Easy pages no longer have a dictionary, so changed it to only warn instead of an exception.
 
 
 ## [v0.3.17] - 2024-09-03
