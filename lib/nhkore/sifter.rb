@@ -322,7 +322,7 @@ module NHKore
     end
 
     def sift
-      master_article = Article.new
+      result = Article.new
 
       @articles.each do |article|
         next if filter?(article)
@@ -333,11 +333,11 @@ module NHKore
           next if word.freq <= 1
           next if word.word =~ /\p{Latin}|[[:digit:]]/
 
-          master_article.add_word(word,use_freq: true)
+          result.add_word(word,use_freq: true)
         end
       end
 
-      words = master_article.words.values
+      words = result.words.values
 
       words.sort! do |word1,word2|
         # Order by freq DESC (most frequent words to top).
