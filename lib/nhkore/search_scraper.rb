@@ -133,7 +133,7 @@ module NHKore
     end
 
     def scrape(slinks,page = NextPage.new())
-      next_page,_link_count = scrape_html(slinks,page)
+      next_page,link_count = scrape_html(slinks,page)
 
       if link_count <= 0
         scrape_rss(slinks,page,next_page)

@@ -60,7 +60,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'http-cookie'          ,'~> 1.0'  # Parses/Sets cookies [(Bing)Scraper].
   spec.add_dependency 'nokogiri'             ,'~> 1'    # Parses HTML.
   spec.add_dependency 'public_suffix'        ,'~> 6.0'  # Parses URL domain names.
-  spec.add_dependency 'ronin-web-user_agents','~> 0.1'  # Generates a random User-Agent.
   spec.add_dependency 'rss'                  ,'~> 0.3'  # Parses RSS feeds [(Bing)Scraper].
   # Data/Files.
   spec.add_dependency 'csv'                  ,'~> 3.3'  # Outputs CSV.

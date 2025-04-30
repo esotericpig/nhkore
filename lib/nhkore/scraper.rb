@@ -11,9 +11,9 @@
 require 'attr_bool'
 require 'nokogiri'
 require 'open-uri'
-require 'ronin/web/user_agents'
 
 require 'nhkore/error'
+require 'nhkore/user_agents'
 require 'nhkore/util'
 
 module NHKore
@@ -23,7 +23,7 @@ module NHKore
     DEFAULT_HEADER = {
       # See for better ones:
       # - https://www.useragentstring.com/pages/Chrome/
-      'user-agent' => Ronin::Web::UserAgents.random,
+      'user-agent' => UserAgents.sample,
 
       'accept' => 'text/html,application/xhtml+xml,application/xml,application/rss+xml,text/xml;' \
                   'q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
