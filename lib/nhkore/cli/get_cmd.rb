@@ -9,6 +9,7 @@
 #++
 
 require 'nhkore/util'
+require 'nhkore/version'
 
 module NHKore
 module CLI
@@ -16,7 +17,8 @@ module CLI
     DEFAULT_GET_CHUNK_SIZE = 4 * 1024
     DEFAULT_GET_URL_LENGTH = 11_000_000 # Just a generous estimation used as a fallback; may be outdated.
     GET_URL_FILENAME = 'nhkore-core.zip'
-    GET_URL = "https://github.com/esotericpig/nhkore/releases/latest/download/#{GET_URL_FILENAME}".freeze
+    GET_URL = "https://github.com/esotericpig/nhkore/releases/download/v#{NHKore::VERSION}" \
+              "/#{GET_URL_FILENAME}".freeze
 
     def build_get_cmd
       app = self
@@ -36,9 +38,7 @@ module CLI
         DESC
 
         option :o,:out,'directory to save downloaded files to',argument: :required,default: Util::CORE_DIR,
-            transform: lambda { |value|
-              app.check_empty_opt(:out,value)
-            }
+               transform: ->(value) { app.check_empty_opt(:out,value) }
         flag nil,:'show-url','show download URL and exit (for downloading manually)' do |_value,_cmd|
           puts GET_URL
           exit
@@ -69,7 +69,7 @@ module CLI
       out_dir = @cmd_opts[:out]
 
       begin
-        start_spin('Opening URL')
+        start_spin("Opening URL: #{GET_URL} ")
 
         begin
           down = Down::NetHttp.open(GET_URL,rewindable: false,**@scraper_kargs)
