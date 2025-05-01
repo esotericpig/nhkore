@@ -4,7 +4,7 @@
 - [Semantic Versioning v2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
--
+- https://github.com/esotericpig/nhkore/compare/v0.4
 
 
 ## [v0.3.22] - 2025-04-30
