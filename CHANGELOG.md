@@ -1,12 +1,18 @@
 # Changelog | NHKore
 
-All notable changes to this project will be documented in this file.
+- [Keep a Changelog v1.0.0](https://keepachangelog.com/en/1.0.0)
+- [Semantic Versioning v2.0.0](https://semver.org/spec/v2.0.0.html)
 
-Format is based on [Keep a Changelog v1.0.0](https://keepachangelog.com/en/1.0.0),
-and this project adheres to [Semantic Versioning v2.0.0](https://semver.org/spec/v2.0.0.html).
-
-## [[Unreleased]](https://github.com/esotericpig/nhkore/compare/v0.3.19...HEAD)
+## [Unreleased]
 -
+
+
+## [v0.3.22] - 2025-04-30
+
+### Changed
+- Put v0.3 in its own branch to prepare for v0.4, which will heavily change.
+- Changed v0.3 links to use v0.3 branch.
+- Reverted the removing of `UserAgents` for v0.3 only.
 
 
 ## [v0.3.19] - 2025-04-28

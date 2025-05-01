@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
     'homepage_uri'          => 'https://github.com/esotericpig/nhkore',
     'source_code_uri'       => 'https://github.com/esotericpig/nhkore',
     'bug_tracker_uri'       => 'https://github.com/esotericpig/nhkore/issues',
-    'changelog_uri'         => 'https://github.com/esotericpig/nhkore/blob/master/CHANGELOG.md',
+    'changelog_uri'         => 'https://github.com/esotericpig/nhkore/blob/v0.4/CHANGELOG.md',
     # 'documentation_uri'     => '',
     # 'wiki_uri'              => '',
     # 'mailing_list_uri'      => '',

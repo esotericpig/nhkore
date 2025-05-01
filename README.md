@@ -859,9 +859,9 @@ This will update *core/* for you:
         - `$ raketary bump -p`
     - `$ bundle update`
     - `$ bundle outdated`
-2. Update *core* package:
+2. Update packages:
     - `$ bundle exec rake update_core`
-    - `$ bundle exec rake clobber pkg_core`
+    - `$ bundle exec rake clobber build pkg_core`
 3. Commit & Push.
 4. Create a new tag & release:
     - Note: make sure to add *pkg/nhkore-core.zip*

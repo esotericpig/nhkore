@@ -5,8 +5,6 @@ require 'bundler/gem_tasks'
 
 require 'rake/clean'
 require 'rake/testtask'
-require 'raketeer/irb'
-require 'raketeer/nokogiri_installs'
 require 'yard'
 
 require 'nhkore/util'
