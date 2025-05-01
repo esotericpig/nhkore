@@ -7,7 +7,7 @@
 - https://github.com/esotericpig/nhkore/compare/v0.3.19...v0.3
 
 
-## [v0.3.20] - 2025-04-30
+## [v0.3.21] - 2025-04-30
 
 ### Changed
 - Put v0.3 in its own branch to prepare for v0.4, which will heavily change.
