@@ -10,7 +10,7 @@ A CLI app that scrapes [NHK News Web Easy](https://www3.nhk.or.jp/news/easy/) to
 
 This is similar to a [core word/vocabulary list](https://www.fluentin3months.com/core-japanese-words/), hence the name NHKore.
 
-[![asciinema Demo](https://asciinema.org/a/318958.png)](https://asciinema.org/a/318958)
+[![asciinema Demo](https://asciinema.org/a/318958.svg)](https://asciinema.org/a/318958)
 
 ## Contents
 
@@ -123,7 +123,7 @@ $ nhkore sift easy -e yml
 
 Complete demo:
 
-[![asciinema Demo - The Basics](https://asciinema.org/a/318958.png)](https://asciinema.org/a/318958)
+[![asciinema Demo - The Basics](https://asciinema.org/a/318958.svg)](https://asciinema.org/a/318958)
 
 ### Unlimited Powah! [^](#contents)
 
@@ -147,7 +147,7 @@ By default, it will extract the data to `./core/`. You can change this:
 
 Complete demo:
 
-[![asciinema Demo - Get](https://asciinema.org/a/318967.png)](https://asciinema.org/a/318967)
+[![asciinema Demo - Get](https://asciinema.org/a/318967.svg)](https://asciinema.org/a/318967)
 
 #### Sift Command [^](#contents)
 
@@ -237,7 +237,7 @@ Lastly, you can ignore certain columns from the output. Definitions can be quite
 
 Complete demo:
 
-[![asciinema Demo - Sift](https://asciinema.org/a/318982.png)](https://asciinema.org/a/318982)
+[![asciinema Demo - Sift](https://asciinema.org/a/318982.svg)](https://asciinema.org/a/318982)
 
 ### Sakura Fields Forever [^](#contents)
 
@@ -318,7 +318,7 @@ There are a few notable options:
 
 Complete demo:
 
-[![asciinema Demo - Search](https://asciinema.org/a/320457.png)](https://asciinema.org/a/320457)
+[![asciinema Demo - Search](https://asciinema.org/a/320457.svg)](https://asciinema.org/a/320457)
 
 #### News Command [^](#contents)
 
@@ -361,7 +361,7 @@ For the rest of the options, please see [The Basics](#the-basics-).
 
 Complete demo:
 
-[![asciinema Demo - News](https://asciinema.org/a/322324.png)](https://asciinema.org/a/322324)
+[![asciinema Demo - News](https://asciinema.org/a/322324.svg)](https://asciinema.org/a/322324)
 
 When I first scraped all of the articles in [nhkore-core.zip](https://github.com/esotericpig/nhkore/releases/latest), I had to use this [script](samples/looper.rb) because my internet isn't very good.
 
