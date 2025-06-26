@@ -36,12 +36,13 @@ module CLI
         DESC
           app.check_empty_opt(:in,value)
         }
-        option :l,:loop,'number of times to repeat the search to ensure results',argument: :required,
-          transform: lambda { |value|
-            value = value.to_s.strip.to_i
-            value = 1 if value < 1
-            value
-          }
+        option :l,:loop,'number of times to repeat the search to ensure results',
+               argument: :required,
+               transform: lambda { |value|
+                 value = value.to_s.strip.to_i
+                 value = 1 if value < 1
+                 value
+               }
         option :o,:out,<<-DESC,argument: :required,transform: lambda { |value|
           'directory/file' to save links to; if you only specify a directory or a file, it will attach the
           appropriate default directory/file name
@@ -49,12 +50,13 @@ module CLI
         DESC
           app.check_empty_opt(:out,value)
         }
-        option :r,:results,'number of results per page to request from search',argument: :required,
-            default: SearchScraper::DEFAULT_RESULT_COUNT,transform: lambda { |value|
-              value = value.to_i
-              value = 1 if value < 1
-              value
-            }
+        option :r,:results,'number of results per page to request from search',
+               argument: :required,
+               default: SearchScraper::DEFAULT_RESULT_COUNT,transform: lambda { |value|
+                 value = value.to_i
+                 value = 1 if value < 1
+                 value
+               }
         option nil,:'show-count',<<-DESC
           show the number of links scraped and exit;
           useful for manually writing/updating scripts (but not for use in a variable);
@@ -151,10 +153,10 @@ module CLI
       case nhk_type
       when :futsuu
         build_out_file(:out,default_dir: SearchLinks::DEFAULT_DIR,
-          default_filename: SearchLinks::DEFAULT_FUTSUU_FILENAME)
+                            default_filename: SearchLinks::DEFAULT_FUTSUU_FILENAME)
       when :yasashii
         build_out_file(:out,default_dir: SearchLinks::DEFAULT_DIR,
-          default_filename: SearchLinks::DEFAULT_YASASHII_FILENAME)
+                            default_filename: SearchLinks::DEFAULT_YASASHII_FILENAME)
       else
         raise ArgumentError,"invalid nhk_type[#{nhk_type}]"
       end
@@ -223,7 +225,7 @@ module CLI
 
             new_links.concat(links.links.values[links_count..])
             links_count = links.length
-            page_count = next_page.count if next_page.count > 0
+            page_count = next_page.count if next_page.count > 0 # rubocop:disable Style/CollectionQuerying
 
             update_spin_detail(
               format(' (%d/%d, page=%d, count=%d, links=%d, new_links=%d)',

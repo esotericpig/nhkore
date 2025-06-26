@@ -47,7 +47,7 @@ module CLI
 
       bars.each do |name,bar|
         name = name.to_s.capitalize
-        bar = build_progress_bar("Testing #{name} progress",download: false,type: bar)
+        bar = build_progress_bar("Testing #{name} progress",download: true,type: bar)
 
         bar.start
 
@@ -69,9 +69,7 @@ module CLI
                      no: {},
                    }
                  else
-                   {
-                     user: app_spinner
-                   }
+                   { user: app_spinner }
                  end
 
       spinners.each do |name,spinner|

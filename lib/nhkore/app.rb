@@ -56,8 +56,8 @@ module NHKore
 
     SPINNER_MSG = '[:spinner] :title:detail...'
     CLASSIC_SPINNER = TTY::Spinner.new(SPINNER_MSG,format: :classic)
-    DEFAULT_SPINNER = TTY::Spinner.new(SPINNER_MSG,interval: 5,
-      frames: ['〜〜〜','日〜〜','日本〜','日本語'])
+    DEFAULT_SPINNER = TTY::Spinner.new(SPINNER_MSG,
+                                       interval: 5,frames: ['〜〜〜','日〜〜','日本〜','日本語'])
     NO_SPINNER_MSG = '%{title}%{detail}...'
 
     attr_reader :cmd
@@ -260,9 +260,8 @@ module NHKore
       # File name only? (no directory)
       elsif Util.filename_str?(file)
         file = File.join(default_dir,file)
-      else
-        # Passed in both: 'directory/file'
       end
+      # Else, passed in both: 'directory/file'
 
       # '~' will expand to home, etc.
       file = File.expand_path(file) unless file.nil?
@@ -291,7 +290,7 @@ module NHKore
       when :default,:classic
         require 'tty-progressbar'
 
-        msg = "#{title} [:bar] :percent :eta".dup
+        msg = "#{title} [:bar] :percent :eta"
         msg << ' :byte_rate/s' if download
 
         return TTY::ProgressBar.new(msg,total: total,width: width,**kargs) do |config|
@@ -484,7 +483,7 @@ module NHKore
       #   so don't have to type @cmd_opts[:'dry-run'] all the time.
       opts.each do |key,value|
         # %s(max-retry) => :max_retry
-        key = key.to_s.gsub('-','_').to_sym
+        key = key.to_s.tr('-','_').to_sym
 
         new_opts[key] = value
       end
@@ -585,7 +584,7 @@ module NHKore
       total = @tokens[:total]
       progress = @tokens[:progress] + progress
       progress = total if progress > total
-      percent = (progress.to_f / total.to_f * 100.0).round
+      percent = (progress.to_f / total * 100.0).round
 
       @tokens[:percent] = percent
       @tokens[:progress] = progress

@@ -22,14 +22,14 @@ module NHKore
     JST_OFFSET_HOUR = 9
     JST_OFFSET_MIN = 0
 
-    HIRAGANA_REGEX = /\p{Hiragana}/.freeze
-    JPN_SPACE = "\u3000" # Must be double-quoted for escape chars
-    KANA_REGEX = /\p{Hiragana}|\p{Katakana}/.freeze
-    KANJI_REGEX = /\p{Han}/.freeze # Han probably stands for Hanzi?
-    KATAKANA_REGEX = /\p{Katakana}/.freeze
-    NORMALIZE_STR_REGEX = /[^[[:alpha:]]]+/.freeze
-    STRIP_WEB_STR_REGEX = /(\A[[:space:]]+)|([[:space:]]+\z)/.freeze
-    WEB_SPACES_REGEX = /[[:space:]]+/.freeze
+    HIRAGANA_REGEX = /\p{Hiragana}/
+    JPN_SPACE = "\u3000" # Must be double-quoted for escape chars.
+    KANA_REGEX = /\p{Hiragana}|\p{Katakana}/
+    KANJI_REGEX = /\p{Han}/ # Han probably stands for Hanzi?
+    KATAKANA_REGEX = /\p{Katakana}/
+    NORMALIZE_STR_REGEX = /[^[[:alpha:]]]+/
+    STRIP_WEB_STR_REGEX = /(\A[[:space:]]+)|([[:space:]]+\z)/
+    WEB_SPACES_REGEX = /[[:space:]]+/
 
     def self.jst_now
       return Time.now.getlocal(JST_OFFSET)
@@ -174,7 +174,7 @@ module NHKore
     end
 
     def self.sane_year?(year)
-      return year >= MIN_SANE_YEAR && year <= MAX_SANE_YEAR
+      return year.between?(MIN_SANE_YEAR,MAX_SANE_YEAR)
     end
 
     # String's normal strip() method doesn't work with special Unicode/HTML white space.

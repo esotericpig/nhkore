@@ -137,9 +137,8 @@ module NHKore
 
       if str.start_with?('id-') # 'id-0000'
         str = str.gsub(/\D+/,'')
-      else # 'RSHOK-K-003806'
-        # Same.
       end
+      # Else, 'RSHOK-K-003806', then the same.
 
       return nil if str.empty?
       return str

@@ -8,9 +8,11 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #++
 
-TESTING = ($PROGRAM_NAME == __FILE__)
+module NHKore
+  IS_TEST = ($PROGRAM_NAME == __FILE__)
+end
 
-if TESTING
+if NHKore::IS_TEST
   require 'rubygems'
   require 'bundler/setup'
 end
@@ -31,4 +33,4 @@ module NHKore
   end
 end
 
-NHKore.run if TESTING
+NHKore.run if NHKore::IS_TEST

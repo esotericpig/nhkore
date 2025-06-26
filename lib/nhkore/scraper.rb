@@ -151,19 +151,19 @@ module NHKore
         # Use URI() instead of URI.parse() because url can be a URI (not just a string).
         @str_or_io = URI(url).open(redirect: false,**@kargs)
         @url = url
-      rescue OpenURI::HTTPRedirect => redirect
-        redirect_uri = redirect.uri
+      rescue OpenURI::HTTPRedirect => e
+        redirect_uri = e.uri
 
         if (max_redirects -= 1) < 0
-          raise redirect.exception("redirected to URL[#{redirect_uri}]: #{redirect}")
+          raise e.exception("redirected to URL[#{redirect_uri}]: #{e}")
         end
 
         case @redirect_rule
         when :lenient,:strict
           if redirect_uri.scheme != top_uri.scheme
-            raise redirect.exception(
+            raise e.exception(
               "redirect scheme[#{redirect_uri.scheme}] does not match original " \
-              "scheme[#{top_uri.scheme}] at redirect URL[#{redirect_uri}]: #{redirect}"
+              "scheme[#{top_uri.scheme}] at redirect URL[#{redirect_uri}]: #{e}"
             )
           end
 
@@ -171,9 +171,9 @@ module NHKore
             redirect_domain = Util.domain(redirect_uri.host)
 
             if redirect_domain != top_domain
-              raise redirect.exception(
+              raise e.exception(
                 "redirect domain[#{redirect_domain}] does not match original " \
-                "domain[#{top_domain}] at redirect URL[#{redirect_uri}]: #{redirect}"
+                "domain[#{top_domain}] at redirect URL[#{redirect_uri}]: #{e}"
               )
             end
           end

@@ -41,7 +41,7 @@ module CLI
           date time to use as a fallback in cases when an article doesn't have one;
           format: YYYY-mm-dd H:M; example: 2020-03-30 15:30
         DESC
-          value = Time.strptime(value,'%Y-%m-%d %H:%M',&DatetimeParser.method(:guess_year))
+          value = Time.strptime(value,'%Y-%m-%d %H:%M') { |year| DatetimeParser.guess_year(year) }
           value = Util.jst_time(value)
           value
         }
@@ -94,12 +94,13 @@ module CLI
           app.check_empty_opt(:out,value)
         }
         flag :r,:redo,'scrape article links even if they have already been scraped'
-        option :s,:scrape,'number of unscraped article links to scrape',argument: :required,
-            default: DEFAULT_NEWS_SCRAPE,transform: lambda { |value|
-              value = value.to_i
-              value = 1 if value < 1
-              value
-            }
+        option :s,:scrape,'number of unscraped article links to scrape',
+               argument: :required,
+               default: DEFAULT_NEWS_SCRAPE,transform: lambda { |value|
+                 value = value.to_i
+                 value = 1 if value < 1
+                 value
+               }
         option nil,:'show-dict',<<-DESC
           show dictionary URL and contents for the first article and exit;
           useful for debugging dictionary errors (see '--no-dict' option);
@@ -160,13 +161,13 @@ module CLI
       case type
       when :futsuu
         build_in_file(:links,default_dir: SearchLinks::DEFAULT_DIR,
-          default_filename: SearchLinks::DEFAULT_FUTSUU_FILENAME)
+                             default_filename: SearchLinks::DEFAULT_FUTSUU_FILENAME)
         build_out_file(:out,default_dir: News::DEFAULT_DIR,default_filename: FutsuuNews::DEFAULT_FILENAME)
 
         news_name = 'Regular'
       when :yasashii
         build_in_file(:links,default_dir: SearchLinks::DEFAULT_DIR,
-          default_filename: SearchLinks::DEFAULT_YASASHII_FILENAME)
+                             default_filename: SearchLinks::DEFAULT_YASASHII_FILENAME)
         build_out_file(:out,default_dir: News::DEFAULT_DIR,default_filename: YasashiiNews::DEFAULT_FILENAME)
 
         news_name = 'Easy'

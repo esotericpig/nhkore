@@ -39,6 +39,8 @@ module NHKore
     ].freeze
 
     def self.guess_year(year)
+      return Util::JST_YEAR if year.nil?
+
       if year < 1000
         century = Util::JST_YEAR / 100 * 100 # 2120 -> 2100
         millennium = Util::JST_YEAR / 1000 * 1000 # 2120 -> 2000
@@ -116,7 +118,7 @@ module NHKore
             raise ArgumentError if fmt.include?(' ') && !v.include?(' ')
 
             # If don't do this, "%y..." values will be parsed using "%d...".
-            raise ArgumentError if fmt.start_with?('%d') && v.split(' ')[0].length > 2
+            raise ArgumentError if fmt.start_with?('%d') && v.split[0].length > 2
 
             dt.parse!(v,fmt)
 
@@ -268,7 +270,7 @@ module NHKore
     end
 
     def parse!(value,fmt)
-      value = Time.strptime(value,fmt,&self.class.method(:guess_year))
+      value = Time.strptime(value,fmt) { |year| self.class.guess_year(year) }
 
       @has_day = fmt.include?('%d')
       @has_hour = fmt.include?('%H')

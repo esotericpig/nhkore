@@ -18,7 +18,7 @@ module NHKore
     include Fileable
 
     DEFAULT_DIR = Util::CORE_DIR
-    FAVORED_URL = /https:/i.freeze
+    FAVORED_URL = /https:/i
 
     attr_reader :articles
     attr_reader :sha256s
@@ -77,8 +77,8 @@ module NHKore
       url = url.to_s unless url.nil?
 
       # Favor https.
-      return if article.url.to_s =~ FAVORED_URL
-      return if url !~ FAVORED_URL
+      return if FAVORED_URL.match?(article.url.to_s)
+      return unless FAVORED_URL.match?(url)
 
       @articles.delete(article.url) # Probably no to_s() here
       @articles[url] = article

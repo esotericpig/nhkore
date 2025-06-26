@@ -164,7 +164,7 @@ module CLI
         # Try to get from '--out' if it exists.
         if !@cmd_opts[:out].nil?
           file_ext = Util.unspace_web_str(File.extname(@cmd_opts[:out])).downcase
-          file_ext = file_ext.sub(/\A\./,'') # Remove '.'; can't be nil for to_sym()
+          file_ext = file_ext.delete_prefix('.') # Remove '.'; can't be nil for to_sym().
           file_ext = file_ext.to_sym
 
           file_ext = nil unless SIFT_EXTS.include?(file_ext)
@@ -186,13 +186,13 @@ module CLI
       when :futsuu
         build_in_file(:in,default_dir: News::DEFAULT_DIR,default_filename: FutsuuNews::DEFAULT_FILENAME)
         build_out_file(:out,default_dir: Sifter::DEFAULT_DIR,
-          default_filename: build_sift_filename(Sifter::DEFAULT_FUTSUU_FILENAME))
+                            default_filename: build_sift_filename(Sifter::DEFAULT_FUTSUU_FILENAME))
 
         news_name = 'Regular'
       when :yasashii
         build_in_file(:in,default_dir: News::DEFAULT_DIR,default_filename: YasashiiNews::DEFAULT_FILENAME)
         build_out_file(:out,default_dir: Sifter::DEFAULT_DIR,
-          default_filename: build_sift_filename(Sifter::DEFAULT_YASASHII_FILENAME))
+                            default_filename: build_sift_filename(Sifter::DEFAULT_YASASHII_FILENAME))
 
         news_name = 'Easy'
       else
@@ -227,7 +227,7 @@ module CLI
       sifter.ignore(:defn) if no_defn
       sifter.ignore(:eng) if no_eng
 
-      sifter.caption = "NHK News Web #{news_name}".dup
+      sifter.caption = "NHK News Web #{news_name}"
 
       if !@sift_search_criteria.nil?
         sifter.caption << if %i[htm html].any?(file_ext)

@@ -12,7 +12,7 @@ require 'nhkore/version'
 
 PKG_DIR = 'pkg'
 
-CLEAN.exclude('{.git,core,stock}/**/*')
+CLEAN.exclude('{.git,.github,.idea,core,stock}/**/*')
 CLOBBER.include('doc/',"#{PKG_DIR}/")
 
 task default: %i[test]

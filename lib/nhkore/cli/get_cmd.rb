@@ -37,7 +37,8 @@ module CLI
           Note: the latest NHK articles may not have been scraped yet.
         DESC
 
-        option :o,:out,'directory to save downloaded files to',argument: :required,default: Util::CORE_DIR,
+        option :o,:out,'directory to save downloaded files to',
+               argument: :required,default: Util::CORE_DIR,
                transform: ->(value) { app.check_empty_opt(:out,value) }
         flag nil,:'show-url','show download URL and exit (for downloading manually)' do |_value,_cmd|
           puts GET_URL

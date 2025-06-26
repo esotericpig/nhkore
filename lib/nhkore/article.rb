@@ -61,8 +61,8 @@ module NHKore
 
       coder[:datetime] = @datetime.nil? ? @datetime : @datetime.iso8601
       coder[:title] = @title
-      coder[:url] = @url.nil? ? nil : @url.to_s
-      coder[:futsuurl] = @futsuurl.nil? ? nil : @futsuurl.to_s
+      coder[:url] = @url&.to_s
+      coder[:futsuurl] = @futsuurl&.to_s
       coder[:sha256] = @sha256
       coder[:words] = @words
     end

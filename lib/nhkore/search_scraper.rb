@@ -23,10 +23,10 @@ module NHKore
     YASASHII_SITE = 'nhk.or.jp/news/easy/'
 
     # https://www3.nhk.or.jp/news/html/20200220/k10012294001000.html
-    FUTSUU_REGEX = /\A[^.]+\.#{Regexp.quote(FUTSUU_SITE)}.+\.html?/i.freeze
+    FUTSUU_REGEX = /\A[^.]+\.#{Regexp.quote(FUTSUU_SITE)}.+\.html?/i
     # https://www3.nhk.or.jp/news/easy/k10012294001000/k10012294001000.html
     # - https://www3.nhk.or.jp/news/easy/article/disaster_heat.html
-    YASASHII_REGEX = /\A[^.]+\.#{Regexp.quote(YASASHII_SITE)}.+\.html?/i.freeze
+    YASASHII_REGEX = /\A[^.]+\.#{Regexp.quote(YASASHII_SITE)}.+\.html?/i
 
     IGNORE_LINK_REGEX = %r{
       /about\.html?               # https://www3.nhk.or.jp/news/easy/about.html
@@ -38,7 +38,7 @@ module NHKore
       # https://cgi2.nhk.or.jp/news/easy/easy_enq/bin/form/enqform.html?id=k10011916321000&title=日本の会社が作った鉄道の車両「あずま」がイギリスで走る
       # https://www3.nhk.or.jp/news/easy/easy_enq/bin/form/enqform.html?id=k10012689671000&title=「鬼滅の刃」の映画が台湾でも始まって大勢の人が見に行く
       |/enqform\.html?
-    }x.freeze
+    }x
 
     # Search Engines are strict, so trigger using the default HTTP header fields
     # with +header: {}+ and fetch/set the cookie using +eat_cookie: true+.

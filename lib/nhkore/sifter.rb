@@ -331,7 +331,7 @@ module NHKore
           # TODO: Try to remove garbage data better.
           next if word.word.length < 2
           next if word.freq <= 1
-          next if word.word =~ /\p{Latin}|[[:digit:]]/
+          next if word.word.match?(/\p{Latin}|[[:digit:]]/)
 
           result.add_word(word,use_freq: true)
         end
