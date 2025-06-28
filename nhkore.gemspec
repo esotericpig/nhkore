@@ -52,28 +52,28 @@ Gem::Specification.new do |spec|
   ].flatten
 
   # Japanese.
-  spec.add_dependency 'bimyou_segmenter'     ,'~> 1.2'  # Splits Japanese sentences into words.
-  spec.add_dependency 'japanese_deinflector' ,'~> 0.0'  # Un-conjugates Japanese words (dictionary form).
-  spec.add_dependency 'tiny_segmenter'       ,'~> 0.0'  # Splits Japanese sentences into words.
+  spec.add_dependency 'bimyou_segmenter'     ,'~> 1.2'     # Splits Japanese sentences into words.
+  spec.add_dependency 'japanese_deinflector' ,'~> 0.0'     # Un-conjugates Japanese words (dictionary form).
+  spec.add_dependency 'tiny_segmenter'       ,'~> 0.0'     # Splits Japanese sentences into words.
   # Network/Scraping.
-  spec.add_dependency 'down'                 ,'~> 5.4'  # Downloads files (GetCmd).
-  spec.add_dependency 'http-cookie'          ,'~> 1.0'  # Parses/Sets cookies [(Bing)Scraper].
-  spec.add_dependency 'nokogiri'             ,'~> 1'    # Parses HTML.
-  spec.add_dependency 'public_suffix'        ,'~> 6.0'  # Parses URL domain names.
-  spec.add_dependency 'ronin-web-user_agents','~> 0.1'  # Generates a random User-Agent.
-  spec.add_dependency 'rss'                  ,'~> 0.3'  # Parses RSS feeds [(Bing)Scraper].
+  spec.add_dependency 'down'                 ,'~> 5.4'     # Downloads files (GetCmd).
+  spec.add_dependency 'http-cookie'          ,'~> 1.0'     # Parses/Sets cookies [(Bing)Scraper].
+  spec.add_dependency 'nokogiri'             ,'~> 1'       # Parses HTML.
+  spec.add_dependency 'public_suffix'        ,'~> 6.0'     # Parses URL domain names.
+  spec.add_dependency 'ronin-web-user_agents','~> 0.1'     # Generates a random User-Agent.
+  spec.add_dependency 'rss'                  ,'~> 0.3'     # Parses RSS feeds [(Bing)Scraper].
   # Data/Files.
-  spec.add_dependency 'csv'                  ,'~> 3.3'  # Outputs CSV.
-  spec.add_dependency 'psychgus'             ,'~> 1.3'  # Styles Psych YAML.
-  spec.add_dependency 'rubyzip'              ,'~> 2.4'  # Extracts Zip files (GetCmd).
+  spec.add_dependency 'csv'                  ,'~> 3.3'     # Outputs CSV.
+  spec.add_dependency 'psychgus'             ,'~> 1.3'     # Styles Psych YAML.
+  spec.add_dependency 'rubyzip'              ,'~> 3.0.rc2' # Extracts Zip files (GetCmd).
   # CLI.
-  spec.add_dependency 'cri'                  ,'~> 2.15' # CLI commands/options.
-  spec.add_dependency 'highline'             ,'~> 3.1'  # CLI IO.
-  spec.add_dependency 'rainbow'              ,'~> 3.1'  # CLI color output.
-  spec.add_dependency 'tty-progressbar'      ,'~> 0.18' # CLI progress bars.
-  spec.add_dependency 'tty-spinner'          ,'~> 0.9'  # CLI spinning progress.
+  spec.add_dependency 'cri'                  ,'~> 2.15'    # CLI commands/options.
+  spec.add_dependency 'highline'             ,'~> 3.1'     # CLI IO.
+  spec.add_dependency 'rainbow'              ,'~> 3.1'     # CLI color output.
+  spec.add_dependency 'tty-progressbar'      ,'~> 0.18'    # CLI progress bars.
+  spec.add_dependency 'tty-spinner'          ,'~> 0.9'     # CLI spinning progress.
   # Utils.
-  spec.add_dependency 'attr_bool'            ,'~> 0.2'  # attr_accessor?/attr_reader?.
+  spec.add_dependency 'attr_bool'            ,'~> 0.2'     # attr_accessor?/attr_reader?.
 
   spec.post_install_message = <<~MSG
     +=============================================================================+

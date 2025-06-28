@@ -19,6 +19,8 @@ module CLI
     GET_URL_FILENAME = 'nhkore-core.zip'
     GET_URL = "https://github.com/esotericpig/nhkore/releases/download/v#{NHKore::VERSION}" \
               "/#{GET_URL_FILENAME}".freeze
+    GET_URL_LATEST = 'https://github.com/esotericpig/nhkore/releases/latest/download' \
+                     "/#{GET_URL_FILENAME}".freeze
 
     def build_get_cmd
       app = self
@@ -42,6 +44,7 @@ module CLI
                transform: ->(value) { app.check_empty_opt(:out,value) }
         flag nil,:'show-url','show download URL and exit (for downloading manually)' do |_value,_cmd|
           puts GET_URL
+          puts GET_URL_LATEST
           exit
         end
 
@@ -68,12 +71,18 @@ module CLI
       max_retries = @scraper_kargs[:max_retries]
       max_retries = 3 if max_retries.nil?
       out_dir = @cmd_opts[:out]
+      url = GET_URL
 
       begin
-        start_spin("Opening URL: #{GET_URL} ")
-
         begin
-          down = Down::NetHttp.open(GET_URL,rewindable: false,**@scraper_kargs)
+          start_spin("Opening URL: #{url} ")
+          down = Down::NetHttp.open(url,rewindable: false,**@scraper_kargs)
+        rescue Down::NotFound
+          raise if url == GET_URL_LATEST
+          url = GET_URL_LATEST
+
+          stop_spin(ok: false)
+          retry
         rescue Down::ConnectionError
           raise if (max_retries -= 1) < 0
           retry
@@ -135,7 +144,7 @@ module CLI
                 next unless overwrite
               end
 
-              entry.extract(out_file)
+              entry.extract(name,destination_directory: out_dir)
             end
           end
 

@@ -539,12 +539,14 @@ module NHKore
       end
     end
 
-    def stop_spin
+    def stop_spin(ok: true)
+      status = ok ? 'done' : 'failed'
+
       if @spinner.is_a?(Hash)
-        puts "#{NO_SPINNER_MSG % @spinner} done!"
+        puts "#{NO_SPINNER_MSG % @spinner} #{status}!"
       else
         @spinner.reset
-        @spinner.stop('done!')
+        @spinner.stop("#{status}!")
       end
     end
 

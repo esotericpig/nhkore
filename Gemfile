@@ -7,10 +7,10 @@ gemspec
 
 group :development,:test do
   gem 'bundler'  ,'~> 2.6'
-  gem 'rake'     ,'~> 13.2'
+  gem 'rake'     ,'~> 13.3'
 
   # Doc.
-  gem 'rdoc'     ,'~> 6.13' # YARDoc RDoc (*.rb).
+  gem 'rdoc'     ,'~> 6.14' # YARDoc RDoc (*.rb).
   gem 'redcarpet','~> 3.6'  # YARDoc Markdown (*.md).
   gem 'yard'     ,'~> 0.9'  # YARDoc doc.
 end
