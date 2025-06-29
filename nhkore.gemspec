@@ -18,10 +18,10 @@ Gem::Specification.new do |spec|
 
   spec.metadata = {
     'rubygems_mfa_required' => 'true',
-    'homepage_uri'          => 'https://github.com/esotericpig/nhkore',
+    'homepage_uri'          => spec.homepage,
     'source_code_uri'       => 'https://github.com/esotericpig/nhkore',
     'bug_tracker_uri'       => 'https://github.com/esotericpig/nhkore/issues',
-    'changelog_uri'         => 'https://github.com/esotericpig/nhkore/blob/v0.4/CHANGELOG.md',
+    'changelog_uri'         => 'https://github.com/esotericpig/nhkore/blob/main/CHANGELOG.md',
     # 'documentation_uri'     => '',
     # 'wiki_uri'              => '',
     # 'mailing_list_uri'      => '',
@@ -37,15 +37,17 @@ Gem::Specification.new do |spec|
   spec.executables   = [spec.name]
 
   spec.extra_rdoc_files = %w[LICENSE.txt CHANGELOG.md README.md]
-  spec.rdoc_options = [
-    '--hyperlink-all','--show-hash',
-    '--title',"NHKore v#{NHKore::VERSION} Doc",
+  spec.rdoc_options     = [
+    %w[--embed-mixins --hyperlink-all --line-numbers --show-hash],
+    '--encoding','UTF-8',
+    '--markup','markdown',
+    '--title',"NHKore v#{NHKore::VERSION}",
     '--main','README.md',
-  ]
+  ].flatten
 
   spec.files = [
     Dir.glob("{#{spec.require_paths.join(',')}}/**/*.{erb,rb}"),
-    Dir.glob("#{spec.bindir}/{#{spec.executables.join(',')}}"),
+    Dir.glob("#{spec.bindir}/*"),
     Dir.glob('{samples,spec,test,yard}/**/*.{erb,rb}'),
     %W[Gemfile Gemfile.lock #{spec.name}.gemspec Rakefile .yardopts],
     spec.extra_rdoc_files,
@@ -73,18 +75,18 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'tty-progressbar'      ,'~> 0.18'    # CLI progress bars.
   spec.add_dependency 'tty-spinner'          ,'~> 0.9'     # CLI spinning progress.
   # Utils.
-  spec.add_dependency 'attr_bool'            ,'~> 0.2'     # attr_accessor?/attr_reader?.
+  spec.add_dependency 'attr_bool'            ,'~> 0.3'     # attr_accessor?/attr_reader?.
 
   spec.post_install_message = <<~MSG
     +=============================================================================+
     | NHKore v#{NHKore::VERSION}
     |
-    | You can now use [#{spec.executables.join(', ')}] on the command line.
+    | Terminal commands:  #{spec.executables.join(' | ')}
     |
-    | Homepage:  #{spec.homepage}
-    | Code:      #{spec.metadata['source_code_uri']}
-    | Bugs:      #{spec.metadata['bug_tracker_uri']}
-    | Changelog: #{spec.metadata['changelog_uri']}
+    | Homepage:   #{spec.homepage}
+    | Code:       #{spec.metadata['source_code_uri']}
+    | Bugs:       #{spec.metadata['bug_tracker_uri']}
+    | Changelog:  #{spec.metadata['changelog_uri']}
     +=============================================================================+
   MSG
 end

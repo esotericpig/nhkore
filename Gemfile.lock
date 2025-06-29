@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     nhkore (0.4.0)
-      attr_bool (~> 0.2)
+      attr_bool (~> 0.3)
       bimyou_segmenter (~> 1.2)
       cri (~> 2.15)
       csv (~> 3.3)
@@ -26,7 +26,7 @@ GEM
   specs:
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
-    attr_bool (0.2.2)
+    attr_bool (0.3.1)
     bimyou_segmenter (1.2.0)
     cri (2.15.12)
     csv (3.3.5)
