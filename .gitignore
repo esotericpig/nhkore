@@ -1,6 +1,7 @@
-/.idea/
-/.yardoc/
+.idea/
+.yardoc/
 /core/
+/coverage/
 /doc/
 /pkg/
 /stock/

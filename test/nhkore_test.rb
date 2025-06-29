@@ -13,7 +13,7 @@ require 'nhkore/test_helper'
 describe(NHKore) do
   subject { NHKore }
 
-  it 'has version' do
-    expect(subject::VERSION).wont_be_nil
+  it 'has the version' do
+    _(subject::VERSION).must_match(/\d+\.\d+\.\d+(-[0-9A-Za-z\-.]+)?(\+[0-9A-Za-z\-.]+)?/)
   end
 end
